@@ -1,0 +1,13 @@
+#import(methods)
+export(uuid)
+exportClasses(
+  named.exclusive.lock.call,
+  named.sharable.lock.call,
+  boost.named.sharable.lock.call,
+  boost.named.sharable.timed.lock.call)
+exportMethods(
+  lock, 
+  unlock, 
+  lock.sharable, 
+  unlock.sharable)
+useDynLib(synchronicity)
