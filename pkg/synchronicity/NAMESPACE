@@ -8,6 +8,5 @@ exportClasses(
 exportMethods(
   lock, 
   unlock, 
-  lock.sharable, 
-  unlock.sharable)
+  lock.shared)
 useDynLib(synchronicity)
