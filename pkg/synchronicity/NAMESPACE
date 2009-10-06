@@ -7,6 +7,10 @@ exportClasses(
   boost.named.sharable.timed.lock.call)
 exportMethods(
   lock, 
-  unlock, 
-  lock.shared)
+  try.lock,
+  lock.shared,
+  try.lock.shared,
+  unlock,
+  unlock.shared,
+  destroy.resource)
 useDynLib(synchronicity)

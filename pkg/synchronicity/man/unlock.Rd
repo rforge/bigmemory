@@ -17,6 +17,7 @@ http://www.boost.org/doc/libs/1_39_0/doc/html/interprocess/synchronization_mecha
 \author{Michael Kane}
 \examples{
   m = new('boost.named.sharable.lock.call')
-  lock(m, 'test_lock_resource1')
-  unlock(m, 'test_lock_resource1')
+  lock(m, name='test_lock_resource1')
+  unlock(m, name='test_lock_resource1')
+  destroy.resource('test_lock_resource1')
 }
