@@ -1,3 +1,18 @@
+#############################################################################
+# This function is used to match up a vector of column names to the
+# entire set of column names, providing the proper column indices.
+# The name choice was based on the phrase "multiple map" though
+# perhaps we should have made a different choice.
+
+mmap = function(x, y) {
+  if (is.null(x)) return(NULL)
+  ans <- match(x, y)
+  if (any(is.na(ans))) stop("Couldn't find a match to one of the arguments.")
+  return(ans)
+}
+
+#############################################################################
+
 setClass("big.matrix", representation(address='externalptr'))
 
 big.matrix <- function(nrow, ncol, type='integer', init=NULL,
@@ -836,6 +851,7 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
   function(x, value) {
     rownames.bm(x) <- value[[1]]
     colnames.bm(x) <- value[[2]]
+    warning("We are here.\n")
     return(x)
   })
 

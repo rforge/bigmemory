@@ -2,14 +2,6 @@
 # FILE: zzz.R
 #
 # We make use of several global options:
-#   - bigmemory.rlocked is used for subtle reasons, having to do most
-#     likely with an assignment having a nested mwhich, such as
-#
-#       x[mwhich(...),] <- something
-#
-#     Here, a write lock is obtained, but then mwhich will try to get
-#     a read lock (and fail).  We use the bigmemory.rlocked option
-#     to avoid this conflict. There are probably other similar examples.
 #   - bigmemory.print.warning avoid the printing of something massive by default.
 #   - bigmemory.typecast.warning alerts the user when something like a numeric
 #     value is typecast down to an int, short, or char.
