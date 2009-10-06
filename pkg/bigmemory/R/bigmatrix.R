@@ -1092,25 +1092,25 @@ bmapply <- function(X, MARGIN, FUN, ...)
 # Following the R convention we are going to assume Unix directory 
 # separators '/' as opposed to the Windows convention '\'.
 
-fix_backingpath = function(backingpath)
+fix_path = function(path)
 {
-  if (is.null(backingpath) || backingpath == '')
+  if (is.null(path) || path == '')
   {
-    backingpath = ''
-    return(backingpath)
+    path = ''
+    return(path)
   }
-  else if (substr(backingpath, nchar(backingpath), nchar(backingpath))!='/')
+  else if (substr(path, nchar(path), nchar(path))!='/')
   {
-    if (is.na(file.info(backingpath)$isdir))
+    if (is.na(file.info(path)$isdir))
       stop("The supplied backing path does not exist.")
-    backingpath= paste(backingpath, '/', sep='')
+    path= paste(path, '/', sep='')
   }
   else 
   {
-    if ( is.na(file.info( substr(backingpath, 1, nchar(backingpath)-1) )) )
+    if ( is.na(file.info( substr(path, 1, nchar(path)-1) )) )
       stop( "The supplied backing path does not exist.")
   }
-  return(backingpath)
+  return(path)
 }
 
 setGeneric('backingpath', function(x)
@@ -1128,46 +1128,44 @@ setGeneric('is.sub.big.matrix', function(x)
 setMethod('is.sub.big.matrix', signature(x='big.matrix'),
   function(x) return(.Call('CIsSubMatrix', x@address)) )
 
-setGeneric('describe', function(x) 
-  standardGeneric('describe'))
-
 # For now a submatrix only goes over a range of columns and a range
 # of row.  This could be made more sophiticated but it would probably
 # take a lot of work.
-# Do I want to pass the big matrix or a descriptor?  Either one!
-sub.big.matrix <- function( x, firstRow=1, lastRow=NULL, 
-  firstCol=1, lastCol=NULL, backingpath='' )
-{
-  if (class(x) == 'big.matrix')
+setGeneric('sub.big.matrix', function(x, firstRow=1, lastRow=NULL,
+  firstCol=1, lastCol=NULL, backingpath='') standardGeneric('sub.big.matrix'))
+
+setMethod('sub.big.matrix', signature(x='big.matrix'),
+  function(x, firstRow, lastRow, firstCol, lastCol, backingpath)
   {
-    x = describe(x)
-  }
-  if (!is.list(x))
+    return(sub.big.matrix(describe(x), firstRow, lastRow, firstCol, lastCol, 
+      backingpath))
+  })
+
+setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
+  function( x, firstRow, lastRow, firstCol, lastCol, backingpath)
   {
-    stop("Invalid x parameter given to sub.big.matrix.")
-  }
-  rowOffset <- firstRow-1
-  colOffset <- firstCol-1
-  rbm <- attach.big.matrix(x, backingpath)
-  if (is.null(lastRow)) lastRow <- nrow(rbm)
-  if (is.null(lastCol)) lastCol <- ncol(rbm)
-  numCols <- lastCol-firstCol+1
-  numRows <- lastRow-firstRow+1
-  if (colOffset < 0 || rowOffset < 0 || numCols < 1 || numRows < 1 ||
-    colOffset+numCols > ncol(rbm) || rowOffset+numRows > nrow(rbm))
-  {
-    rm(rbm)
-    stop(paste("A sub.big.matrix object could not be created",
-               "with the specified parameters"))
-  }
-  .Call("SetRowOffsetInfo", rbm@address, 
-        as.double(rowOffset + .Call("GetRowOffset", rbm@address)), 
-        as.double(numRows) )
-  .Call("SetColumnOffsetInfo", rbm@address, 
-        as.double(colOffset + .Call("GetColOffset", rbm@address)),
-        as.double(numCols))
-  return(rbm)
-}
+    rowOffset <- firstRow-1
+    colOffset <- firstCol-1
+    rbm <- attach.resource(x, backingpath)
+    if (is.null(lastRow)) lastRow <- nrow(rbm)
+    if (is.null(lastCol)) lastCol <- ncol(rbm)
+    numCols <- lastCol-firstCol+1
+    numRows <- lastRow-firstRow+1
+    if (colOffset < 0 || rowOffset < 0 || numCols < 1 || numRows < 1 ||
+      colOffset+numCols > ncol(rbm) || rowOffset+numRows > nrow(rbm))
+    {
+      rm(rbm)
+      stop(paste("A sub.big.matrix object could not be created",
+                 "with the specified parameters"))
+    }
+    .Call("SetRowOffsetInfo", rbm@address, 
+          as.double(rowOffset + .Call("GetRowOffset", rbm@address)), 
+          as.double(numRows) )
+    .Call("SetColumnOffsetInfo", rbm@address, 
+          as.double(colOffset + .Call("GetColOffset", rbm@address)),
+          as.double(numCols))
+    return(rbm)
+  })
 
 filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
   dimnames=NULL, separated=FALSE, backingfile=NULL, backingpath=NULL, 
@@ -1199,7 +1197,7 @@ filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
   {
     stop('You must specify a backing file')
   }
-	backingpath = fix_backingpath(backingpath)
+	backingpath = fix_path(backingpath)
 
   anon.backing = FALSE
   if (backingfile == '')
@@ -1235,11 +1233,23 @@ filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
   return(x)
 }
 
+setClass('descriptor', representation(description='list'))
+
+setGeneric('describe', function(x) 
+  standardGeneric('describe'))
+
+setGeneric('description', function(x) standardGeneric('description'))
+
+setClass('big.matrix.descriptor', contains='descriptor')
+
 setMethod('describe', signature(x='big.matrix'),
   function(x)
   {
-    return(DescribeBigMatrix(x))
+    return(new('big.matrix.descriptor', description=DescribeBigMatrix(x)))
   })
+
+setMethod('description', signature(x='big.matrix.descriptor'),
+  function(x) return(x@description))
 
 DescribeBigMatrix = function(x) #, file=NULL, path="")
 {
@@ -1269,54 +1279,69 @@ DescribeBigMatrix = function(x) #, file=NULL, path="")
   }
 }
 
-attach.big.matrix = function(obj, backingpath='')
-{
-  if (is.list(obj))
-    info <- obj
-  else {
-    if (is.character(obj))
-      info <- dget(paste(fix_backingpath(backingpath), obj, sep=""))
-    else
-      stop(paste("Error in AttachBigSharedMatrix: argument is not a list",
-                 "or descriptor filename.\n"))
-  }
+setGeneric('attach.resource', 
+  function(x, ...) standardGeneric('attach.resource'))
 
-  typeLength=NULL
-  if (info$type == 'integer') 
-    typeLength=4
-  if (info$type == 'double') 
-    typeLength=8
-  if (info$type == 'short') 
-    typeLength=2
-  if (info$type == 'char') 
-    typeLength=1
-  if (is.null(typeLength)) 
-		stop('invalid type')
-	backingpath = fix_backingpath(backingpath)
-  if (info$sharedType == 'SharedMemory')
+setMethod('attach.resource', signature(x='character'),
+  function(x, ...)
   {
-    address = .Call('CAttachSharedBigMatrix', info$sharedName, info$totalRows, 
-      info$totalCols, as.character(info$rowNames), as.character(info$colNames), 
-      as.integer(typeLength), info$separated)
-  }
-  else
+    path = match.call()[['path']]
+    if (is.null(path))
+    {
+      path = ''
+    }
+    info <- dget(paste(fix_path(path), x, sep=""))
+    return(attach.resource(info))
+  })
+
+setMethod('attach.resource', signature(x='big.matrix.descriptor'),
+  function(x, ...)
   {
-    address = .Call('CAttachFileBackedBigMatrix', info$sharedName, 
-      info$fileName, backingpath, info$totalRows, info$totalCols, 
-      as.character(info$rowNames), as.character(info$colNames), 
-      as.integer(typeLength), info$separated)
-  }
-  if (!is.null(address)) 
-  {
-    .Call("SetRowOffsetInfo", address, info$rowOffset, info$nrow)
-    .Call("SetColumnOffsetInfo", address, info$colOffset, info$ncol)
-    ans <- new('big.matrix', address=address)
-  }
-  else 
-  {
-    stop("Fatal error in attach: big.matrix could not be attached.")
-  }
-  return(ans)  
+    path = match.call()[['path']]
+    if (is.null(path))
+    {
+      path = ''
+    }
+    info = description(x)
+    typeLength = NULL
+    if (info$type == 'char') typeLength=1
+    if (info$type == 'short') typeLength=2
+    if (info$type == 'integer') typeLength=4
+    if (info$type == 'double') typeLength=8
+    if (is.null(typeLength)) 
+      stop('invalid type')
+    path = fix_path(path)
+    print(path)
+    if (info$sharedType == 'SharedMemory')
+    {
+      address=.Call('CAttachSharedBigMatrix', info$sharedName, info$totalRows, 
+        info$totalCols, as.character(info$rowNames), 
+        as.character(info$colNames), as.integer(typeLength), info$separated)
+    }
+    else
+    {
+      address = .Call('CAttachFileBackedBigMatrix', info$sharedName, 
+        info$fileName, path, info$totalRows, info$totalCols, 
+        as.character(info$rowNames), as.character(info$colNames), 
+        as.integer(typeLength), info$separated)
+    }
+    print(address)
+    if (!is.null(address)) 
+    {
+      .Call("SetRowOffsetInfo", address, info$rowOffset, info$nrow)
+      .Call("SetColumnOffsetInfo", address, info$colOffset, info$ncol)
+      ans <- new('big.matrix', address=address)
+    }
+    else 
+    {
+      stop("Fatal error in attach: big.matrix could not be attached.")
+    }
+    return(ans)  
+  })
+
+attach.big.matrix = function(obj, ...)
+{
+  attach.resource(obj, ...)
 }
 
 setGeneric('is.filebacked', function(x) standardGeneric('is.filebacked'))
