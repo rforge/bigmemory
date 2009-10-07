@@ -18,7 +18,7 @@ class whose interface is simlar to an R \code{matrix}.
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
 Version: \tab 4.0\cr
-Date: \tab 2009-09-26\cr
+Date: \tab 2009-10-07\cr
 License: \tab LGPL-3\cr
 }
 
