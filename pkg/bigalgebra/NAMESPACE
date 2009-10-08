@@ -1,0 +1,4 @@
+importFrom("bigmemory", "typeof")
+export("dgemm", "dcopy", "dscal", "daxpy", "dgesdd", "dgeqrf", "dpotrf", 
+  "dgeev")
+useDynLib(bigalgebra)

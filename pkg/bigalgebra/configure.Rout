@@ -1,0 +1,44 @@
+
+R version 2.8.0 (2008-10-20)
+Copyright (C) 2008 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # Eventually, we may have to use the commented lines to specify which
+> # bigmemory.so file to use.  Right now it looks like it uses the one 
+> # which is installed.
+> #library(bigmemory)
+> #dlls = getLoadedDLLs()
+> #bmDll = as.character(dlls$bigmemory[2])
+> #pkgLibs = paste('PKG_LIBS=-lblas -l', bmDll, sep='')
+> 
+> # Note: I'm not including a license file in Makevars.
+> pkgLibs = paste('PKG_LIBS=-lblas -llapack ', sep='')
+> cppFlags = 'PKG_CPPFLAGS=-I../include'
+> # This could be put in bigmemory's configure.R file to handle 
+> # linking to the real-time library.
+> #if (Sys.info()[['sysname']] == 'Linux')
+> #{
+> #  # we need to add -lrt
+> #  pkgLibs=paste(pkgLibs, '-lrt')
+> #}
+> write( paste(pkgLibs, "\n", cppFlags, sep=''), 'src/Makevars' )
+> 
+> proc.time()
+   user  system elapsed 
+  1.260   0.092   1.369 
