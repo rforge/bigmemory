@@ -39,6 +39,7 @@ bigmemory
 require(bigmemory)
 A = matrix(1, 5, 5)
 B = big.matrix(nrow=5, ncol=5, type='double', init=1)
+print(B[,1])
 print(A)
 print(head(B, 5))
 daxpy(Y=B, X=A)

@@ -25,8 +25,7 @@ double* make_double_ptr( SEXP matrix, SEXP isBigMatrix  )
 //      Rf_error(errMsg.c_str());
 //      return(NULL);
 //    }
-    return(reinterpret_cast<double*>(pbm->matrix()) 
-      + pbm->col_offset()*pbm->nrow() + pbm->row_offset());
+    return(reinterpret_cast<double*>(pbm->matrix()));
   }
   return(NUMERIC_DATA(matrix));
 };

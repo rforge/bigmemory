@@ -1,4 +1,6 @@
 #include "ptr_util.hpp" 
+#include <iostream>
+using namespace std;
 // The BLAS and LAPACK routines.
 
 extern "C"
