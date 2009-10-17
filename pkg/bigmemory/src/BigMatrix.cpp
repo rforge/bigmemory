@@ -341,11 +341,6 @@ bool SharedMemoryBigMatrix::destroy()
     named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());
     mutex.lock();
     bool destroyThis = (1==_counter.get()) ? true : false;
-    mutex.unlock();
-    if (destroyThis)
-    {
-      named_mutex::remove((_sharedName+"_counter_mutex").c_str());
-    }
 
     if (_sepCols)
     {
@@ -365,12 +360,22 @@ bool SharedMemoryBigMatrix::destroy()
         shared_memory_object::remove(_uuid.c_str());
       }
     }
+    mutex.unlock();
+    if (destroyThis)
+    {
+      named_mutex::remove((_sharedName+"_counter_mutex").c_str());
+    }
     return true;
   }
   catch(std::exception &e)
   {
     printf("%s\n", e.what());
     printf("%s line %d\n", __FILE__, __LINE__);
+    mutex.unlock();
+    if (destroyThis)
+    {
+      named_mutex::remove((_sharedName+"_counter_mutex").c_str());
+    }
     return false;
   }
 }
