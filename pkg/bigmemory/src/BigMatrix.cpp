@@ -333,14 +333,14 @@ void DestroySharedSepMatrix( const std::string &uuid, const index_type ncol )
 bool SharedMemoryBigMatrix::destroy()
 {
   using namespace boost::interprocess;
+  named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());
+  mutex.lock();
+  bool destroyThis = (1==_counter.get()) ? true : false;
   try
   {
     _dataRegionPtrs.resize(0);
     // If this is the last shared memory big matrix destroy it and the
     // associated mutex.  The counter will destroy itself.
-    named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());
-    mutex.lock();
-    bool destroyThis = (1==_counter.get()) ? true : false;
 
     if (_sepCols)
     {
