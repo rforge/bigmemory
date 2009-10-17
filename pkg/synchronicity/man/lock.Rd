@@ -3,10 +3,10 @@
 \alias{lock}
 \title{Get an exclusive lock on a resource}
 \description{Gets a lock on a resource}
-\usage{lock(m, name)}
+\usage{lock(m, ...)}
 \arguments{
   \item{m}{an object derived from class named.exclusive.lock.call}
-  \item{name}{the name of the resource to get the lock from}
+  \item{...}{options associated with the mutex being used}
 }
 \value{
 the function return TRUE if the lock is successfully called; FALSE otherwise

@@ -3,10 +3,10 @@
 \alias{unlock}
 \title{unlock an exclusive lock}
 \description{removes an exclusive lock on a resource}
-\usage{unlock(m, name)}
+\usage{unlock(m, ...)}
 \arguments{
   \item{m}{an object derived from class name.exclusive.lock.call}
-  \item{name}{the name of the resource to unlock}
+  \item{...}{options associated with the mutex being used}
 }
 \value{
 the function returs TRUE if the unlock is successfully called; FALSE otherwise
