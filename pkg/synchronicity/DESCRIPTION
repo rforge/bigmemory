@@ -3,8 +3,11 @@ Type: Package
 Title: What the package does (short line)
 Version: 1.0
 Date: 2009-07-12
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Author: Michael J. Kane <kaneplusplus@gmail.com> and John W. Emerson <jayemerson@gmail.com>
+Depends: methods
+Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: LGPL-3
+Copyright: (C) 2009 John W. Emerson and Michael J. Kane
+URL: http://www.bigmemory.org
 LazyLoad: yes

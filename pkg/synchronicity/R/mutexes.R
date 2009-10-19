@@ -28,48 +28,25 @@ setClass('boost.named.sharable.lock.call', contains='named.sharable.lock.call')
 # Note: the only difference in the following functions are the names
 # of the functions and the underlying C functions being called.  This
 # should be done in a loop with evals!
-setMethod('lock', signature(m='boost.named.sharable.lock.call'),
-  function(m, ...) 
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    return(.Call('boost_lock', name))
-  })
-setMethod('try.lock', signature(m='boost.named.sharable.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    return(.Call('boost_try_lock', name))
-  })
-setMethod('unlock', signature(m='boost.named.sharable.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    return(.Call('boost_unlock', name))
-  })
-setMethod('lock.shared', signature(m='boost.named.sharable.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    return(.Call('boost_lock_shared', name))
-  })
-setMethod('try.lock.shared', signature(m='boost.named.sharable.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    return(.Call('boost_try_lock_shared', name))
-  })
-setMethod('unlock.shared', signature(m='boost.named.sharable.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    return(.Call('boost_unlock_shared', name))
-  })
+share.lock.fun.string=function( rFunctionName, cFunctionName )
+{
+  return(paste(
+    "setMethod('", rFunctionName, "'",
+    ", signature(m='boost.named.sharable.lock.call'),",
+    "function(m, ...)",
+    "{",
+      "name = match.call()[['name']];",
+      "if (is.null(name)) stop('You must specify a resource name.');",
+      "return(.Call('", cFunctionName, "', name))",
+    "})", sep=''))
+}
+eval(parse(text=share.lock.fun.string('lock', 'boost_lock')))
+eval(parse(text=share.lock.fun.string('try.lock', 'boost_try_lock')))
+eval(parse(text=share.lock.fun.string('unlock', 'boost_unlock')))
+eval(parse(text=share.lock.fun.string('lock.shared', 'boost_lock_shared')))
+eval(parse(text=share.lock.fun.string('try.lock.shared', 
+  'boost_try_lock_shared')))
+eval(parse(text=share.lock.fun.string('unlock.shared', 'boost_unlock_shared')))
 
 # This lock will take the timeout as an intilization argument.  A timeout
 # greater than zero must be specified.
@@ -84,68 +61,39 @@ setClass('boost.named.sharable.timed.lock.call',
   contains='named.sharable.lock.call', representation(timeout='numeric'), 
   prototype=prototype(timeout=-1))
 
-# See above comments.  The following functions should be created in
-# a loop with evals.
-setMethod('lock', signature(m='boost.named.sharable.timed.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    check_timeout(m@timeout)
-    return(.Call('boost_lock_timed', name, m@timeout))
-  })
-setMethod('try.lock', signature(m='boost.named.sharable.timed.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    check_timeout(m@timeout)
-    return(.Call('boost_try_lock', name, m@timeout))
-  })
-setMethod('unlock', signature(m='boost.named.sharable.timed.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    check_timeout(m@timeout)
-    return(.Call('boost_unlock_timed', name))
-  })
-setMethod('lock.shared', signature(m='boost.named.sharable.timed.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    check_timeout(m@timeout)
-    return(.Call('boost_lock_shared_timed', name, m@timeout))
-  })
-setMethod('try.lock.shared', 
-  signature(m='boost.named.sharable.timed.lock.call'),
-  function(m, ...)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    check_timeout(m@timeout)
-    return(.Call('boost_try_shared_lock', name, m@timeout))
-  })
-setMethod('unlock.shared', 
-  signature(m='boost.named.sharable.timed.lock.call'),
-  function(m, resourceName)
-  {
-    name = match.call()[['name']]
-    if (is.null(name)) stop('You must specify a resource name.')
-    check_timeout(m@timeout)
-    return(.Call('boost_unlock_shared_timed', name))
-  })
+share.timed.lock.fun.string=function( rFunctionName, cFunctionName )
+{
+  return(paste(
+    "setMethod('", rFunctionName, "'",
+    ", signature(m='boost.named.sharable.timed.lock.call'),",
+    "function(m, ...)",
+    "{",
+      "name = match.call()[['name']];",
+      "if (is.null(name)) stop('You must specify a resource name.');",
+      "check_timeout(m@timeout);",
+      "return(.Call('", cFunctionName, "', name, m@timeout))",
+    "})", sep=''))
+}
+eval(parse(text=share.timed.lock.fun.string('lock', 'boost_lock_timed')))
+eval(parse(text=share.timed.lock.fun.string('try.lock',
+  'boost_try_lock_timed')))
+eval(parse(text=share.timed.lock.fun.string('unlock', 'boost_unlock_timed')))
+eval(parse(text=share.timed.lock.fun.string('lock.shared',
+  'boost_unlock_timed')))
+eval(parse(text=share.timed.lock.fun.string('try.lock.shared', 
+  'boost_try_shared_lock')))
+eval(parse(text=share.timed.lock.fun.string('unlock.shared', 
+  'boost_unlock_shared_timed')))
 
 # The constructor of a mutex will need to register it's own finalizer
 # via reg.finalizer with exit onexit=TRUE.
 
-#setClass('mutex')
-#setGeneric('lock', function(m, block=FALSE) 
-#  standardGeneric('lock'))
-#setGeneric('lock.shared', function(m, block=FALSE) 
-#  standardGeneric('lock.shared'))
-#setGeneric('unlock', function(m) standardGeneric('unlock'))
+setClass('mutex')
+setGeneric('lock', function(m, block=FALSE) 
+  standardGeneric('lock'))
+setGeneric('lock.shared', function(m, block=FALSE) 
+  standardGeneric('lock.shared'))
+setGeneric('unlock', function(m) standardGeneric('unlock'))
 
 my.ifelse=function(test, yes, no)
 {
@@ -153,37 +101,43 @@ my.ifelse=function(test, yes, no)
   return(no)
 }
 
-#setClass('boost.mutex', contains='mutex', 
-#  representation(lockCall='named.sharable.lock.call', isRead='logical',
-#    countAddr='externalptr', resourceName='character'))
-#setMethod('lock', signature(m='boost.mutex', block='logical'),
-#  function(m, block)
-#  {
-#    m@isRead=FALSE
-#    return( my.ifelse(block, lock, try.lock)(m@lockCall, m@resourceName) )
-#  })
-#setMethod('lock.shared', signature(m='boost.mutex', block='logical'),
-#  function(m, block)
-#  {
-#    m@isRead=TRUE
-#    return( my.ifelse(block, lock.shared, try.lock.shared)(m@lockCall,
-#      m@resourceName) )
-#  })
-#setMethod('unlock', signature(m='boost.mutex'),
-#  function(m)
-#  {
-#    return( my.ifelse(m@isRead, unlock.shared, unlock)(m@resourceName) )
-#  })
+setClass('boost.mutex', contains='mutex', 
+  representation(lockCall='named.sharable.lock.call', isRead='logical',
+    countAddr='externalptr', resourceName='character'))
+setMethod('lock', signature(m='boost.mutex', block='logical'),
+  function(m, block)
+  {
+    m@isRead=FALSE
+    return( my.ifelse(block, lock, try.lock)(m@lockCall, m@resourceName) )
+  })
+setMethod('lock.shared', signature(m='boost.mutex', block='logical'),
+  function(m, block)
+  {
+    m@isRead=TRUE
+    return( my.ifelse(block, lock.shared, try.lock.shared)(m@lockCall,
+      m@resourceName) )
+  })
+setMethod('unlock', signature(m='boost.mutex'),
+  function(m)
+  {
+    return( my.ifelse(m@isRead, unlock.shared, unlock)(m@resourceName) )
+  })
+
+setGeneric('resource.name', function(x) standardGeneric('resource.name'))
+
+destroy.shared.counter=function( counterAddr )
+{
+  .Call("DestroySharedCounter", counterAddr)
+}
 
 # The constructor for a boost.mutex
-#boost.mutex=function()
-#{
-#  isRead = TRUE
-#  resourceName = uuid()
-#  countAddr = .Call('CreateSharedCounter', resourceName)
-#  return(new('boost.mutex', isRead=isRead, countAddr=countAddr, 
-#    resourceName=resourceName))
-#}
+boost.mutex=function(resourceName=NULL)
+{
+  isRead = TRUE
+  if (is.null(resourceName)) resourceName = uuid()
+  return(new('boost.mutex', isRead=isRead, countAddr=countAddr, 
+    resourceName=resourceName))
+}
 
 # A descriptor should return it's own type.
 

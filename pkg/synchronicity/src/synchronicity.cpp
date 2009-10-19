@@ -1,5 +1,7 @@
 #include <iostream>
+#include <string>
 #include <boost/interprocess/sync/named_upgradable_mutex.hpp>
+#include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/bind.hpp>
 
 #include <R.h>
@@ -8,10 +10,53 @@
 #include "util.h"
 #include "SharedCounter.h"
 
+using namespace std;
 using namespace boost;
 using namespace boost::interprocess;
 using namespace boost::posix_time;
 
+class BoostMutexInfo
+{
+  public:
+
+    BoostMutexInfo() : 
+      _name("") {}
+    
+    virtual ~BoostMutexInfo() {destroy();}
+  
+
+    bool init(const std::string &newName)
+    {
+      _name = newName;
+      _counter.init(newName+"_counter");
+    }
+
+    bool destroy()
+    {
+      if (_counter.get() == 1)
+      {
+        try
+        {
+          named_upgradable_mutex::remove( _name.c_str() );
+          return true;
+        }
+        catch(std::exception &e)
+        {
+          printf("%s\n", e.what());
+          return false;
+        }
+      }
+    }
+
+    std::string name() const {return _name;}
+
+    SharedCounter count() const {return _counter;}
+
+  protected:
+    std::string _name;
+    SharedCounter _counter;
+    
+};
 // Use these functions for locking and unlock.
 
 // Note, we don't actually create the mutexes until the first time
@@ -75,6 +120,27 @@ SEXP boost_unlock(SEXP resourceName, UnlockFunctionType unlockFun)
 
 extern "C"
 {
+
+void DestroyBoostMutexInfo( SEXP mutexInfoAddr )
+{
+  BoostMutexInfo *pbmi = 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  std::string cmName = pbmi->name()+"_counter_mutex";
+  named_mutex mutex(open_or_create, cmName.c_str());
+  delete pbmi;
+  R_ClearExternalPtr(mutexInfoAddr);
+  named_mutex::remove( cmName.c_str() );
+}
+
+SEXP CreateBoostMutexInfo( SEXP resourceName )
+{
+  BoostMutexInfo *pbmi = new BoostMutexInfo();
+  pbmi->init( RChar2String(resourceName) );
+  SEXP address = R_MakeExternalPtr( pbmi, R_NilValue, R_NilValue );
+  R_RegisterCFinalizerEx( address, (R_CFinalizer_t)DestroyBoostMutexInfo,
+    (Rboolean)TRUE );
+  return(address)
+}
 
 void DestroySharedCounter( SEXP sharedCounterAddr )
 {
