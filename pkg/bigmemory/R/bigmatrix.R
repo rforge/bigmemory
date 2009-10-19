@@ -1311,7 +1311,6 @@ setMethod('attach.resource', signature(x='big.matrix.descriptor'),
     if (is.null(typeLength)) 
       stop('invalid type')
     path = fix_path(path)
-    print(path)
     if (info$sharedType == 'SharedMemory')
     {
       address=.Call('CAttachSharedBigMatrix', info$sharedName, info$totalRows, 
@@ -1325,7 +1324,6 @@ setMethod('attach.resource', signature(x='big.matrix.descriptor'),
         as.character(info$rowNames), as.character(info$colNames), 
         as.integer(typeLength), info$separated)
     }
-    print(address)
     if (!is.null(address)) 
     {
       .Call("SetRowOffsetInfo", address, info$rowOffset, info$nrow)
