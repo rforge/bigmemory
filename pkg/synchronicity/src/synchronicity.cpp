@@ -31,6 +31,7 @@ class BoostMutexInfo
       _counter.init(newName+"_counter");
     }
 
+    // This function must be protected by a semaphore.
     bool destroy()
     {
       if (_counter.get() == 1)
@@ -139,9 +140,17 @@ SEXP CreateBoostMutexInfo( SEXP resourceName )
   SEXP address = R_MakeExternalPtr( pbmi, R_NilValue, R_NilValue );
   R_RegisterCFinalizerEx( address, (R_CFinalizer_t)DestroyBoostMutexInfo,
     (Rboolean)TRUE );
-  return(address)
+  return(address);
 }
 
+SEXP GetResourceName( SEXP mutexInfoAddr )
+{
+  BoostMutexInfo *pbmi = 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  return String2RChar( pbmi->name() );
+}
+
+/*
 void DestroySharedCounter( SEXP sharedCounterAddr )
 {
   SharedCounter *pSharedCounter = 
@@ -159,7 +168,7 @@ SEXP CreateSharedCounter( SEXP resourceName )
     (Rboolean)TRUE );
   return address;
 }
-
+*/
 SEXP destroy_mutex( SEXP resourceName )
 {
   SEXP ret = PROTECT(NEW_LOGICAL(1));
