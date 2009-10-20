@@ -1,6 +1,6 @@
 # MUTEXES
 
-# The virtual class from which mutexe calls will inherit.
+# The virtual class from which mutex calls will inherit.
 setClass('named.exclusive.lock.call')
 setGeneric('lock', function(m, ...) standardGeneric('lock'))
 setGeneric('try.lock', function(m, ...) standardGeneric('try.lock'))
@@ -28,7 +28,7 @@ setClass('boost.named.sharable.lock.call', contains='named.sharable.lock.call')
 # Note: the only difference in the following functions are the names
 # of the functions and the underlying C functions being called.  This
 # should be done in a loop with evals!
-share.lock.fun.string=function( rFunctionName, cFunctionName )
+shared.lock.fun.string=function( rFunctionName, cFunctionName )
 {
   return(paste(
     "setMethod('", rFunctionName, "'",
@@ -40,13 +40,13 @@ share.lock.fun.string=function( rFunctionName, cFunctionName )
       "return(.Call('", cFunctionName, "', name))",
     "})", sep=''))
 }
-eval(parse(text=share.lock.fun.string('lock', 'boost_lock')))
-eval(parse(text=share.lock.fun.string('try.lock', 'boost_try_lock')))
-eval(parse(text=share.lock.fun.string('unlock', 'boost_unlock')))
-eval(parse(text=share.lock.fun.string('lock.shared', 'boost_lock_shared')))
-eval(parse(text=share.lock.fun.string('try.lock.shared', 
+eval(parse(text=shared.lock.fun.string('lock', 'boost_lock')))
+eval(parse(text=shared.lock.fun.string('try.lock', 'boost_try_lock')))
+eval(parse(text=shared.lock.fun.string('unlock', 'boost_unlock')))
+eval(parse(text=shared.lock.fun.string('lock.shared', 'boost_lock_shared')))
+eval(parse(text=shared.lock.fun.string('try.lock.shared', 
   'boost_try_lock_shared')))
-eval(parse(text=share.lock.fun.string('unlock.shared', 'boost_unlock_shared')))
+eval(parse(text=shared.lock.fun.string('unlock.shared', 'boost_unlock_shared')))
 
 # This lock will take the timeout as an intilization argument.  A timeout
 # greater than zero must be specified.
@@ -61,7 +61,7 @@ setClass('boost.named.sharable.timed.lock.call',
   contains='named.sharable.lock.call', representation(timeout='numeric'), 
   prototype=prototype(timeout=-1))
 
-share.timed.lock.fun.string=function( rFunctionName, cFunctionName )
+shared.timed.lock.fun.string=function( rFunctionName, cFunctionName )
 {
   return(paste(
     "setMethod('", rFunctionName, "'",
@@ -74,26 +74,18 @@ share.timed.lock.fun.string=function( rFunctionName, cFunctionName )
       "return(.Call('", cFunctionName, "', name, m@timeout))",
     "})", sep=''))
 }
-eval(parse(text=share.timed.lock.fun.string('lock', 'boost_lock_timed')))
-eval(parse(text=share.timed.lock.fun.string('try.lock',
+eval(parse(text=shared.timed.lock.fun.string('lock', 'boost_lock_timed')))
+eval(parse(text=shared.timed.lock.fun.string('try.lock',
   'boost_try_lock_timed')))
-eval(parse(text=share.timed.lock.fun.string('unlock', 'boost_unlock_timed')))
-eval(parse(text=share.timed.lock.fun.string('lock.shared',
+eval(parse(text=shared.timed.lock.fun.string('unlock', 'boost_unlock_timed')))
+eval(parse(text=shared.timed.lock.fun.string('lock.shared',
   'boost_unlock_timed')))
-eval(parse(text=share.timed.lock.fun.string('try.lock.shared', 
+eval(parse(text=shared.timed.lock.fun.string('try.lock.shared', 
   'boost_try_shared_lock')))
-eval(parse(text=share.timed.lock.fun.string('unlock.shared', 
+eval(parse(text=shared.timed.lock.fun.string('unlock.shared', 
   'boost_unlock_shared_timed')))
 
-# The constructor of a mutex will need to register it's own finalizer
-# via reg.finalizer with exit onexit=TRUE.
-
 setClass('mutex')
-setGeneric('lock', function(m, block=FALSE) 
-  standardGeneric('lock'))
-setGeneric('lock.shared', function(m, block=FALSE) 
-  standardGeneric('lock.shared'))
-setGeneric('unlock', function(m) standardGeneric('unlock'))
 
 my.ifelse=function(test, yes, no)
 {
@@ -103,40 +95,50 @@ my.ifelse=function(test, yes, no)
 
 setClass('boost.mutex', contains='mutex', 
   representation(lockCall='named.sharable.lock.call', isRead='logical',
-    countAddr='externalptr', resourceName='character'))
-setMethod('lock', signature(m='boost.mutex', block='logical'),
-  function(m, block)
+    mutexInfoAddr='externalptr'))
+setMethod('lock', signature(m='boost.mutex'),
+  function(m, ...)
   {
+    block = match.call()[['block']]
+    if (is.null(block)) block=FALSE
+    if (!is.logical(block)) stop('The block argument should be logical')
     m@isRead=FALSE
-    return( my.ifelse(block, lock, try.lock)(m@lockCall, m@resourceName) )
+    return( my.ifelse(block, lock, try.lock)(m@lockCall, resource.name(m)) )
   })
-setMethod('lock.shared', signature(m='boost.mutex', block='logical'),
+setMethod('lock.shared', signature(m='boost.mutex'),
   function(m, block)
   {
+    block = match.call()[['block']]
+    if (is.null(block)) block=FALSE
+    if (!is.logical(block)) stop('The block argument should be logical')
     m@isRead=TRUE
     return( my.ifelse(block, lock.shared, try.lock.shared)(m@lockCall,
-      m@resourceName) )
+      resource.name(m)) )
   })
 setMethod('unlock', signature(m='boost.mutex'),
   function(m)
   {
-    return( my.ifelse(m@isRead, unlock.shared, unlock)(m@resourceName) )
+    return( my.ifelse(m@isRead, unlock.shared, unlock)(resource.name(m)) )
   })
 
-setGeneric('resource.name', function(x) standardGeneric('resource.name'))
+setGeneric('resource.name', function(m) standardGeneric('resource.name'))
 
-destroy.shared.counter=function( counterAddr )
-{
-  .Call("DestroySharedCounter", counterAddr)
-}
+setMethod('resource.name', signature(m='boost.mutex'), 
+  function(m) 
+  {
+    return(.Call('GetResourceName', m@mutexInfoAddr))
+  })
 
 # The constructor for a boost.mutex
-boost.mutex=function(resourceName=NULL)
+boost.mutex=function(resourceName=NULL, timed=FALSE)
 {
+  lockCall = ifelse( timed, new('boost.named.sharable.timed.lock.call'),
+    new('boost.named.sharable.lock.call' ))
   isRead = TRUE
   if (is.null(resourceName)) resourceName = uuid()
-  return(new('boost.mutex', isRead=isRead, countAddr=countAddr, 
-    resourceName=resourceName))
+  mutexInfoAddr = .Call('CreateBoostMutexInfo', resourceName)
+  return(new('boost.mutex', lockCall=lockCall, isRead=isRead, 
+    mutexInfoAddr=mutexInfoAddr))
 }
 
 # A descriptor should return it's own type.
