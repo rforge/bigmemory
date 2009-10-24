@@ -14,7 +14,7 @@
 #include <boost/exception/exception.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 
-#include "BigMatrix.h"
+#include "bigmemory/BigMatrix.h"
 
 using namespace std;
 using namespace boost;

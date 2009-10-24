@@ -1,6 +1,6 @@
 #include <limits.h>
 #include <math.h>
-#include "util.h"
+#include "bigmemory/util.h"
 
 vector<string> RChar2StringVec( SEXP charVec )
 {

@@ -1,5 +1,5 @@
 #include <boost/interprocess/shared_memory_object.hpp>
-#include "SharedCounter.h"
+#include "bigmemory/SharedCounter.h"
 
 bool SharedCounter::reset()
 {

@@ -1,4 +1,4 @@
-cppFlags = 'PKG_CPPFLAGS=-I../include'
+cppFlags = 'PKG_CPPFLAGS=-I../inst/include'
 pkgLibs = ''
 
 if (Sys.info()[['sysname']] == 'Linux')

@@ -4,10 +4,10 @@
 #include <iostream>
 #include <algorithm>
 
-#include "BigMatrix.h"
-#include "MatrixAccessor.hpp"
-#include "util.h"
-#include "isna.hpp"
+#include "bigmemory/BigMatrix.h"
+#include "bigmemory/MatrixAccessor.hpp"
+#include "bigmemory/util.h"
+#include "bigmemory/isna.hpp"
 
 #include <stdio.h>
 #include <R.h>
@@ -255,7 +255,7 @@ void MakeIndicesNumeric(SEXP indices, double *&pIndices, index_type &numIndices,
     }
     if ( (zeroIndexCount == numIndices) && (numIndices > 0) )
     {
-      printf("Setting zero indices true %lld\n", numIndices);
+      printf("Setting zero indices true %s\n", ttos(numIndices).c_str());
       zeroIndices=true;
       return;
     }
@@ -777,7 +777,7 @@ void WriteMatrix( BigMatrix *pMat, SEXP fileName, SEXP rowNames,
     for (i=0; i < (int) cn.size(); ++i)
       s += "\"" + cn[i] + "\"" + (((int)cn.size()-1 == i) ? "\n" : sepString);
   }
-  fprintf(FP, s.c_str());
+  fprintf(FP, "%s", s.c_str());
   s.clear();
   for (i=0; i < pMat->nrow(); ++i) 
   {
@@ -804,7 +804,7 @@ void WriteMatrix( BigMatrix *pMat, SEXP fileName, SEXP rowNames,
         s += "\n";
       }
     }
-    fprintf(FP, s.c_str());
+    fprintf(FP, "%s", s.c_str());
     s.clear();
   }
   fclose(FP);

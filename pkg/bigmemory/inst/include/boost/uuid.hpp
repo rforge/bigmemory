@@ -317,7 +317,7 @@ inline void sha1_random_digest( unsigned (&rd) [ 5 ] )
 
         if( std::FILE * f = std::fopen( "/dev/urandom", "rb" ) )
         {
-            std::fread( buffer, 1, 20, f );
+            std::size_t bytesRead = std::fread( buffer, 1, 20, f );
             std::fclose( f );
         }
 
