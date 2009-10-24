@@ -1,7 +1,7 @@
 #ifndef BIGALGEBRA_PTR_UTIL
 #define BIGALGEBRA_PTR_UTIL
 #include <string>
-#include "BigMatrix.h"
+#include "bigmemory/BigMatrix.h"
 
 #include <R.h>
 #include <Rinternals.h>

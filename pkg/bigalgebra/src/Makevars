@@ -1,2 +1,2 @@
 PKG_LIBS=-lblas -llapack 
-PKG_CPPFLAGS=-I../include
+PKG_CPPFLAGS=-I../include -I/home/revo/R/x86_64-pc-linux-gnu-library/2.8/bigmemory/include
