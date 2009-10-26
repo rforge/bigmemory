@@ -1273,29 +1273,29 @@ DescribeBigMatrix = function(x) #, file=NULL, path="")
 }
 
 setGeneric('attach.resource', 
-  function(x, ...) standardGeneric('attach.resource'))
+  function(obj, ...) standardGeneric('attach.resource'))
 
-setMethod('attach.resource', signature(x='character'),
-  function(x, ...)
+setMethod('attach.resource', signature(obj='character'),
+  function(obj, ...)
   {
     path = match.call()[['path']]
     if (is.null(path))
     {
       path = ''
     }
-    info <- dget(paste(fix_path(path), x, sep=""))
+    info <- dget(paste(fix_path(path), obj, sep=""))
     return(attach.resource(info))
   })
 
-setMethod('attach.resource', signature(x='big.matrix.descriptor'),
-  function(x, ...)
+setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
+  function(obj, ...)
   {
     path = match.call()[['path']]
     if (is.null(path))
     {
       path = ''
     }
-    info = description(x)
+    info = description(obj)
     typeLength = NULL
     if (info$type == 'char') typeLength=1
     if (info$type == 'short') typeLength=2

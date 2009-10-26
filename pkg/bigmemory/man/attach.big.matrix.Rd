@@ -1,23 +1,28 @@
-\name{describe, attach.big.matrix}
+\name{describe, attach.big.matrix, attach.resource}
 \alias{describe}
 \alias{attach.big.matrix}
+\alias{attach.resource}
 \title{The basic ``big.matrix'' operations.}
 \description{
-The \code{attach.big.matrix} creates a new \code{big.matrix} object which
-references previously allocated shared memory or file-backed matrices.
-
 The \code{describe} function returns the description needed by the 
 \code{attach.big.matrix} function so that a newly created \code{big.matrix}
 instance can reference a previously created \code{big.matrix} object.
+
+The \code{attach.big.matrix} and \code{attach.resource} create 
+new \code{big.matrix} objects when passed a \code{big.matrix} descriptor
+which 
+references previously allocated shared memory or file-backed matrices.
 }
 \usage{
 describe(x)
-attach.big.matrix(obj, backingpath='')
+attach.big.matrix(obj, ...)
+attach.resource(obj, ...)
 }
 \arguments{
   \item{x}{a \code{\link{big.matrix}} object}
   \item{obj}{an object as returned by \code{describe()} or, optionally, the filename of the descriptor for a filebacked matrix, assumed to be in the directory specified by the \code{backingpath} (if one is provided)}
-  \item{backingpath}{the path where the descriptor and/or filebacking can be found}
+  \item{...}{possibly \code{backingpath} which gives
+  the path where the descriptor and/or filebacking can be found}
 }
 \details{
 The describe function returns a list of the information needed to 

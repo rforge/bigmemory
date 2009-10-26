@@ -8,14 +8,13 @@ suitably-formatted ASCII file, or
 write the contents of a \code{\link{big.matrix}} to a file.
 }
 \usage{
-write.big.matrix(x, fileName = NA, row.names = FALSE,
+write.big.matrix(x, fileName, row.names = FALSE,
                  col.names = FALSE, sep=',')
 read.big.matrix(fileName, sep = ',', header = FALSE,
                 col.names = NULL, row.names = NULL, has.row.names=FALSE,
                 ignore.row.names=FALSE, type = NA,
-                skip = 0, separated = FALSE, shared = FALSE,
-                backingfile = NULL, backingpath = NULL,
-                descriptorfile = NULL, extraCols = NULL)
+                skip = 0, separated = FALSE, backingfile = NULL, 
+                backingpath = NULL, descriptorfile = NULL, extraCols = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -30,7 +29,6 @@ read.big.matrix(fileName, sep = ',', header = FALSE,
   \item{type}{preferably specified, \code{"integer"} for example.}
   \item{skip}{number of lines to skip at the head of the file.}
   \item{separated}{use separated column organization of the data instead of column-major organization.}
-  \item{shared}{if \code{TRUE}, load the object into shared memory.}
   \item{backingfile}{the root name for the file(s) for the cache of \code{x}.}
   \item{backingpath}{the path to the directory containing the file backing cache.}
   \item{descriptorfile}{the file to be used for the description of the filebacked matrix.}

@@ -6,6 +6,7 @@ exportClasses(big.matrix)
 export(big.matrix,
        filebacked.big.matrix,
        attach.big.matrix,
+       attach.resource,
        sub.big.matrix,
        deepcopy)
 
