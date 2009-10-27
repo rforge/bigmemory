@@ -415,11 +415,30 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
   const std::string &filePath, MappedRegionPtrs &dataRegionPtrs, 
   const index_type nrow, const index_type ncol )
 {
+#ifdef WINDOWS
   index_type i;
   for (i=0; i < ncol; ++i)
   {
     std::string columnName = filePath + fileName + "_column_" + ttos(i);
-    if ( -1 == truncate( columnName.c_str(), nrow*sizeof(T) ) )
+    // Create the files.
+    std::filebuf fbuf;
+    if (!fbuf.open( columnName.c_str(), std::ios_base::in | std::ios_base::out |
+      std::ios_base::trunc | std::ios_base::binary ))
+    {
+      return NULL;
+    }
+    fbuf.pubseekoff( nrow*sizeof(T), std::ios_base::beg);
+    // I'm not sure if I need this next line
+    fbuf.sputc(0);
+    fbuf.close();
+  }
+#else
+  index_type i;
+  for (i=0; i < ncol; ++i)
+  {
+    std::string columnName = filePath + fileName + "_column_" + ttos(i);
+    FILE *fp = fopen( columnName.c_str(), "wb");
+    if ( -1 == ftruncate( fileno(fp), nrow*sizeof(T) ) )
     {
       printf("Problem creating file %s.\n", columnName.c_str());
       index_type j;
@@ -430,7 +449,9 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
         return NULL;
       }
     }
+    fclose(fp);
   }
+#endif
   return ConnectFileBackedSepMatrix<T>(fileName, filePath, dataRegionPtrs, 
     nrow, ncol);
 }
@@ -463,7 +484,20 @@ void* CreateFileBackedMatrix(const std::string &fileName,
 {
   // Create the file.
   std::string fullFileName = filePath+fileName;
-  FILE *fp = fopen( fullFileName.c_str(), "w");
+#ifdef WINDOWS
+  std::filebuf fbuf;
+  if (!fbuf.open( (filePath+fileName).c_str(),
+      std::ios_base::in | std::ios_base::out |
+      std::ios_base::trunc | std::ios_base::binary ))
+  {
+    return NULL;
+  }
+  fbuf.pubseekoff( nebytes+nrow*ncol*sizeof(T), std::ios_base::beg);
+  // I'm not sure if I need this next line
+  fbuf.sputc(0);
+  fbuf.close();
+#else
+  FILE *fp = fopen( fullFileName.c_str(), "wb");
   if (!fp)
   {
     printf( "Problem creating file %s.\n", fullFileName.c_str() );
@@ -476,6 +510,7 @@ void* CreateFileBackedMatrix(const std::string &fileName,
     return NULL;
   }
   fclose(fp);
+#endif
   return ConnectFileBackedMatrix<T>(fileName, filePath,
     dataRegionPtrs, nrow, ncol);
 }
