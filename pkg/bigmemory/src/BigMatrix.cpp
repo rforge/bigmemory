@@ -492,7 +492,7 @@ void* CreateFileBackedMatrix(const std::string &fileName,
   {
     return NULL;
   }
-  fbuf.pubseekoff( nebytes+nrow*ncol*sizeof(T), std::ios_base::beg);
+  fbuf.pubseekoff(nrow*ncol*sizeof(T), std::ios_base::beg);
   // I'm not sure if I need this next line
   fbuf.sputc(0);
   fbuf.close();
