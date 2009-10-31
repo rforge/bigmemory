@@ -8,5 +8,7 @@ exportMethods(
   lock.shared,
   unlock,
   is.timed,
-  resource.name)
+  shared.name,
+  describe,
+  attach.resource)
 useDynLib(synchronicity)

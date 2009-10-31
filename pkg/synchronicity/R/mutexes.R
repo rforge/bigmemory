@@ -1,3 +1,24 @@
+fix_path = function(path)
+{
+  if (is.null(path) || path == '')
+  {
+    path = ''
+    return(path)
+  }
+  else if (substr(path, nchar(path), nchar(path))!='/')
+  {
+    if (is.na(file.info(path)$isdir))
+      stop("The supplied backing path does not exist.")
+    path= paste(path, '/', sep='')
+  }
+  else 
+  {
+    if ( is.na(file.info( substr(path, 1, nchar(path)-1) )) )
+      stop( "The supplied backing path does not exist.")
+  }
+  return(path)
+}
+
 # MUTEXES
 
 setClass('mutex')
@@ -40,21 +61,28 @@ setMethod('unlock', signature(m='boost.mutex'),
         m@mutexInfoAddr) )
   })
 
-setGeneric('resource.name', function(m) standardGeneric('resource.name'))
+setGeneric('shared.name', function(m) standardGeneric('shared.name'))
 
-setMethod('resource.name', signature(m='boost.mutex'), 
+setMethod('shared.name', signature(m='boost.mutex'), 
   function(m) 
   {
     return(.Call('GetResourceName', m@mutexInfoAddr))
   })
 
+setGeneric('timeout', function(m) standardGeneric('timeout'))
+
+setMethod('timeout', signature(m='boost.mutex'),
+  function(m)
+  {
+    return(.Call('GetTimeout', m))
+  })
 # The constructor for a boost.mutex
-boost.mutex=function(resourceName=NULL, timeout=NULL)
+boost.mutex=function(sharedName=NULL, timeout=NULL)
 {
   isRead = TRUE
-  if (is.null(resourceName)) 
+  if (is.null(sharedName)) 
   {
-    resourceName = uuid()
+    sharedName = uuid()
   }
   if (!is.null(timeout) && !is.numeric(timeout))
   {
@@ -64,7 +92,44 @@ boost.mutex=function(resourceName=NULL, timeout=NULL)
   {
     stop("You must specify a timeout greater than zero.")
   }
-  mutexInfoAddr=.Call('CreateBoostMutexInfo', resourceName, as.double(timeout))
+  mutexInfoAddr=.Call('CreateBoostMutexInfo', sharedName, as.double(timeout))
   return(new('boost.mutex', isRead=isRead, mutexInfoAddr=mutexInfoAddr))
 }
 
+
+setClass('descriptor', representation(description='list'))
+setGeneric('describe', function(x) standardGeneric('describe'))
+setGeneric('description', function(x) standardGeneric('description'))
+setMethod('description', signature(x='descriptor'),
+  function(x) return(x@description))
+
+setClass('boost.mutex.descriptor', contains='descriptor')
+
+setMethod('describe', signature(x='boost.mutex'),
+  function(x)
+  {
+    return(new('boost.mutex.descriptor', 
+      description=list(shared.name=shared.name(x), timeout=timeout(x))))
+  })
+
+setGeneric('attach.resource', function(obj, ...) 
+  standardGeneric('attach.resource'))
+
+setMethod('attach.resource', signature(obj='character'),
+  function(obj, ...)
+  {
+    path = match.call()[['path']]
+    if (is.null(path))
+    {
+      path = ''
+    }
+    info <- dget(paste(fix_path(path), obj, sep=""))
+    return(attach.resource(info))
+  })
+
+setMethod('attach.resource', signature(obj='boost.mutex.descriptor'),
+  function(obj, ...)
+  {
+    desc = description(obj)
+    return(boost.mutex(sharedName = desc$shared.name, timeout = desc$timeout))
+  })
