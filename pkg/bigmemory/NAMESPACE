@@ -1,7 +1,7 @@
 import(methods)
 importFrom(utils, head, tail)
 
-exportClasses(big.matrix)
+exportClasses(big.matrix, big.matrix.descriptor)
 
 export(big.matrix,
        filebacked.big.matrix,

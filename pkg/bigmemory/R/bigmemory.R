@@ -15,6 +15,15 @@ mmap = function(x, y) {
 
 setClass("big.matrix", representation(address='externalptr'))
 
+setClass('descriptor', representation(description='list'))
+
+setGeneric('describe', function(x)
+  standardGeneric('describe'))
+
+setGeneric('description', function(x) standardGeneric('description'))
+
+setClass('big.matrix.descriptor', contains='descriptor')
+
 big.matrix <- function(nrow, ncol, type='integer', init=NULL,
                        dimnames=NULL, separated=FALSE, backingfile=NULL,
                        backingpath=NULL, descriptorfile=NULL)
@@ -849,9 +858,13 @@ setMethod('dimnames', signature(x = "big.matrix"),
 
 setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
   function(x, value) {
-    rownames.bm(x) <- value[[1]]
-    colnames.bm(x) <- value[[2]]
-    warning("We are here.\n")
+    if (options()$bigmemory.allow.dimnames) {
+      rownames.bm(x) <- value[[1]]
+      colnames.bm(x) <- value[[2]]
+    } else {
+      stop(paste("Changing dimnames is not allowed; to override, please set",
+                 "options(bigmemory.allow.dimnames) <- TRUE.", sep=" "))
+    }
     return(x)
   })
 
@@ -1225,15 +1238,6 @@ filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
   }
   return(x)
 }
-
-setClass('descriptor', representation(description='list'))
-
-setGeneric('describe', function(x) 
-  standardGeneric('describe'))
-
-setGeneric('description', function(x) standardGeneric('description'))
-
-setClass('big.matrix.descriptor', contains='descriptor')
 
 setMethod('describe', signature(x='big.matrix'),
   function(x)

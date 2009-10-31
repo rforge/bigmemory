@@ -1,4 +1,4 @@
-\name{big.matrix, filebacked.big.matrix, is.big.matrix, as.big.matrix, is.separated, is.filebacked, backingpath}
+\name{big.matrix, filebacked.big.matrix, etc...}
 \alias{big.matrix}
 \alias{filebacked.big.matrix}
 \alias{as.big.matrix}
@@ -18,8 +18,8 @@ big.matrix(nrow, ncol, type = "integer", init = NULL, dimnames = NULL,
   separated = FALSE, backingfile = NULL, backingpath = NULL, 
   descriptorfile = NULL)
 filebacked.big.matrix(nrow, ncol, type = "integer", init = NULL, 
-  dimnames = NULL, separated = FALSE, backingfile = NULL, backingpath = NULL, 
-  descriptorfile = NULL)
+  dimnames = NULL, separated = FALSE, backingfile = NULL,
+  backingpath = NULL, descriptorfile = NULL)
 as.big.matrix(x, type = NULL, separated = FALSE,
   backingfile = NULL, backingpath = NULL, descriptorfile = NULL)
 is.big.matrix(x)
@@ -84,6 +84,10 @@ This can incur a substantial performance penalty for large matrices, but could
 be useful nonetheless.  A side-effect of creating a filebacked object is
 not only the filebacking(s), but a descriptor file (in the same directory) that can
 be used for subsequent attachments (see \code{\link{attach.big.matrix}}).
+
+Note that we do not allow setting or changing the \code{dimnames} attributes
+by default; such changes would not be reflected in the descriptor objects or
+in shared memory.  To override this set \code{options(bigmemory.allow.dimnames=TRUE)}.
 }
 \value{
 A \code{big.matrix} is returned (for \code{big.matrix} and
@@ -98,7 +102,8 @@ and \code{TRUE} or \code{FALSE} for \code{is.big.matrix} and the other functions
 \examples{
 
 x <- big.matrix(10, 2, type='integer', init=-5)
-colnames(x) = c("alpha", "beta")
+options(bigmemory.allow.dimnames=TRUE)
+colnames(x) <- c("alpha", "beta")
 is.big.matrix(x)
 dim(x)
 colnames(x)
@@ -141,7 +146,8 @@ z[,]
 # A short filebacked example, showing the creation of associated files and mutexes:
 files <- dir()
 files[grep("example.bin", files)]
-z <- filebacked.big.matrix(3, 3, type='integer', init=123, backingfile="example.bin",
+z <- filebacked.big.matrix(3, 3, type='integer', init=123,
+                           backingfile="example.bin",
                            descriptorfile="example.desc",
                            dimnames=list( c('a','b','c'), c('d', 'e', 'f')))
 z[,]

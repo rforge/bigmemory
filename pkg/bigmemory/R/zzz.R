@@ -10,6 +10,7 @@
     library.dynam("bigmemory", pkgname, libname);
     options(bigmemory.print.warning=TRUE)
     options(bigmemory.typecast.warning=TRUE)
+    options(bigmemory.allow.dimnames=FALSE)
     cat("\nLoading bigmemory version >=4.0.\n\n")
     cat("Note that bigmemory >= 4.0 no longer includes advanced\n")
     cat("functionality.  New packages biganalytics, synchronicity,\n")
@@ -23,4 +24,5 @@
     library.dynam.unload("bigmemory", libpath);
     options(bigmemory.print.warning=NULL)
     options(bigmemory.typecast.warning=NULL)
+    options(bigmemory.allow.dimnames=NULL)
 }

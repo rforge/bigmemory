@@ -40,6 +40,7 @@ a vector of row indices satisfying the criteria.
 \seealso{\code{\link{big.matrix}}, \code{\link{which}}}
 \examples{
 x <- as.big.matrix(matrix(1:30, 10, 3))
+options(bigmemory.allow.dimnames=TRUE)
 colnames(x) <- c("A", "B", "C")
 x[,]
 x[mwhich(x, 1:2, list(c(2,3), c(11,17)),

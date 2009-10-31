@@ -8,44 +8,66 @@ Manage massive matrices with support for shared memory and memory-mapped files.
 \description{
 Create, store, access, and manipulate massive matrices.  Matrices are
 allocated to shared memory and may use memory-mapped files.  Packages
-biganalytics, synchronicity, and bigalgebra provide advanced functionality.
-Access to and manipulation
-of a \code{big.matrix} object is exposed in R by an S4 
-class whose interface is simlar to an R \code{matrix}.
+\pkg{biganalytics}, \pkg{synchronicity}, and \pkg{bigalgebra} provide
+advanced functionality.  Access to and manipulation of a \code{\link{big.matrix}}
+object is exposed in \R by an \acronym{S4} class whose interface is simlar
+to that of an \R \code{matrix}.
 }
 \details{
 \tabular{ll}{
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
 Version: \tab 4.0\cr
-Date: \tab 2009-10-07\cr
+Date: \tab 2009-10-31\cr
 License: \tab LGPL-3\cr
+Copyright: \tab (C) 2009 John W. Emerson and Michael J. Kane\cr
+URL: \tab http://www.bigmemory.org\cr
+LazyLoad: \tab yes\cr
 }
 
-Multi-gigabyte data sets challenge and frustrate R
+Index of functions/methods (grouped in a friendly way):
+\preformatted{
+big.matrix, filebacked.big.matrix, as.big.matrix
+
+is.big.matrix, is.sub.big.matrix, is.separated, is.filebacked
+backingpath
+
+dim, dimnames, nrow, ncol, print, head, tail, typeof
+
+read.big.matrix, write.big.matrix
+
+mwhich
+apply
+
+deepcopy, sub.big.matrix
+
+describe, attach.big.matrix, attach.resource
+}
+
+Multi-gigabyte data sets challenge and frustrate \R
 users even on well-equipped hardware.
-C/C++ and Fortran programming can be helpful, but
+\acronym{C/C++} and Fortran programming can be helpful, but
 are cumbersome for interactive data analysis and
-lack the flexibility and power of R's rich statistical
-programming environment.  The package \code{bigmemory}
+lack the flexibility and power of \R's rich statistical
+programming environment.  The package \pkg{bigmemory}
 and its sister packages
 bridge this gap, implementing massive matrices 
 and supporting their basic
 manipulation and exploration.  A \code{\link{big.matrix}}
 is ideal for problems
-involving the analysis in R of manageable subsets of the data,
-or when an analysis is conducted mostly in C++. 
+involving the analysis in \R of manageable subsets of the data,
+or when an analysis is conducted mostly in \acronym{C++}. 
 The data structures are allocated to shared memory with
 allowing separate 
 processes on the same computer to share access to a single copy of the
 data set.  The data structures may also be file-backed, allowing users
-to more easily manage and analyze data sets larger than available RAM.
-These features open the door for powerful and
+to more easily manage and analyze data sets larger than available
+\acronym{RAM}.  These features open the door for powerful and
 memory-efficient parallel analyses and data mining of massive data sets.
 
 Note that \code{options(bigmemory.typecast.warning)} is available and can
 be set to avoid annoying warnings that might occur if, for example you
-assign R objects (typically type double) to char, short, or integer
+assign \R objects (typically type double) to char, short, or integer
 \code{\link{big.matrix}} objects.
 
 This package is still actively developed.  Please send us an email
@@ -53,9 +75,10 @@ letting us know you are trying the package, and we'll keep you
 abreast on updates.
 
 NOTE: 4.X and beyond represent a major redesign, with the mutexes (locking)
-abstracted to package \code{synchronicity}, the EDA functionality relocated
-to package \code{biganalytics}, and new linear algebra support available in
-package \code{bigalgebra}.  Package \code{bigmemory} itself is now minimalist,
+abstracted to package \pkg{synchronicity}, the exploratory data analysis
+functionality relocated
+to package \pkg{biganalytics}, and new linear algebra support available in
+package \pkg{bigalgebra}.  Package \pkg{bigmemory} itself is now minimalist,
 providing only the core functionality with no dependencies.
 
 NOTE: The 3.X and earlier versions support a limited number of columns
@@ -80,10 +103,14 @@ Maintainer: Jay Emerson and Mike Kane <bigmemoryauthors@gmail.com>
 # Our examples are all trivial in size, rather than burning huge amounts
 # of memory simply to demonstrate the package functionality.
 
-x <- big.matrix(5, 2, type="integer", init=0)
-colnames(x)=c("alpha", "beta")
+x <- big.matrix(5, 2, type="integer", init=0,
+                dimnames=list(NULL, c("alpha", "beta")))
 x
 x[1:2,]
 x[,1] <- 1:5
 x[,"alpha"]
+colnames(x)
+options(bigmemory.allow.dimnames=TRUE)
+colnames(x) <- NULL
+x[,]
 }
