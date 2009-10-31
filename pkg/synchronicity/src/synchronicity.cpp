@@ -20,7 +20,7 @@ class BoostMutexInfo
   public:
 
     BoostMutexInfo() : 
-      _name("") {}
+      _timeout(-1), _name("") {}
     
     virtual ~BoostMutexInfo() {destroy();}
   
@@ -29,6 +29,12 @@ class BoostMutexInfo
     {
       _name = newName;
       _counter.init(newName+"_counter");
+    }
+
+    bool init(const std::string &newName, const index_type timeout)
+    {
+      init(newName);
+      _timeout = timeout;
     }
 
     // This function must be protected by a semaphore.
@@ -48,12 +54,15 @@ class BoostMutexInfo
         }
       }
     }
+    
+    index_type timeout() const {return _timeout;}
 
     std::string name() const {return _name;}
 
     SharedCounter count() const {return _counter;}
 
   protected:
+    index_type _timeout;
     std::string _name;
     SharedCounter _counter;
     
@@ -133,10 +142,18 @@ void DestroyBoostMutexInfo( SEXP mutexInfoAddr )
   named_mutex::remove( cmName.c_str() );
 }
 
-SEXP CreateBoostMutexInfo( SEXP resourceName )
+SEXP CreateBoostMutexInfo( SEXP resourceName, SEXP timeout )
 {
   BoostMutexInfo *pbmi = new BoostMutexInfo();
-  pbmi->init( RChar2String(resourceName) );
+  if (NULL_USER_OBJECT == timeout) 
+  {
+    pbmi->init( RChar2String(resourceName) );
+  }
+  else 
+  {
+    pbmi->init( RChar2String(resourceName), 
+      static_cast<index_type>( NUMERIC_VALUE(timeout) ) );
+  }
   SEXP address = R_MakeExternalPtr( pbmi, R_NilValue, R_NilValue );
   R_RegisterCFinalizerEx( address, (R_CFinalizer_t)DestroyBoostMutexInfo,
     (Rboolean)TRUE );

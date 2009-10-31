@@ -86,6 +86,7 @@ eval(parse(text=shared.timed.lock.fun.string('unlock.shared',
   'boost_unlock_shared_timed')))
 
 setClass('mutex')
+setGeneric('is.timed', function(m) standardGeneric('is.timed'))
 
 my.ifelse=function(test, yes, no)
 {
@@ -130,16 +131,19 @@ setMethod('resource.name', signature(m='boost.mutex'),
   })
 
 # The constructor for a boost.mutex
-boost.mutex=function(resourceName=NULL, timed=FALSE)
+boost.mutex=function(resourceName=NULL, timeout=NULL)
 {
+  lockCall=NULL
+  if (is.null(timeout))
+  {
+    lockCall = 
+  }
   lockCall = ifelse( timed, new('boost.named.sharable.timed.lock.call'),
     new('boost.named.sharable.lock.call' ))
   isRead = TRUE
   if (is.null(resourceName)) resourceName = uuid()
-  mutexInfoAddr = .Call('CreateBoostMutexInfo', resourceName)
+  mutexInfoAddr = .Call('CreateBoostMutexInfo', resourceName, timeout)
   return(new('boost.mutex', lockCall=lockCall, isRead=isRead, 
     mutexInfoAddr=mutexInfoAddr))
 }
-
-# A descriptor should return it's own type.
 
