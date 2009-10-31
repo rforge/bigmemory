@@ -62,12 +62,16 @@ class BoostMutexInfo
     SharedCounter count() const {return _counter;}
 
     bool is_timed() const {return _timeout==-1;}
+    
+    bool& read() {return _read;}
+    bool& locked() {return _locked;}
 
   protected:
     index_type _timeout;
     std::string _name;
     SharedCounter _counter;
-    
+    bool _read;
+    bool _locked;    
 };
 // Use these functions for locking and unlock.
 
@@ -203,18 +207,40 @@ SEXP CreateSharedCounter( SEXP resourceName )
 //  return boost_lock( resourceName, bind( &named_upgradable_mutex::lock, _1 ) );
 //}
 
+SEXP IsRead( SEXP mutexInfoAddr )
+{
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = pmi->read() ? Rboolean(1) : Rboolean(0);
+  UNPROTECT(1);
+  return(ret);
+}
+
 SEXP boost_lock( SEXP mutexInfoAddr )
 {
   BoostMutexInfo *pmi= 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (pmi->locked())
+  {
+    SEXP ret = PROTECT(NEW_LOGICAL(1));
+    LOGICAL_DATA(ret)[0] = Rboolean(0);
+    warning("This mutex is already locked.");
+    UNPROTECT(1);
+    return(ret);
+  }
+  pmi->locked() = true;
+  pmi->read() = false;
   if (pmi->is_timed())
   {
+    cout << "getting timed lock for " << pmi->name() << endl;
     return boost_lock( pmi->name(),
       bind( &named_upgradable_mutex::timed_lock, _1, 
         to_ptime(pmi->timeout()) ) );
   }
   else
   {
+    cout << "getting lock for " << pmi->name() << endl;
     return boost_lock( pmi->name(), bind(&named_upgradable_mutex::lock, _1));
   }
 }
@@ -229,6 +255,17 @@ SEXP boost_try_lock( SEXP mutexInfoAddr )
 {
   BoostMutexInfo *pmi= 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (pmi->locked())
+  {
+    SEXP ret = PROTECT(NEW_LOGICAL(1));
+    LOGICAL_DATA(ret)[0] = Rboolean(0);
+    warning("This mutex is already locked.");
+    UNPROTECT(1);
+    return(ret);
+  }
+  pmi->locked() = true;
+  pmi->read() = false;
+  cout << "getting try lock for " << pmi->name() << endl;
   return boost_try_lock( pmi->name(), 
     bind( &named_upgradable_mutex::try_lock, _1 ) );
 }
@@ -243,6 +280,16 @@ SEXP boost_unlock( SEXP mutexInfoAddr )
 {
   BoostMutexInfo *pmi= 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (!pmi->locked())
+  {
+    SEXP ret = PROTECT(NEW_LOGICAL(1));
+    LOGICAL_DATA(ret)[0] = Rboolean(0);
+    warning("This mutex is already unlocked.");
+    UNPROTECT(1);
+    return(ret);
+  }
+  pmi->locked() = false;
+  cout << "getting unlock for " << pmi->name() << endl;
   return boost_unlock( pmi->name(), 
     bind( &named_upgradable_mutex::unlock, _1 ) );
 }
@@ -257,14 +304,26 @@ SEXP boost_lock_shared( SEXP mutexInfoAddr )
 {
   BoostMutexInfo *pmi= 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (pmi->locked())
+  {
+    SEXP ret = PROTECT(NEW_LOGICAL(1));
+    LOGICAL_DATA(ret)[0] = Rboolean(0);
+    warning("This mutex is already locked.");
+    UNPROTECT(1);
+    return(ret);
+  }
+  pmi->locked() = true;
+  pmi->read() = true;
   if (pmi->is_timed())
   {
+    cout << "getting shared timed lock for " << pmi->name() << endl;
     return boost_lock( pmi->name(),
       bind(&named_upgradable_mutex::timed_lock_sharable, 
         _1, to_ptime(pmi->timeout())) );
   }
   else
   {
+    cout << "getting shared lock for " << pmi->name() << endl;
     return boost_lock( pmi->name(), 
       bind(&named_upgradable_mutex::lock_sharable, _1));
   }
@@ -274,6 +333,17 @@ SEXP boost_try_lock_shared( SEXP mutexInfoAddr )
 {
   BoostMutexInfo *pmi= 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (pmi->locked())
+  {
+    SEXP ret = PROTECT(NEW_LOGICAL(1));
+    LOGICAL_DATA(ret)[0] = Rboolean(0);
+    warning("This mutex is already locked.");
+    UNPROTECT(1);
+    return(ret);
+  }
+  pmi->locked() = true;
+  pmi->read() = true;
+  cout << "getting try shared lock for " << pmi->name() << endl;
   return boost_lock( pmi->name(),
     bind( &named_upgradable_mutex::try_lock_sharable, _1 ) );
 }
@@ -282,6 +352,16 @@ SEXP boost_unlock_shared( SEXP mutexInfoAddr )
 {
   BoostMutexInfo *pmi= 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (!pmi->locked())
+  {
+    SEXP ret = PROTECT(NEW_LOGICAL(1));
+    LOGICAL_DATA(ret)[0] = Rboolean(0);
+    warning("This mutex is already unlocked.");
+    UNPROTECT(1);
+    return(ret);
+  }
+  pmi->locked() = false;
+  cout << "getting unlock shared for " << pmi->name() << endl;
   return boost_unlock( pmi->name(),
     bind( &named_upgradable_mutex::unlock_sharable, _1 ) );
 }
