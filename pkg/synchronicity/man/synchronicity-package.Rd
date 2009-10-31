@@ -4,11 +4,12 @@
 \alias{synchronicity}
 \docType{package}
 \title{
-This package provides support Interprocess Communication (ipc) synchronization
-and message passing.
+This package provides support for synchronization via mutexes and may eventually
+support interprocess communication (ipc) and message passing.
 }
 \description{
-See Description
+This package provides support for synchronization via mutexes and may eventually
+support interprocess communication (ipc) and message passing.
 }
 \details{
 \tabular{ll}{
@@ -16,7 +17,7 @@ Package: \tab synchronicity\cr
 Type: \tab Package\cr
 Version: \tab 0.1\cr
 Date: \tab 2009-07-12\cr
-License: \tab What license is it under?\cr
+License: \tab LGPL-3\cr
 LazyLoad: \tab yes\cr
 }
 Use this package for ipc support.
@@ -27,7 +28,7 @@ Michael Kane
 Maintainer: <kaneplusplus@gmail.com>
 }
 \references{
-http://www.boost.org/doc/libs/1_39_0/doc/html/interprocess.html
+Boost Interprocess
 }
 \examples{
 print('synchronicity')

@@ -61,6 +61,8 @@ class BoostMutexInfo
 
     SharedCounter count() const {return _counter;}
 
+    bool is_timed() const {return _timeout==-1;}
+
   protected:
     index_type _timeout;
     std::string _name;
@@ -73,9 +75,10 @@ class BoostMutexInfo
 // it is locked.
 
 template<typename LockFunctionType>
-SEXP boost_lock(SEXP resourceName, LockFunctionType lockFun)
+SEXP boost_lock(const std::string &resourceName, 
+  const LockFunctionType &lockFun)
 {
-  named_upgradable_mutex mutex(open_or_create, CHARACTER_VALUE(resourceName));
+  named_upgradable_mutex mutex(open_or_create, resourceName.c_str());
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   try
   {
@@ -92,9 +95,10 @@ SEXP boost_lock(SEXP resourceName, LockFunctionType lockFun)
 }
 
 template<typename TryLockFunctionType>
-SEXP boost_try_lock(SEXP resourceName, TryLockFunctionType tryLockFun)
+SEXP boost_try_lock(const std::string &resourceName, 
+  const TryLockFunctionType &tryLockFun)
 {
-  named_upgradable_mutex mutex(open_or_create, CHARACTER_VALUE(resourceName));
+  named_upgradable_mutex mutex(open_or_create, resourceName.c_str());
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   try
   {
@@ -110,9 +114,10 @@ SEXP boost_try_lock(SEXP resourceName, TryLockFunctionType tryLockFun)
 }
 
 template<typename UnlockFunctionType>
-SEXP boost_unlock(SEXP resourceName, UnlockFunctionType unlockFun)
+SEXP boost_unlock(const std::string &resourceName, 
+  const UnlockFunctionType &unlockFun)
 {
-  named_upgradable_mutex mutex(open_or_create, CHARACTER_VALUE(resourceName));
+  named_upgradable_mutex mutex(open_or_create, resourceName.c_str());
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   try
   {
@@ -130,6 +135,12 @@ SEXP boost_unlock(SEXP resourceName, UnlockFunctionType unlockFun)
 
 extern "C"
 {
+
+ptime to_ptime( double timeout )
+{
+  return second_clock::local_time() + 
+    seconds( static_cast<index_type>(timeout) );
+}
 
 void DestroyBoostMutexInfo( SEXP mutexInfoAddr )
 {
@@ -186,86 +197,117 @@ SEXP CreateSharedCounter( SEXP resourceName )
   return address;
 }
 */
-SEXP destroy_mutex( SEXP resourceName )
+
+//SEXP boost_lock( SEXP resourceName )
+//{
+//  return boost_lock( resourceName, bind( &named_upgradable_mutex::lock, _1 ) );
+//}
+
+SEXP boost_lock( SEXP mutexInfoAddr )
 {
-  SEXP ret = PROTECT(NEW_LOGICAL(1));
-  try
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (pmi->is_timed())
   {
-    named_upgradable_mutex::remove( CHARACTER_VALUE(resourceName) );
-    LOGICAL_DATA(ret)[0] = Rboolean(1);
+    return boost_lock( pmi->name(),
+      bind( &named_upgradable_mutex::timed_lock, _1, 
+        to_ptime(pmi->timeout()) ) );
   }
-  catch(std::exception &e)
+  else
   {
-    LOGICAL_DATA(ret)[0] = Rboolean(0);
-    printf("%s\n", e.what());
+    return boost_lock( pmi->name(), bind(&named_upgradable_mutex::lock, _1));
   }
-  UNPROTECT(1);
-  return ret;
 }
 
-SEXP boost_lock( SEXP resourceName )
-{
-  return boost_lock( resourceName, bind( &named_upgradable_mutex::lock, _1 ) );
-}
+//SEXP boost_try_lock( SEXP resourceName )
+//{
+//  return boost_try_lock( resourceName, 
+//    bind( &named_upgradable_mutex::try_lock, _1 ) );
+//}
 
-SEXP boost_try_lock( SEXP resourceName )
+SEXP boost_try_lock( SEXP mutexInfoAddr )
 {
-  return boost_try_lock( resourceName, 
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  return boost_try_lock( pmi->name(), 
     bind( &named_upgradable_mutex::try_lock, _1 ) );
 }
 
-SEXP boost_unlock( SEXP resourceName )
+//SEXP boost_unlock( SEXP resourceName )
+//{
+//  return boost_unlock( resourceName, 
+//    bind( &named_upgradable_mutex::unlock, _1 ) );
+//}
+
+SEXP boost_unlock( SEXP mutexInfoAddr )
 {
-  return boost_unlock( resourceName, 
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  return boost_unlock( pmi->name(), 
     bind( &named_upgradable_mutex::unlock, _1 ) );
 }
 
-SEXP boost_lock_shared( SEXP resourceName )
+//SEXP boost_lock_shared( SEXP resourceName )
+//{
+//  return boost_lock( resourceName, 
+//    bind( &named_upgradable_mutex::lock_sharable, _1 ) );
+//}
+
+SEXP boost_lock_shared( SEXP mutexInfoAddr )
 {
-  return boost_lock( resourceName, 
-    bind( &named_upgradable_mutex::lock_sharable, _1 ) );
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  if (pmi->is_timed())
+  {
+    return boost_lock( pmi->name(),
+      bind(&named_upgradable_mutex::timed_lock_sharable, 
+        _1, to_ptime(pmi->timeout())) );
+  }
+  else
+  {
+    return boost_lock( pmi->name(), 
+      bind(&named_upgradable_mutex::lock_sharable, _1));
+  }
 }
 
-SEXP boost_try_lock_shared( SEXP resourceName )
+SEXP boost_try_lock_shared( SEXP mutexInfoAddr )
 {
-  return boost_lock( resourceName, 
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  return boost_lock( pmi->name(),
     bind( &named_upgradable_mutex::try_lock_sharable, _1 ) );
 }
 
-SEXP boost_unlock_shared( SEXP resourceName )
+SEXP boost_unlock_shared( SEXP mutexInfoAddr )
 {
-  return boost_unlock( resourceName,
+  BoostMutexInfo *pmi= 
+    reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
+  return boost_unlock( pmi->name(),
     bind( &named_upgradable_mutex::unlock_sharable, _1 ) );
 }
 
-ptime to_ptime( SEXP timeout )
-{
-  return second_clock::local_time() + 
-    seconds( static_cast<long>(NUMERIC_VALUE(timeout)) );
-}
+//SEXP boost_lock_timed( SEXP resourceName, SEXP timeout )
+//{
+//  return boost_lock( resourceName,
+//    bind( &named_upgradable_mutex::timed_lock, _1, to_ptime(timeout) ) );
+//}
 
-SEXP boost_lock_timed( SEXP resourceName, SEXP timeout )
-{
-  return boost_lock( resourceName,
-    bind( &named_upgradable_mutex::timed_lock, _1, to_ptime(timeout) ) );
-}
+//SEXP boost_unlock_timed( SEXP resourceName, SEXP timeout )
+//{
+//  return boost_unlock( resourceName,
+//    bind( &named_upgradable_mutex::unlock, _1 ) );
+//}
 
-SEXP boost_unlock_timed( SEXP resourceName, SEXP timeout )
-{
-  return boost_unlock( resourceName,
-    bind( &named_upgradable_mutex::unlock, _1 ) );
-}
+//SEXP boost_lock_shared_timed( SEXP resourceName, SEXP timeout )
+//{
+//  return boost_unlock( resourceName,
+//    bind(&named_upgradable_mutex::timed_lock_sharable, _1, to_ptime(timeout)) );
+//}
 
-SEXP boost_lock_shared_timed( SEXP resourceName, SEXP timeout )
-{
-  return boost_unlock( resourceName,
-    bind(&named_upgradable_mutex::timed_lock_sharable, _1, to_ptime(timeout)) );
-}
-
-SEXP boost_unlock_shared_timed( SEXP resourceName, SEXP timeout )
-{
-  return boost_lock( resourceName, 
-    bind( &named_upgradable_mutex::unlock, _1 ) );
-}
+//SEXP boost_unlock_shared_timed( SEXP resourceName, SEXP timeout )
+//{
+//  return boost_lock( resourceName, 
+//    bind( &named_upgradable_mutex::unlock, _1 ) );
+//}
 
 }

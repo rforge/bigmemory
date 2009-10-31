@@ -1,16 +1,12 @@
 import(methods)
-export(uuid)
+export(uuid,boost.mutex)
 exportClasses(
-  named.exclusive.lock.call,
-  named.sharable.lock.call,
-  boost.named.sharable.lock.call,
-  boost.named.sharable.timed.lock.call)
+  mutex,
+  boost.mutex)
 exportMethods(
   lock, 
-  try.lock,
   lock.shared,
-  try.lock.shared,
   unlock,
-  unlock.shared,
-  destroy.resource)
+  is.timed,
+  resource.name)
 useDynLib(synchronicity)
