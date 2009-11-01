@@ -1,61 +1,29 @@
 \name{boost.mutex}
 \alias{boost.mutex}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ ~~function to do ... ~~ }
+\title{ Create a boost.mutex object }
 \description{
-  ~~ A concise (1-5 lines) description of what the function does. ~~
+  This function creates a \code{boost.mutex} object.
 }
 \usage{
-boost.mutex(resourceName = NULL, timeout = NULL)
+boost.mutex(sharedName = NULL, timeout = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{resourceName}{ ~~Describe \code{resourceName} here~~ }
-  \item{timeout}{ ~~Describe \code{timeout} here~~ }
-}
-\details{
-  ~~ If necessary, more details than the description above ~~
+  \item{sharedName}{The name of the shared resource corresponding to the
+mutex.  By default a universal unique identifier is supplied.}
+  \item{timeout}{The amount of time (in seconds) that the mutex should try
+to attempt to get a lock.  By default no timeout is supplied and the
+mutex will attempt to acquire the lock indefinitely.}
 }
 \value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
+  This function returns a \code{boost.mutex} object.
 }
-\references{ ~put references to the literature/web site here ~ }
-\author{ ~~who you are~~ }
-\note{ ~~further notes~~ 
+\author{ Michael J. Kane }
 
- ~Make other sections like Warning with \section{Warning }{....} ~
-}
-\seealso{ ~~objects to See Also as \code{\link{help}}, ~~~ }
+\seealso{\code{\link{synchronicity}}}
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function(resourceName=NULL, timeout=NULL)
-{
-  isRead = TRUE
-  if (is.null(resourceName)) 
-  {
-    resourceName = uuid()
-  }
-  if (!is.null(timeout) && !is.numeric(timeout))
-  {
-    stop("The timeout parameter must be numeric.")
-  }
-  if (!is.null(timeout) && timeout <= 0)
-  {
-    stop("You must specify a timeout greater than zero.")
-  }
-  mutexInfoAddr=.Call('CreateBoostMutexInfo', resourceName, as.double(timeout))
-  return(new('boost.mutex', isRead=isRead, mutexInfoAddr=mutexInfoAddr))
-  }
+# Create a boost.mutex object with default resource name and no timeout.
+x = boost.mutex()
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{programming}
+\keyword{misc}

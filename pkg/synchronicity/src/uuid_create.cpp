@@ -1,12 +1,12 @@
 #include <iostream> // Hack to make sure we are using the correct length
                     // function
 #include <cstring>  // Hack to make sure the correct memcpy is called
+#include <cstdio>
 #include <string>
 #include <boost/uuid.hpp>
 
 #include <R.h>
 #include "util.h"
-
 
 using namespace boost;
 

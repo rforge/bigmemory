@@ -25,7 +25,6 @@ setClass('mutex')
 setGeneric('lock', function(m, ...) standardGeneric('lock'))
 setGeneric('lock.shared', function(m, ...) standardGeneric('lock.shared'))
 setGeneric('unlock', function(m, ...) standardGeneric('unlock'))
-setGeneric('is.timed', function(m) standardGeneric('is.timed'))
 
 setClass('boost.mutex', contains='mutex', 
   representation(isRead='logical', mutexInfoAddr='externalptr'))
@@ -76,6 +75,14 @@ setMethod('timeout', signature(m='boost.mutex'),
   {
     return(.Call('GetTimeout', m))
   })
+
+setGeneric('is.timed', function(m) standardGeneric('is.timed'))
+setMethod('is.timed', signature(m='boost.mutex'),
+  function(m)
+  {
+    return(!is.null(timeout(m)))
+  })
+
 # The constructor for a boost.mutex
 boost.mutex=function(sharedName=NULL, timeout=NULL)
 {
