@@ -1,6 +1,7 @@
 \name{big.matrix.descriptor-class}
 \Rdversion{1.1}
 \docType{class}
+\alias{descriptor-class}
 \alias{big.matrix.descriptor-class}
 \alias{attach.resource,big.matrix.descriptor-method}
 \alias{attach.resource,character-method}
