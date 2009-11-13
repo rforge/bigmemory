@@ -772,7 +772,7 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
     }
     if (j-offset < pMat->ncol())
     {
-      warning( (string("Incorrect number of entries in row ")+ttos(j)).c_str());
+//      warning( (string("Incorrect number of entries in row ")+ttos(j)).c_str());
       while (j-offset < pMat->ncol())
       {
         mat[j++ - offset][i] = static_cast<T>(C_NA);

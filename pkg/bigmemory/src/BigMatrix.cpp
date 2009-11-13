@@ -415,24 +415,7 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
   const std::string &filePath, MappedRegionPtrs &dataRegionPtrs, 
   const index_type nrow, const index_type ncol )
 {
-#ifdef WINDOWS
-  index_type i;
-  for (i=0; i < ncol; ++i)
-  {
-    std::string columnName = filePath + fileName + "_column_" + ttos(i);
-    // Create the files.
-    std::filebuf fbuf;
-    if (!fbuf.open( columnName.c_str(), std::ios_base::in | std::ios_base::out |
-      std::ios_base::trunc | std::ios_base::binary ))
-    {
-      return NULL;
-    }
-    fbuf.pubseekoff( nrow*sizeof(T), std::ios_base::beg);
-    // I'm not sure if I need this next line
-    fbuf.sputc(0);
-    fbuf.close();
-  }
-#else
+#ifdef LINUX
   index_type i;
   for (i=0; i < ncol; ++i)
   {
@@ -450,6 +433,23 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
       }
     }
     fclose(fp);
+  }
+#else // WINDOWS or Mac
+  index_type i;
+  for (i=0; i < ncol; ++i)
+  {
+    std::string columnName = filePath + fileName + "_column_" + ttos(i);
+    // Create the files.
+    std::filebuf fbuf;
+    if (!fbuf.open( columnName.c_str(), std::ios_base::in | std::ios_base::out |
+      std::ios_base::trunc | std::ios_base::binary ))
+    {
+      return NULL;
+    }
+    fbuf.pubseekoff( nrow*sizeof(T), std::ios_base::beg);
+    // I'm not sure if I need this next line
+    fbuf.sputc(0);
+    fbuf.close();
   }
 #endif
   return ConnectFileBackedSepMatrix<T>(fileName, filePath, dataRegionPtrs, 
@@ -484,19 +484,7 @@ void* CreateFileBackedMatrix(const std::string &fileName,
 {
   // Create the file.
   std::string fullFileName = filePath+fileName;
-#ifdef WINDOWS
-  std::filebuf fbuf;
-  if (!fbuf.open( (filePath+fileName).c_str(),
-      std::ios_base::in | std::ios_base::out |
-      std::ios_base::trunc | std::ios_base::binary ))
-  {
-    return NULL;
-  }
-  fbuf.pubseekoff(nrow*ncol*sizeof(T), std::ios_base::beg);
-  // I'm not sure if I need this next line
-  fbuf.sputc(0);
-  fbuf.close();
-#else
+#ifdef LINUX
   FILE *fp = fopen( fullFileName.c_str(), "wb");
   if (!fp)
   {
@@ -510,6 +498,18 @@ void* CreateFileBackedMatrix(const std::string &fileName,
     return NULL;
   }
   fclose(fp);
+#else // Windows or Mac
+  std::filebuf fbuf;
+  if (!fbuf.open( (filePath+fileName).c_str(),
+      std::ios_base::in | std::ios_base::out |
+      std::ios_base::trunc | std::ios_base::binary ))
+  {
+    return NULL;
+  }
+  fbuf.pubseekoff(nrow*ncol*sizeof(T), std::ios_base::beg);
+  // I'm not sure if I need this next line
+  fbuf.sputc(0);
+  fbuf.close();
 #endif
   return ConnectFileBackedMatrix<T>(fileName, filePath,
     dataRegionPtrs, nrow, ncol);

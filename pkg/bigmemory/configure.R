@@ -12,9 +12,9 @@ if (Sys.info()[['sysname']] == "Windows" & version$os == 'intel64')
   cppFlags = paste(cppFlags, '-GX')
 }
 
-if (Sys.info()[['sysname']] == "Windows")
+if (Sys.info()[['sysname']] == "Linux")
 {
-  cppFlags = paste(cppFlags, '-DWINDOWS')
+  cppFlags = paste(cppFlags, '-DLINUX')
 }
 
 configText = cppFlags
