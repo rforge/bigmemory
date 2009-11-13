@@ -12,10 +12,11 @@
     options(bigmemory.typecast.warning=TRUE)
     options(bigmemory.allow.dimnames=FALSE)
     cat("\nLoading bigmemory version >=4.0.\n\n")
-    cat("Note that bigmemory >= 4.0 no longer includes advanced\n")
-    cat("functionality.  New packages biganalytics, synchronicity,\n")
-    cat("and bigalgebra provide extended functionality.  Further\n")
-    cat("information is available at http://www.bigmemory.org.\n\n")
+    cat("Note that bigmemory >= 4.0 no longer includes summary statistics\n")
+    cat("and linear regression functionality.  The new packages\n")
+    cat("biganalytics, synchronicity, and bigalgebra provide extended\n")
+    cat("functionality.  Further information is available at\n")
+    cat("http://www.bigmemory.org.\n\n")
 }
 
 #.noGenerics <- TRUE           # This was a problem, not used.
