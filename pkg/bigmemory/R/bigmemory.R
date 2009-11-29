@@ -64,8 +64,6 @@ big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   return(x)
 }
 
-
-
 setGeneric('is.big.matrix', function(x) standardGeneric('is.big.matrix'))
 
 setMethod('is.big.matrix', signature(x='big.matrix'),
@@ -871,13 +869,14 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
 
 setGeneric('read.big.matrix', 
   function(fileName, sep=',', header=FALSE, col.names=NULL, row.names=NULL, 
-    has.row.names=FALSE, ignore.row.names=FALSE, type=NA, skip=0, separated=FALSE, 
-    backingfile=NULL, backingpath=NULL, descriptorfile=NULL, 
+    has.row.names=FALSE, ignore.row.names=FALSE, type=NA, skip=0, 
+    separated=FALSE, backingfile=NULL, backingpath=NULL, descriptorfile=NULL, 
     extraCols=NULL) standardGeneric('read.big.matrix'))
 
 setMethod('read.big.matrix', signature(fileName='character'),
-  function(fileName, sep, header, col.names, row.names, has.row.names, ignore.row.names,
-           type, skip, separated, backingfile, backingpath, descriptorfile, extraCols)
+  function(fileName, sep, header, col.names, row.names, has.row.names, 
+           ignore.row.names, type, skip, separated, backingfile, backingpath, 
+           descriptorfile, extraCols)
   {
     if (is.logical(col.names) | is.logical(row.names))
       stop("row.names and col.names, if used, must only be vectors of names (not logicals).")
