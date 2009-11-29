@@ -863,7 +863,7 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
       colnames.bm(x) <- value[[2]]
     } else {
       stop(paste("Changing dimnames is not allowed; to override, please set",
-                 "options('bigmemory.allow.dimnames') <- TRUE.", sep=" "))
+                 "options(bigmemory.allow.dimnames=TRUE).", sep=" "))
     }
     return(x)
   })
