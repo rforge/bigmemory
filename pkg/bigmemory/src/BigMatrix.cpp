@@ -58,7 +58,7 @@ void* CreateSharedSepMatrix( const std::string &sharedName,
   {
     try
     {
-//      shared_memory_object::remove( (sharedName+"_column_"+ttos(i)).c_str() );
+      shared_memory_object::remove( (sharedName+"_column_"+ttos(i)).c_str() );
       shared_memory_object shm(create_only, 
         (sharedName + "_column_" + ttos(i)).c_str(),
         read_write);
@@ -661,6 +661,7 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
   }
 }
 
+/*
 void DestroyFileBackedSepMatrix( const std::string &sharedName, 
   const index_type ncol, const std::string &fileName)
 {
@@ -669,7 +670,7 @@ void DestroyFileBackedSepMatrix( const std::string &sharedName,
   {
     try
     {
-      file_mapping::remove((sharedName + "_column_" + ttos(i)).c_str());
+      shared_memory_object::remove((sharedName + "_column_" + ttos(i)).c_str());
     }
     catch(std::exception &e)
     {
@@ -678,7 +679,7 @@ void DestroyFileBackedSepMatrix( const std::string &sharedName,
     }
   }
 }
-
+*/
 bool FileBackedBigMatrix::destroy()
 {
   try
@@ -686,7 +687,7 @@ bool FileBackedBigMatrix::destroy()
     _dataRegionPtrs.resize(0);
     if (_sepCols) 
     {
-      DestroyFileBackedSepMatrix(_sharedName, _totalCols, _fileName);
+//      DestroyFileBackedSepMatrix(_sharedName, _totalCols, _fileName);
       if (_pdata) 
       {
         switch(_matType)
@@ -705,11 +706,12 @@ bool FileBackedBigMatrix::destroy()
             }
         }
     } 
+/*
     else // not _sepCols
     { 
       try
       {            
-        file_mapping::remove(_sharedName.c_str());
+        shared_memory_object::remove(_sharedName.c_str());
       }
       catch(std::exception &e)
       {
@@ -717,7 +719,7 @@ bool FileBackedBigMatrix::destroy()
         printf("%s line %d\n", __FILE__, __LINE__);
       }
     }
-
+*/
         // In all cases, do the following:
     _ncol=0;
     _nrow=0;
