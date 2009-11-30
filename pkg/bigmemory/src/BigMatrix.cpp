@@ -669,7 +669,7 @@ void DestroyFileBackedSepMatrix( const std::string &sharedName,
   {
     try
     {
-      shared_memory_object::remove((sharedName + "_column_" + ttos(i)).c_str());
+      file_mapping::remove((sharedName + "_column_" + ttos(i)).c_str());
     }
     catch(std::exception &e)
     {
@@ -709,7 +709,7 @@ bool FileBackedBigMatrix::destroy()
     { 
       try
       {            
-        shared_memory_object::remove(_sharedName.c_str());
+        file_mapping::remove(_sharedName.c_str());
       }
       catch(std::exception &e)
       {
