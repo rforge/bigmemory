@@ -17,7 +17,7 @@ to that of an \R \code{matrix}.
 \tabular{ll}{
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
-Version: \tab 4.0\cr
+Version: \tab 4.0.1\cr
 Date: \tab 2009-10-31\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2009 John W. Emerson and Michael J. Kane\cr

@@ -1112,7 +1112,7 @@ fix_path = function(path)
   }
   else 
   {
-    if ( is.na(file.info( substr(path, 1, nchar(path)-1) )) )
+    if ( is.na(file.info(substr(path, 1, nchar(path)-1))$isdir) )
       stop( "The supplied backing path does not exist.")
   }
   return(path)
@@ -1275,25 +1275,33 @@ DescribeBigMatrix = function(x) #, file=NULL, path="")
   }
 }
 
+attach.big.matrix = function(obj, ...)
+{
+  if (!is.null( list(...)[['backingpath']]))
+    return(attach.resource(obj, path=list(...)[['backingpath']], ...))
+  return(attach.resource(obj, ...))
+}
+
+
 setGeneric('attach.resource', 
   function(obj, ...) standardGeneric('attach.resource'))
 
 setMethod('attach.resource', signature(obj='character'),
   function(obj, ...)
   {
-    path = match.call()[['path']]
+    path = list(...)[['path']]
     if (is.null(path))
     {
       path = ''
     }
     info <- dget(paste(fix_path(path), obj, sep=""))
-    return(attach.resource(info))
+    return(attach.resource(info, path=path))
   })
 
 setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
   function(obj, ...)
   {
-    path = match.call()[['path']]
+    path = list(...)[['path']]
     if (is.null(path))
     {
       path = ''
@@ -1332,11 +1340,6 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     }
     return(ans)  
   })
-
-attach.big.matrix = function(obj, ...)
-{
-  attach.resource(obj, ...)
-}
 
 setGeneric('is.filebacked', function(x) standardGeneric('is.filebacked'))
 
