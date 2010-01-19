@@ -20,8 +20,8 @@ attach.resource(obj, ...)
 }
 \arguments{
   \item{x}{a \code{\link{big.matrix}} object}
-  \item{obj}{an object as returned by \code{describe()} or, optionally, the filename of the descriptor for a filebacked matrix, assumed to be in the directory specified by the \code{backingpath} (if one is provided)}
-  \item{...}{possibly \code{backingpath} which gives
+  \item{obj}{an object as returned by \code{describe()} or, optionally, the filename of the descriptor for a filebacked matrix, assumed to be in the directory specified by the \code{path} (if one is provided)}
+  \item{...}{possibly \code{path} which gives
   the path where the descriptor and/or filebacking can be found}
 }
 \details{
