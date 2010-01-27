@@ -661,7 +661,6 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
   }
 }
 
-/*
 void DestroyFileBackedSepMatrix( const std::string &sharedName, 
   const index_type ncol, const std::string &fileName)
 {
@@ -679,7 +678,7 @@ void DestroyFileBackedSepMatrix( const std::string &sharedName,
     }
   }
 }
-*/
+
 bool FileBackedBigMatrix::destroy()
 {
   try
@@ -687,7 +686,7 @@ bool FileBackedBigMatrix::destroy()
     _dataRegionPtrs.resize(0);
     if (_sepCols) 
     {
-//      DestroyFileBackedSepMatrix(_sharedName, _totalCols, _fileName);
+      DestroyFileBackedSepMatrix(_sharedName, _totalCols, _fileName);
       if (_pdata) 
       {
         switch(_matType)
@@ -706,7 +705,6 @@ bool FileBackedBigMatrix::destroy()
             }
         }
     } 
-/*
     else // not _sepCols
     { 
       try
@@ -719,7 +717,6 @@ bool FileBackedBigMatrix::destroy()
         printf("%s line %d\n", __FILE__, __LINE__);
       }
     }
-*/
         // In all cases, do the following:
     _ncol=0;
     _nrow=0;

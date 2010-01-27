@@ -1,5 +1,5 @@
 Package: bigmemory
-Version: 4.0.1
+Version: 4.0.2
 Date: 2009-10-31
 Title: Manage massive matrices with support for shared memory and memory-mapped files.
 Author: Michael J. Kane and John W. Emerson
