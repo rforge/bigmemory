@@ -13,16 +13,16 @@ mmap = function(x, y) {
 
 #############################################################################
 
-setClass("big.matrix", representation(address='externalptr'))
-
+setClass('big.matrix', representation(address='externalptr'))
 setClass('descriptor', representation(description='list'))
-
-setGeneric('describe', function(x)
-  standardGeneric('describe'))
-
-setGeneric('description', function(x) standardGeneric('description'))
-
 setClass('big.matrix.descriptor', contains='descriptor')
+
+# Here, x is a big.matrix, and the result is a descriptor.
+setGeneric('describe', function(x) standardGeneric('describe'))
+
+# Here, x is a descriptor, and the result is the description which is
+# the relevant data needed for the attach.
+setGeneric('description', function(x) standardGeneric('description'))
 
 big.matrix <- function(nrow, ncol, type='integer', init=NULL,
                        dimnames=NULL, separated=FALSE, backingfile=NULL,
@@ -31,8 +31,9 @@ big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   if (!is.null(backingfile))
   {
     return(filebacked.big.matrix(nrow=nrow, ncol=ncol, type=type, init=init,
-      dimnames=dimnames, separated=separated, backingfile=backingfile,
-      backingpath=backingpath, descriptorfile=descriptorfile))
+                                 dimnames=dimnames, separated=separated,
+                                 backingfile=backingfile, backingpath=backingpath,
+                                 descriptorfile=descriptorfile))
   }
   if (nrow < 1 | ncol < 1)
     stop('A big.matrix must have at least one row and one column')
@@ -51,11 +52,11 @@ big.matrix <- function(nrow, ncol, type='integer', init=NULL,
     colnames <- NULL
   }
   address <- .Call('CCreateSharedMatrix', as.double(nrow),
-    as.double(ncol), as.character(colnames), as.character(rownames),
-    as.integer(typeVal), as.double(init), as.logical(separated))
+                   as.double(ncol), as.character(colnames), as.character(rownames),
+                   as.integer(typeVal), as.double(init), as.logical(separated))
   if (is.null(address)) {
     stop(paste("Error: memory could not be allocated for instance",
-               "of type big.matrix", sep=' '))
+               "of type big.matrix"))
   }
   x <- new("big.matrix", address=address)
   if (is.null(x)) {
@@ -73,15 +74,15 @@ setMethod('is.big.matrix', definition=function(x) return(FALSE))
 
 setGeneric('as.big.matrix', 
   function(x, type=NULL, separated=FALSE,
-    backingfile=NULL, backingpath=NULL,
-    descriptorfile=NULL) standardGeneric('as.big.matrix'))
+           backingfile=NULL, backingpath=NULL,
+           descriptorfile=NULL) standardGeneric('as.big.matrix'))
 
 setMethod('as.big.matrix', signature(x='matrix'),
   function(x, type, separated, backingfile, backingpath, descriptorfile)
   {
     if (!is.numeric(x)) {
       warning("Casting to numeric type")
-      x <- matrix( as.numeric(x), nrow=nrow(x), dimnames=dimnames(x) )
+      x <- matrix(as.numeric(x), nrow=nrow(x), dimnames=dimnames(x))
     }
     if (is.null(type)) type <- typeof(x)
 
@@ -129,8 +130,7 @@ assign('colnames.bm<-',
   function(x, value) {
       if (is.character(value)) {
         if (any(value=="")) {
-          value <- NULL
-          warning("empty strings prohibited in column names")
+          stop("empty strings prohibited in column names")
         }
       } else {
         if (!is.null(value)) {
@@ -148,8 +148,7 @@ assign('rownames.bm<-',
   function(x,value) {
       if (is.character(value)) {
         if (any(value=="")) {
-          value = NULL
-          warning("empty strings prohibited in row names")
+          stop("empty strings prohibited in row names")
         }
       } else {
         if (!is.null(value)) {
@@ -164,14 +163,10 @@ assign('rownames.bm<-',
   })
 
 setMethod('ncol', signature(x="big.matrix"),
-  function(x) {
-    return(.Call("CGetNcol", x@address))
-  })
+  function(x) return(.Call("CGetNcol", x@address)))
 
 setMethod('nrow', signature(x="big.matrix"), 
-  function(x) {
-    return(.Call("CGetNrow", x@address))
-  })
+  function(x) return(.Call("CGetNrow", x@address)))
 
 setMethod('dim', signature(x="big.matrix"),
   function(x) return(c(nrow(x), ncol(x))))
@@ -294,9 +289,6 @@ GetRows.bm <- function(x, i, drop=TRUE)
 
 GetAll.bm <- function(x, drop=TRUE)
 {
-  # Note here the locks are handled in the signature, because there
-  # is no index cleaning to be done.
-
   retList <- .Call("GetMatrixAll", x@address)
 
   dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
@@ -316,55 +308,35 @@ GetAll.bm <- function(x, drop=TRUE)
 
 setMethod("[",
   signature(x = "big.matrix", drop = "missing"),
-  function(x, i, j) {
-    return(GetElements.bm(x, i, j))
-  })
+  function(x, i, j) return(GetElements.bm(x, i, j)))
 
 setMethod("[",
   signature(x = "big.matrix", drop = "logical"),
-  function(x, i, j, drop) {
-    return(GetElements.bm(x, i, j, drop))
-  })
+  function(x, i, j, drop) return(GetElements.bm(x, i, j, drop)))
 
 setMethod("[",
   signature(x = "big.matrix", i="missing", drop = "missing"),
-  function(x, j) {
-    return(GetCols.bm(x, j))
-  })
+  function(x, j) return(GetCols.bm(x, j)))
 
 setMethod("[",
   signature(x = "big.matrix", i="missing", drop = "logical"),
-  function(x, j, drop) {
-    return(GetCols.bm(x, j, drop))
-  })
+  function(x, j, drop) return(GetCols.bm(x, j, drop)))
 
 setMethod("[",
   signature(x = "big.matrix", j="missing", drop = "missing"),
-  function(x, i) {
-    return(GetRows.bm(x, i))
-  })
+  function(x, i) return(GetRows.bm(x, i)))
 
 setMethod("[",
   signature(x = "big.matrix", j="missing", drop = "logical"),
-  function(x, i, drop) {
-    return(GetRows.bm(x, i, drop))
-  })
+  function(x, i, drop) return(GetRows.bm(x, i, drop)))
 
-# Because we don't have any index checking/fixing, we do our locking here.
 setMethod("[",
   signature(x = "big.matrix", i="missing", j="missing", drop = "missing"),
-  function(x) {
-    ret <- GetAll.bm(x)
-    return(ret)
-})
+  function(x) return(GetAll.bm(x)))
 
-# Because we don't have any index checking/fixing, we do our locking here.
 setMethod("[",
   signature(x = "big.matrix", i="missing", j="missing", drop = "logical"),
-  function(x, drop) {
-    ret <- GetAll.bm(x, drop)
-    return(ret)
-})
+  function(x, drop) return(GetAll.bm(x, drop)))
 
 SetElements.bm <- function(x, i, j, value)
 {
@@ -400,15 +372,11 @@ SetElements.bm <- function(x, i, j, value)
   if ( options()$bigmemory.typecast.warning &&
        ((typeof(value) == "double") && (typeof(x) != "double") ||
        (typeof(value) == "integer" &&
-        (typeof(x) != "double" && typeof(x) != "integer"))) )
+        (typeof(x) != "double" && typeof(x) != "integer"))) ) 
   {
     warning(cat("Assignment will down cast from ", typeof(value), " to ",
                 typeof(x), "\nHint: To remove this warning type:  ",
                 "options(bigmemory.typecast.warning=FALSE)\n", sep=''))
-
-  # Note: i may be a mwhich statement in which case we _must_ ensure
-  # that we disable read locking before it is evaluated or we will
-  # have a race condition.  - Jay and Mike.
   }
 
   totalts <- length(i) * length(j)
@@ -432,17 +400,18 @@ SetElements.bm <- function(x, i, j, value)
   if (typeof(x) != 'double') {
     integerVals = na.omit(as.integer(value))
     if ( sum(integerVals == na.omit(as.integer(value))) !=
-         length(integerVals) | is.factor(value)) {
+         length(integerVals) | is.factor(value)) 
+    {
       warning("non-integer (possibly Inf or -Inf) typecast to integer")
     }
   }
   # Note: we pass doubles as doubles, but anything else as integers.
   if (typeof(x) == 'double') {
     .Call("SetMatrixElements", x@address, as.double(j), as.double(i), 
-			as.double(value))
+          as.double(value))
   } else {
     .Call("SetMatrixElements", x@address, as.double(j), as.double(i), 
-			as.integer(value))
+          as.integer(value))
   }
   return(x)
 }
@@ -469,13 +438,11 @@ SetCols.bm <- function(x, j, value)
        ((typeof(value) == "double") && (typeof(x) != "double") ||
        (typeof(value) == "integer" &&
         (typeof(x) != "double" && typeof(x) != "integer"))) )
+  {
     warning(cat("Assignment will down cast from ", typeof(value), " to ",
                 typeof(x), "\nHint: To remove this warning type:  ",
                 "options(bigmemory.typecast.warning=FALSE)\n", sep=''))
-
-  # Note: i may be a mwhich statement in which case we _must_ ensure
-  # that we disable read locking before it is evaluated or we will
-  # have a race condition.  - Jay and Mike.
+  }
 
   totalts <- nrow(x) * length(j)
   # If we are assigning from a matrix, make sure the dimensions agree.
@@ -535,9 +502,11 @@ SetRows.bm <- function(x, i, value)
        ((typeof(value) == "double") && (typeof(x) != "double") ||
        (typeof(value) == "integer" &&
         (typeof(x) != "double" && typeof(x) != "integer"))) )
+  {
     warning(cat("Assignment will down cast from ", typeof(value), " to ",
                 typeof(x), "\nHint: To remove this warning type:  ",
                 "options(bigmemory.typecast.warning=FALSE)\n", sep=''))
+  }
 
   # Note: i may be a mwhich statement in which case we _must_ ensure
   # that we disable read locking before it is evaluated or we will
@@ -565,7 +534,7 @@ SetRows.bm <- function(x, i, value)
   }
   if (typeof(x) != 'double') 
   {
-    integerVals = na.omit(as.integer(value))
+    integerVals <- na.omit(as.integer(value))
     if ( sum(integerVals == na.omit(as.integer(value))) !=
          length(integerVals) | is.factor(value)) {
       warning("non-integer (possibly Inf or -Inf) typecast to integer")
@@ -588,13 +557,11 @@ SetAll.bm <- function(x, value)
        ((typeof(value) == "double") && (typeof(x) != "double") ||
        (typeof(value) == "integer" &&
         (typeof(x) != "double" && typeof(x) != "integer"))) )
+  {
     warning(cat("Assignment will down cast from ", typeof(value), " to ",
                 typeof(x), "\nHint: To remove this warning type:  ",
                 "options(bigmemory.typecast.warning=FALSE)\n", sep=''))
-
-  # Note: i may be a mwhich statement in which case we _must_ ensure
-  # that we disable read locking before it is evaluated or we will
-  # have a race condition.  - Jay and Mike.
+  }
 
   totalts <- nrow(x) * ncol(x)
   # If we are assigning from a matrix, make sure the dimensions agree.
@@ -638,27 +605,19 @@ SetAll.bm <- function(x, value)
 
 setMethod('[<-',
   signature(x = "big.matrix"),
-  function(x, i, j, value) {
-    return(SetElements.bm(x, i, j, value))
-  })
+  function(x, i, j, value) return(SetElements.bm(x, i, j, value)))
 
 setMethod('[<-',
   signature(x = "big.matrix", i="missing"),
-  function(x, j, value) {
-    return(SetCols.bm(x, j, value))
-  })
+  function(x, j, value) return(SetCols.bm(x, j, value)))
 
 setMethod('[<-',
   signature(x = "big.matrix", j="missing"),
-  function(x, i, value) {
-    return(SetRows.bm(x, i, value))
-  })
+  function(x, i, value) return(SetRows.bm(x, i, value)))
 
 setMethod('[<-',
   signature(x = "big.matrix", i="missing", j="missing"),
-  function(x, value) {
-    return(SetAll.bm(x, value))
-  })
+  function(x, value) return(SetAll.bm(x, value)))
 
 setMethod('typeof', signature(x="big.matrix"),
   function(x) return(.Call('GetTypeString', x@address)))
@@ -861,7 +820,7 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
       colnames.bm(x) <- value[[2]]
     } else {
       stop(paste("Changing dimnames is not allowed; to override, please set",
-                 "options(bigmemory.allow.dimnames=TRUE).", sep=" "))
+                 "options(bigmemory.allow.dimnames=TRUE)."))
     }
     return(x)
   })
@@ -869,9 +828,9 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
 
 setGeneric('read.big.matrix', 
   function(fileName, sep=',', header=FALSE, col.names=NULL, row.names=NULL, 
-    has.row.names=FALSE, ignore.row.names=FALSE, type=NA, skip=0, 
-    separated=FALSE, backingfile=NULL, backingpath=NULL, descriptorfile=NULL, 
-    extraCols=NULL) standardGeneric('read.big.matrix'))
+           has.row.names=FALSE, ignore.row.names=FALSE, type=NA, skip=0, 
+           separated=FALSE, backingfile=NULL, backingpath=NULL, descriptorfile=NULL, 
+           extraCols=NULL) standardGeneric('read.big.matrix'))
 
 setMethod('read.big.matrix', signature(fileName='character'),
   function(fileName, sep, header, col.names, row.names, has.row.names, 
@@ -994,10 +953,7 @@ setMethod('write.big.matrix', signature(x='big.matrix',fileName='character'),
 setGeneric('is.separated', function(x) standardGeneric('is.separated'))
 
 setMethod('is.separated', signature(x='big.matrix'),
-  function(x)
-  {
-    return(.Call("IsSeparated", x@address))
-  })
+  function(x) return(.Call("IsSeparated", x@address)))
 
 cleanupcols <- function(cols=NULL, nc=NULL, colnames=NULL) {
   if (is.null(cols)) cols <- 1:nc
@@ -1031,18 +987,16 @@ deepcopy <- function(x, cols=NULL, type=NULL, separated=NULL,
   if (is.null(type)) type <- typeof(x)
   if (is.null(separated)) separated <- is.separated(x)
   y <- big.matrix(nrow=nrow(x), ncol=length(cols), type=type, init=NULL,
-      dimnames = dimnames(x), separated=separated,
-      backingfile=backingfile, backingpath=backingpath,
-      descriptorfile=descriptorfile)
+                  dimnames=dimnames(x), separated=separated,
+                  backingfile=backingfile, backingpath=backingpath,
+                  descriptorfile=descriptorfile)
   for (i in 1:length(cols)) y[,i] <- x[,cols[i]]
 
   return(y)
 }
 
 setMethod('apply', signature(X="big.matrix"),
-  function(X, MARGIN, FUN, ...) {
-    return(bmapply(X, MARGIN, FUN, ...))
-  })
+  function(X, MARGIN, FUN, ...) return(bmapply(X, MARGIN, FUN, ...)))
 
 bmapply <- function(X, MARGIN, FUN, ...)
 {
@@ -1118,15 +1072,6 @@ fix_path = function(path)
   return(path)
 }
 
-setGeneric('backingpath', function(x)
-  standardGeneric('backingpath'))
-
-setMethod('backingpath', signature(x='big.matrix'),
-  function(x)
-  {
-    return(.Call('GetFileBackedPath',x@address))
-  })
-
 setGeneric('is.sub.big.matrix', function(x)
 	standardGeneric('is.sub.big.matrix'))
 
@@ -1143,7 +1088,7 @@ setMethod('sub.big.matrix', signature(x='big.matrix'),
   function(x, firstRow, lastRow, firstCol, lastCol, backingpath)
   {
     return(sub.big.matrix(describe(x), firstRow, lastRow, firstCol, lastCol, 
-      backingpath))
+           backingpath))
   })
 
 setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
@@ -1157,7 +1102,7 @@ setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
     numCols <- lastCol-firstCol+1
     numRows <- lastRow-firstRow+1
     if (colOffset < 0 || rowOffset < 0 || numCols < 1 || numRows < 1 ||
-      colOffset+numCols > ncol(rbm) || rowOffset+numRows > nrow(rbm))
+        colOffset+numCols > ncol(rbm) || rowOffset+numRows > nrow(rbm))
     {
       rm(rbm)
       stop(paste("A sub.big.matrix object could not be created",
@@ -1172,9 +1117,9 @@ setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
     return(rbm)
   })
 
-filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
-  dimnames=NULL, separated=FALSE, backingfile=NULL, backingpath=NULL, 
-  descriptorfile=NULL)
+filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
+                                  dimnames=NULL, separated=FALSE, backingfile=NULL,
+                                  backingpath=NULL, descriptorfile=NULL)
 {
   if (nrow < 1 | ncol < 1)
     stop('A big.matrix must have at least one row and one column')
@@ -1182,14 +1127,10 @@ filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
     stop('A big.matrix must have at least one row and one column')
 
   typeVal=NULL
-  if (type == 'integer') 
-    typeVal=4
-  if (type == 'double') 
-    typeVal=8
-  if (type == 'short') 
-    typeVal=2
-  if (type == 'char') 
-    typeVal=1
+  if (type == 'integer') typeVal <- 4
+  if (type == 'double') typeVal <- 8
+  if (type == 'short') typeVal <- 2
+  if (type == 'char') typeVal <- 1
   if (is.null(typeVal)) stop('invalid type')
   if (!is.null(dimnames)) {
     rownames <- dimnames[[1]]
@@ -1202,38 +1143,37 @@ filebacked.big.matrix=function(nrow, ncol, type='integer', init=NULL,
   {
     stop('You must specify a backing file')
   }
-	backingpath = fix_path(backingpath)
-
-  anon.backing = FALSE
+  backingpath <- fix_path(backingpath)
+  anon.backing <- FALSE
   if (backingfile == '')
   {
-    backingfile = tempfile()
-    backingpath=''
-    anon.backing = TRUE
+    backingfile <- tempfile()
+    backingpath <- ''
+    anon.backing <- TRUE
   }
 
-	address = .Call('CCreateFileBackedBigMatrix', as.character(backingfile), 
-    as.character(backingpath), as.double(nrow), as.double(ncol), 
-    as.character(colnames), as.character(rownames), as.integer(typeVal), 
-    as.double(init), as.logical(separated))
+	address <- .Call('CCreateFileBackedBigMatrix', as.character(backingfile), 
+                         as.character(backingpath), as.double(nrow), as.double(ncol), 
+                         as.character(colnames), as.character(rownames), as.integer(typeVal), 
+                         as.double(init), as.logical(separated))
   if (is.null(address))
   {
     stop("Error encountered when creating instance of type big.matrix")
   }
-  x=new("big.matrix", address=address)
+  x <- new("big.matrix", address=address)
   if (is.null(x))
   {
     stop("Error encountered when creating instance of type big.matrix")
   }
-	if (is.null(descriptorfile) && !anon.backing)
-	{
-		warning(paste("A descriptor file has not been specified.  ",
-			"A descriptor named ", backingfile, ".desc will be created.", sep=''))
-		descriptorfile = paste( backingfile, ".desc", sep='' )
-	}
+  if (is.null(descriptorfile) && !anon.backing)
+  {
+    warning(paste("A descriptor file has not been specified.  ",
+                  "A descriptor named ", backingfile, ".desc will be created.", sep=''))
+    descriptorfile <- paste(backingfile, ".desc", sep='' )
+  }
   if (!anon.backing)
   {
-	  dput( describe(x), paste(backingpath, descriptorfile, sep='') )
+    dput(describe(x), paste(backingpath, descriptorfile, sep=''))
   }
   return(x)
 }
@@ -1247,31 +1187,31 @@ setMethod('describe', signature(x='big.matrix'),
 setMethod('description', signature(x='big.matrix.descriptor'),
   function(x) return(x@description))
 
-DescribeBigMatrix = function(x) #, file=NULL, path="")
+DescribeBigMatrix = function(x)
 {
   if (!is.filebacked(x))
   {
-    ret = list(sharedType='SharedMemory',
-        sharedName=shared.name(x), 
-        totalRows = .Call("GetTotalRows", x@address),
-        totalCols = .Call("GetTotalColumns", x@address),
-        rowOffset = .Call("GetRowOffset", x@address),
-        colOffset = .Call("GetColOffset", x@address),
-        nrow=nrow(x), ncol=ncol(x),
-        rowNames=rownames(x), colNames=colnames(x), type=typeof(x), 
-        separated=is.separated(x))
+    ret <- list(sharedType = 'SharedMemory',
+                sharedName = shared.name(x), 
+                totalRows = .Call("GetTotalRows", x@address),
+                totalCols = .Call("GetTotalColumns", x@address),
+                rowOffset = .Call("GetRowOffset", x@address),
+                colOffset = .Call("GetColOffset", x@address),
+                nrow=nrow(x), ncol=ncol(x),
+                rowNames=rownames(x), colNames=colnames(x), type=typeof(x), 
+                separated=is.separated(x))
   }
   else
   {
     ret = list(sharedType='FileBacked',
-        sharedName=shared.name(x), fileName=file.name(x),
-        totalRows = .Call("GetTotalRows", x@address),
-        totalCols = .Call("GetTotalColumns", x@address),
-        rowOffset = .Call("GetRowOffset", x@address),
-        colOffset = .Call("GetColOffset", x@address),
-        nrow=nrow(x), ncol=ncol(x),
-        rowNames=rownames(x), colNames=colnames(x), type=typeof(x), 
-        separated=is.separated(x))
+               sharedName=shared.name(x), fileName=file.name(x),
+               totalRows = .Call("GetTotalRows", x@address),
+               totalCols = .Call("GetTotalColumns", x@address),
+               rowOffset = .Call("GetRowOffset", x@address),
+               colOffset = .Call("GetColOffset", x@address),
+               nrow=nrow(x), ncol=ncol(x),
+               rowNames=rownames(x), colNames=colnames(x), type=typeof(x), 
+               separated=is.separated(x))
   }
 }
 
@@ -1282,17 +1222,16 @@ attach.big.matrix = function(obj, ...)
   return(attach.resource(obj, ...))
 }
 
-
 setGeneric('attach.resource', 
   function(obj, ...) standardGeneric('attach.resource'))
 
 setMethod('attach.resource', signature(obj='character'),
   function(obj, ...)
   {
-    path = list(...)[['path']]
+    path <- list(...)[['path']]
     if (is.null(path))
     {
-      path = ''
+      path <- ''
     }
     info <- dget(paste(fix_path(path), obj, sep=""))
     return(attach.resource(info, path=path))
@@ -1301,31 +1240,31 @@ setMethod('attach.resource', signature(obj='character'),
 setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
   function(obj, ...)
   {
-    path = list(...)[['path']]
+    path <- list(...)[['path']]
     if (is.null(path))
     {
-      path = ''
+      path <- ''
     }
-    info = description(obj)
-    typeLength = NULL
-    if (info$type == 'char') typeLength=1
-    if (info$type == 'short') typeLength=2
-    if (info$type == 'integer') typeLength=4
-    if (info$type == 'double') typeLength=8
+    info <- description(obj)
+    typeLength <- NULL
+    if (info$type == 'char') typeLength <- 1
+    if (info$type == 'short') typeLength <- 2
+    if (info$type == 'integer') typeLength <- 4
+    if (info$type == 'double') typeLength <- 8
     if (is.null(typeLength)) 
       stop('invalid type')
-    path = fix_path(path)
+    path <- fix_path(path)
     if (info$sharedType == 'SharedMemory')
     {
-      address=.Call('CAttachSharedBigMatrix', info$sharedName, info$totalRows, 
-        info$totalCols, as.character(info$rowNames), 
-        as.character(info$colNames), as.integer(typeLength), info$separated)
+      address <- .Call('CAttachSharedBigMatrix', info$sharedName, info$totalRows, 
+                       info$totalCols, as.character(info$rowNames), 
+                       as.character(info$colNames), as.integer(typeLength), info$separated)
     }
     else
     {
-      address = .Call('CAttachFileBackedBigMatrix', info$sharedName, 
-        info$fileName, path, info$totalRows, info$totalCols, 
-        as.character(info$rowNames), as.character(info$colNames), 
+      address <- .Call('CAttachFileBackedBigMatrix', info$sharedName, 
+                       info$fileName, path, info$totalRows, info$totalCols, 
+                       as.character(info$rowNames), as.character(info$colNames), 
         as.integer(typeLength), info$separated)
     }
     if (!is.null(address)) 
@@ -1344,18 +1283,12 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
 setGeneric('is.filebacked', function(x) standardGeneric('is.filebacked'))
 
 setMethod('is.filebacked', signature(x='big.matrix'),
-  function(x)
-  {
-    return(.Call("IsFileBackedBigMatrix", x@address))
-  })
+  function(x) return(.Call("IsFileBackedBigMatrix", x@address)))
 
 setGeneric('shared.name', function(x) standardGeneric('shared.name'))
 
 setMethod('shared.name', signature(x='big.matrix'),
-  function(x)
-  {
-    return(.Call('SharedName', x@address))
-  })
+  function(x) return(.Call('SharedName', x@address)))
 
 setGeneric('file.name', function(x) standardGeneric('file.name'))
 

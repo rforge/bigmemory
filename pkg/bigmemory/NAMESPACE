@@ -24,7 +24,6 @@ exportMethods("[", "[<-",
               is.separated,
               is.filebacked,
               is.sub.big.matrix,
-              backingpath,
               apply)
 
 useDynLib(bigmemory)
