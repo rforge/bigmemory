@@ -1003,21 +1003,6 @@ SEXP GetIndexColNames(SEXP address, SEXP indices)
   return StringVec2RChar(cn, NUMERIC_DATA(indices), GET_LENGTH(indices));
 }
 
-SEXP GetFileBackedPath(SEXP address)
-{
-  BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
-  try
-  {
-    FileBackedBigMatrix *pfbm = dynamic_cast<FileBackedBigMatrix*>(pMat);
-    return String2RChar(pfbm->file_path());
-  }
-  catch(...)
-  {
-    error("The supplied big.matrix object is not filebacked.\n");
-  }
-  return NULL_USER_OBJECT;
-}
-
 SEXP GetColumnNamesBM(SEXP address)
 {
   BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(address);
@@ -2191,13 +2176,6 @@ SEXP SharedName( SEXP address )
   SharedBigMatrix *pMat = 
     reinterpret_cast<SharedBigMatrix*>(R_ExternalPtrAddr(address));
   return String2RChar(pMat->shared_name());
-}
-
-SEXP FileName( SEXP address )
-{
-  FileBackedBigMatrix *pMat = 
-    reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));
-  return String2RChar(pMat->file_name());
 }
 
 } // extern "C"
