@@ -525,6 +525,7 @@ bool FileBackedBigMatrix::create( const std::string &fileName,
   }
   try
   {
+    _fileName = fileName;
     _sharedName=fileName+uuid();
     _nrow = numRow;
     _totalRows = _nrow;
@@ -537,19 +538,19 @@ bool FileBackedBigMatrix::create( const std::string &fileName,
       switch(_matType)
       {
         case 1:
-          _pdata = CreateFileBackedSepMatrix<char>(fileName, filePath,
+          _pdata = CreateFileBackedSepMatrix<char>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 2:
-          _pdata = CreateFileBackedSepMatrix<short>(fileName, filePath,
+          _pdata = CreateFileBackedSepMatrix<short>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 4:
-          _pdata = CreateFileBackedSepMatrix<int>(fileName, filePath,
+          _pdata = CreateFileBackedSepMatrix<int>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 8:
-          _pdata = CreateFileBackedSepMatrix<double>(fileName, filePath,
+          _pdata = CreateFileBackedSepMatrix<double>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
       }
     }
@@ -558,19 +559,19 @@ bool FileBackedBigMatrix::create( const std::string &fileName,
       switch(_matType)
       {
         case 1:
-          _pdata = CreateFileBackedMatrix<char>(fileName, filePath,
+          _pdata = CreateFileBackedMatrix<char>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 2:
-          _pdata = CreateFileBackedMatrix<short>(fileName, filePath,
+          _pdata = CreateFileBackedMatrix<short>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 4:
-          _pdata = CreateFileBackedMatrix<int>(fileName, filePath,
+          _pdata = CreateFileBackedMatrix<int>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 8:
-          _pdata = CreateFileBackedMatrix<double>(fileName, filePath,
+          _pdata = CreateFileBackedMatrix<double>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
       }
     }
@@ -595,6 +596,7 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
 {
   try
   {
+    _fileName=fileName;
     _sharedName=sharedName;
     _nrow = numRow;
     _totalRows = _nrow;
@@ -607,19 +609,19 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
       switch(_matType)
       {
         case 1:
-          _pdata = ConnectFileBackedSepMatrix<char>(fileName, filePath,
+          _pdata = ConnectFileBackedSepMatrix<char>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 2:
-          _pdata = ConnectFileBackedSepMatrix<short>(fileName, filePath,
+          _pdata = ConnectFileBackedSepMatrix<short>(_fileName, filePath,
           _dataRegionPtrs, _nrow, _ncol);
           break;
         case 4:
-          _pdata = ConnectFileBackedSepMatrix<int>(fileName, filePath,
+          _pdata = ConnectFileBackedSepMatrix<int>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 8:
-          _pdata = ConnectFileBackedSepMatrix<double>(fileName, filePath,
+          _pdata = ConnectFileBackedSepMatrix<double>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
       }
     }
@@ -628,19 +630,19 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
       switch(_matType)
       {
         case 1:
-          _pdata = ConnectFileBackedMatrix<char>(fileName, filePath,
+          _pdata = ConnectFileBackedMatrix<char>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 2:
-          _pdata = ConnectFileBackedMatrix<short>(fileName, filePath,
+          _pdata = ConnectFileBackedMatrix<short>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 4:
-          _pdata = ConnectFileBackedMatrix<int>(fileName, filePath,
+          _pdata = ConnectFileBackedMatrix<int>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
           break;
         case 8:
-          _pdata = ConnectFileBackedMatrix<double>(fileName, filePath,
+          _pdata = ConnectFileBackedMatrix<double>(_fileName, filePath,
             _dataRegionPtrs, _nrow, _ncol);
       }
     }

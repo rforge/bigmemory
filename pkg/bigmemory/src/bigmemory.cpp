@@ -2178,5 +2178,11 @@ SEXP SharedName( SEXP address )
   return String2RChar(pMat->shared_name());
 }
 
+SEXP FileName( SEXP address )  
+{   
+  FileBackedBigMatrix *pMat =   
+    reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));   
+  return String2RChar(pMat->file_name());   
+}
 } // extern "C"
 
