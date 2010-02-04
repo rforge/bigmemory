@@ -218,8 +218,12 @@ class FileBackedBigMatrix : public SharedBigMatrix
       const std::string &fileName, const std::string &filePath,
       const index_type numRow, const index_type numCol, const int matrixType, 
       const bool sepCols);
+    std::string file_name() const {return _fileName;}
   protected:
     virtual bool destroy();
+
+  protected:
+    std::string _fileName;
 };
 
 #endif // BIGMATRIX_H
