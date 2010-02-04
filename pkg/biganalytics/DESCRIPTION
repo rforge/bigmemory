@@ -5,7 +5,7 @@ Version: 1.0
 Date: 2009-06-02
 Author: Michael J. Kane and John W. Emerson
 Maintainer: John W. Emerson <john.emerson@yale.edu>
-Depends: methods, stats, utils, bigmemory
-Suggests: biglm, nws
+Depends: methods, stats, utils
+Imports: bigmemory, biglm
 Description: This package extends the bigmemory package with various analytics.
 License: LGPL-3
