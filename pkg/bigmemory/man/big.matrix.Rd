@@ -6,7 +6,6 @@
 \alias{is.separated}
 \alias{is.filebacked}
 \alias{[.big.matrix}
-\alias{backingpath}
 \title{The core ``big.matrix'' operations.}
 \description{
 Create a \code{big.matrix} (or check to see if an object is a \code{big.matrix},
@@ -25,7 +24,6 @@ as.big.matrix(x, type = NULL, separated = FALSE,
 is.big.matrix(x)
 is.separated(x)
 is.filebacked(x)
-backingpath(x)
 }
 \arguments{
   \item{x}{a \code{matrix} or \code{vector}; if a vector, a one-column \code{big.matrix} is created by \code{as.big.matrix}.}

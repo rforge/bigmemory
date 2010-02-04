@@ -30,7 +30,6 @@ Index of functions/methods (grouped in a friendly way):
 big.matrix, filebacked.big.matrix, as.big.matrix
 
 is.big.matrix, is.sub.big.matrix, is.separated, is.filebacked
-backingpath
 
 dim, dimnames, nrow, ncol, print, head, tail, typeof
 
