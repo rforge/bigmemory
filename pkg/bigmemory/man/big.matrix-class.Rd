@@ -3,7 +3,6 @@
 \docType{class}
 \alias{big.matrix-class}
 \alias{apply,big.matrix-method}
-\alias{backingpath,big.matrix-method}
 \alias{[<-,big.matrix,ANY,ANY-method}
 \alias{[<-,big.matrix,ANY,missing-method}
 \alias{[<-,big.matrix,missing,ANY-method}
@@ -76,7 +75,6 @@ As you would expect:
 The following are probably more interesting:
 
     \item{apply}{\code{signature(x = "big.matrix")}: \code{apply()} where \code{MARGIN} may only be 1 or 2, but otherwise conforming to what you would expect from \code{apply()}.}
-    \item{backingpath}{\code{signature(x = "big.matrix")}: returns the backingpath of the \code{big.matrix}.}
     \item{describe}{\code{signature(x = "big.matrix")}: provide necessary and sufficient information. }
     \item{dim}{\code{signature(x = "big.matrix")}: returns the dimension of the \code{big.matrix}. }
     \item{dimnames<-}{\code{signature(x = "big.matrix", value = "list")}: set the row and column names. }
