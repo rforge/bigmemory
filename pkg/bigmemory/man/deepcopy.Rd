@@ -15,7 +15,7 @@ deepcopy(x, cols = NULL, type = NULL, separated = NULL,
   \item{type}{preferably specified, \code{"integer"} for example.}
   \item{separated}{use separated column organization of the data instead of column-major organization.}
   \item{backingfile}{the root name for the file(s) for the cache of \code{x}.}
-  \item{backingpath}{the path to the directory containing the file backing cache.}
+  \item{backingpath}{the path to the directory containing the filebacking cache.}
   \item{descriptorfile}{we recommend specifying this for filebacking.}
 }
 \details{
