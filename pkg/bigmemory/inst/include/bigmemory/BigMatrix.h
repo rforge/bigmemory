@@ -28,7 +28,7 @@ class BigMatrix : public boost::noncopyable
   // Constructor and Destructor
   public:
     BigMatrix():_ncol(0),_nrow(0), _totalRows(0), _totalCols(0),
-				_colOffset(0), _rowOffset(0),_matType(0), _pdata(NULL),_sepCols(false){}
+                _colOffset(0), _rowOffset(0),_matType(0), _pdata(NULL),_sepCols(false){}
     virtual ~BigMatrix(){}
 
     // The next function returns the matrix data.  It will generally be passed
@@ -43,35 +43,35 @@ class BigMatrix : public boost::noncopyable
     // supermatrix.
     index_type total_rows() const {return _totalRows;}
     index_type total_columns() const {return _totalCols;}
-		index_type col_offset() const {return _colOffset;}
-		index_type row_offset() const {return _rowOffset;}
+    index_type col_offset() const {return _colOffset;}
+    index_type row_offset() const {return _rowOffset;}
     int matrix_type() const {return _matType;}
     bool shared() const {return _shared;}
     bool separated_columns() const {return _sepCols;}
     Names column_names() 
-		{
-			Names ret;
+    {
+      Names ret;
       if (!_colNames.empty())
       {
-			  std::copy( _colNames.begin()+col_offset(), 
-								  _colNames.begin()+col_offset()+ncol(),
-								  std::back_inserter(ret) );
+        std::copy( _colNames.begin()+col_offset(), 
+                  _colNames.begin()+col_offset()+ncol(),
+                  std::back_inserter(ret) );
       }
-			return ret;
-		}
+      return ret;
+    }
 
     Names row_names() 
-		{
-			Names ret;
+    {
+      Names ret;
       if (!_rowNames.empty())
       {
-				ret.reserve(nrow());
-			  std::copy( _rowNames.begin() + row_offset(), 
-								  _rowNames.begin() + row_offset() + nrow(),
-								  std::back_inserter(ret) );
+        ret.reserve(nrow());
+        std::copy( _rowNames.begin() + row_offset(), 
+                  _rowNames.begin() + row_offset() + nrow(),
+                  std::back_inserter(ret) );
       }
-			return ret;
-		}
+      return ret;
+    }
 
     bool is_submatrix()
     {
@@ -120,7 +120,7 @@ class BigMatrix : public boost::noncopyable
       _colOffset=newOffset;
       return true;
     }
-		
+    
     bool row_offset( const index_type &newOffset )
     {
       _rowOffset=newOffset;
@@ -146,10 +146,10 @@ class BigMatrix : public boost::noncopyable
   protected:
     index_type _ncol;
     index_type _nrow;
-		index_type _totalRows;
-		index_type _totalCols;
-		index_type _colOffset;
-		index_type _rowOffset;
+    index_type _totalRows;
+    index_type _totalCols;
+    index_type _colOffset;
+    index_type _rowOffset;
     index_type _nebytes;
     int _matType;
     void* _pdata;
@@ -193,7 +193,7 @@ class SharedMemoryBigMatrix : public SharedBigMatrix
     SharedMemoryBigMatrix():SharedBigMatrix(){};
     virtual ~SharedMemoryBigMatrix(){destroy();};
     virtual bool create( const index_type numRow, const index_type numCol, 
-			const int matrixType, const bool sepCols);
+      const int matrixType, const bool sepCols);
     virtual bool connect( const std::string &uuid, const index_type numRow, 
       const index_type numCol, const int matrixType,
       const bool sepCols);

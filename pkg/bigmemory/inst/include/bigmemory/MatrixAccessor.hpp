@@ -13,8 +13,8 @@ class MatrixAccessor
     {
       _pMat = pData;
       _totalRows = nrow;
-      _rowOffset=0;
-      _colOffset=0;
+      _rowOffset = 0;
+      _colOffset = 0;
     }
 
     MatrixAccessor( BigMatrix &bm )

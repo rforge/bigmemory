@@ -88,7 +88,7 @@ void* CreateSharedMatrix( const std::string &sharedName,
 {
   try
   {
-//    shared_memory_object::remove( (sharedName.c_str()) );
+    // shared_memory_object::remove( (sharedName.c_str()) );
     shared_memory_object shm(create_only, sharedName.c_str(), read_write);
     shm.truncate( nrow*ncol*sizeof(T) );
     dataRegionPtrs.push_back(
@@ -185,8 +185,7 @@ bool SharedMemoryBigMatrix::create( const index_type numRow,
 
 template<typename T>
 void* ConnectSharedSepMatrix( const std::string &uuid, 
-  MappedRegionPtrs &dataRegionPtrs, const index_type nrow, 
-  const index_type ncol )
+  MappedRegionPtrs &dataRegionPtrs, const index_type ncol )
 {
   T** pMat = new T*[ncol];
   index_type i;
@@ -215,8 +214,7 @@ void* ConnectSharedSepMatrix( const std::string &uuid,
 
 template<typename T>
 void* ConnectSharedMatrix( const std::string &sharedName, 
-  MappedRegionPtrs &dataRegionPtrs, SharedCounter &counter, 
-  const index_type nrow, const index_type ncol)
+  MappedRegionPtrs &dataRegionPtrs, SharedCounter &counter)
 {
   using namespace boost::interprocess;
   try 
@@ -259,44 +257,34 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
     {
       switch(_matType)
       {
-// JJJ I don't think nrow is needed below.
         case 1:
-          _pdata = ConnectSharedSepMatrix<char>(_sharedName, _dataRegionPtrs,
-            _nrow, _ncol);
+          _pdata = ConnectSharedSepMatrix<char>(_sharedName, _dataRegionPtrs, _ncol);
           break;
         case 2:
-          _pdata = ConnectSharedSepMatrix<short>(_sharedName, _dataRegionPtrs,
-            _nrow, _ncol);
+          _pdata = ConnectSharedSepMatrix<short>(_sharedName, _dataRegionPtrs, _ncol);
           break;
         case 4:
-          _pdata = ConnectSharedSepMatrix<int>(_sharedName, _dataRegionPtrs,
-            _nrow, _ncol);
+          _pdata = ConnectSharedSepMatrix<int>(_sharedName, _dataRegionPtrs, _ncol);
           break;
         case 8:
-          _pdata = ConnectSharedSepMatrix<double>(_sharedName, _dataRegionPtrs,
-            _nrow, _ncol);
+          _pdata = ConnectSharedSepMatrix<double>(_sharedName, _dataRegionPtrs, _ncol);
       }
     }
     else
     {
       switch(_matType)
       {
-// JJJ I don't think nrow and ncol are needed below.
         case 1:
-          _pdata = ConnectSharedMatrix<char>(_sharedName, _dataRegionPtrs,
-            _counter, _nrow, _ncol);
+          _pdata = ConnectSharedMatrix<char>(_sharedName, _dataRegionPtrs, _counter);
           break;
         case 2:
-          _pdata = ConnectSharedMatrix<short>(_sharedName, _dataRegionPtrs,
-            _counter, _nrow, _ncol);
+          _pdata = ConnectSharedMatrix<short>(_sharedName, _dataRegionPtrs, _counter);
           break;
         case 4:
-          _pdata = ConnectSharedMatrix<int>(_sharedName, _dataRegionPtrs,
-            _counter, _nrow, _ncol);
+          _pdata = ConnectSharedMatrix<int>(_sharedName, _dataRegionPtrs, _counter);
           break;
         case 8:
-          _pdata = ConnectSharedMatrix<double>(_sharedName, _dataRegionPtrs,
-            _counter, _nrow, _ncol);
+          _pdata = ConnectSharedMatrix<double>(_sharedName, _dataRegionPtrs, _counter);
       }
     }
     if (!_pdata)
@@ -383,7 +371,7 @@ bool SharedMemoryBigMatrix::destroy()
 template<typename T>
 void* ConnectFileBackedSepMatrix( const std::string &sharedName,
   const std::string &filePath, MappedRegionPtrs &dataRegionPtrs, 
-  const index_type nrow, const index_type ncol)
+  const index_type ncol)
 {
   T** pMat = new T*[ncol];
   index_type i;
@@ -452,14 +440,12 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
     fbuf.close();
   }
 #endif
-  return ConnectFileBackedSepMatrix<T>(fileName, filePath, dataRegionPtrs, 
-    nrow, ncol);
+  return ConnectFileBackedSepMatrix<T>(fileName, filePath, dataRegionPtrs, ncol);
 }
 
 template<typename T>
 void* ConnectFileBackedMatrix( const std::string &fileName, 
-  const std::string &filePath, MappedRegionPtrs &dataRegionPtrs, 
-  const index_type nrow, const index_type ncol)
+  const std::string &filePath, MappedRegionPtrs &dataRegionPtrs)
 {
   try
   {
@@ -512,7 +498,7 @@ void* CreateFileBackedMatrix(const std::string &fileName,
   fbuf.close();
 #endif
   return ConnectFileBackedMatrix<T>(fileName, filePath,
-    dataRegionPtrs, nrow, ncol);
+    dataRegionPtrs);
 }
 
 bool FileBackedBigMatrix::create( const std::string &fileName, 
@@ -596,8 +582,8 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
 {
   try
   {
-    _fileName=fileName;
-    _sharedName=sharedName;
+    _fileName = fileName;
+    _sharedName = sharedName;
     _nrow = numRow;
     _totalRows = _nrow;
     _ncol = numCol;
@@ -610,19 +596,19 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
       {
         case 1:
           _pdata = ConnectFileBackedSepMatrix<char>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+            _dataRegionPtrs, _ncol);
           break;
         case 2:
           _pdata = ConnectFileBackedSepMatrix<short>(_fileName, filePath,
-          _dataRegionPtrs, _nrow, _ncol);
+          _dataRegionPtrs, _ncol);
           break;
         case 4:
           _pdata = ConnectFileBackedSepMatrix<int>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+            _dataRegionPtrs, _ncol);
           break;
         case 8:
           _pdata = ConnectFileBackedSepMatrix<double>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+            _dataRegionPtrs, _ncol);
       }
     }
     else
@@ -630,20 +616,16 @@ bool FileBackedBigMatrix::connect( const std::string &sharedName,
       switch(_matType)
       {
         case 1:
-          _pdata = ConnectFileBackedMatrix<char>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+          _pdata = ConnectFileBackedMatrix<char>(_fileName, filePath, _dataRegionPtrs);
           break;
         case 2:
-          _pdata = ConnectFileBackedMatrix<short>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+          _pdata = ConnectFileBackedMatrix<short>(_fileName, filePath, _dataRegionPtrs);
           break;
         case 4:
-          _pdata = ConnectFileBackedMatrix<int>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+          _pdata = ConnectFileBackedMatrix<int>(_fileName, filePath, _dataRegionPtrs);
           break;
         case 8:
-          _pdata = ConnectFileBackedMatrix<double>(_fileName, filePath,
-            _dataRegionPtrs, _nrow, _ncol);
+          _pdata = ConnectFileBackedMatrix<double>(_fileName, filePath, _dataRegionPtrs);
       }
     }
     if (!_pdata)
