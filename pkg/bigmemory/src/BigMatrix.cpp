@@ -258,16 +258,20 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
       switch(_matType)
       {
         case 1:
-          _pdata = ConnectSharedSepMatrix<char>(_sharedName, _dataRegionPtrs, _ncol);
+          _pdata = ConnectSharedSepMatrix<char>(_sharedName, _dataRegionPtrs, 
+            _ncol);
           break;
         case 2:
-          _pdata = ConnectSharedSepMatrix<short>(_sharedName, _dataRegionPtrs, _ncol);
+          _pdata = ConnectSharedSepMatrix<short>(_sharedName, _dataRegionPtrs, 
+            _ncol);
           break;
         case 4:
-          _pdata = ConnectSharedSepMatrix<int>(_sharedName, _dataRegionPtrs, _ncol);
+          _pdata = ConnectSharedSepMatrix<int>(_sharedName, _dataRegionPtrs, 
+            _ncol);
           break;
         case 8:
-          _pdata = ConnectSharedSepMatrix<double>(_sharedName, _dataRegionPtrs, _ncol);
+          _pdata = ConnectSharedSepMatrix<double>(_sharedName, _dataRegionPtrs, 
+            _ncol);
       }
     }
     else
@@ -275,16 +279,20 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
       switch(_matType)
       {
         case 1:
-          _pdata = ConnectSharedMatrix<char>(_sharedName, _dataRegionPtrs, _counter);
+          _pdata = ConnectSharedMatrix<char>(_sharedName, _dataRegionPtrs, 
+            _counter);
           break;
         case 2:
-          _pdata = ConnectSharedMatrix<short>(_sharedName, _dataRegionPtrs, _counter);
+          _pdata = ConnectSharedMatrix<short>(_sharedName, _dataRegionPtrs, 
+            _counter);
           break;
         case 4:
-          _pdata = ConnectSharedMatrix<int>(_sharedName, _dataRegionPtrs, _counter);
+          _pdata = ConnectSharedMatrix<int>(_sharedName, _dataRegionPtrs, 
+            _counter);
           break;
         case 8:
-          _pdata = ConnectSharedMatrix<double>(_sharedName, _dataRegionPtrs, _counter);
+          _pdata = ConnectSharedMatrix<double>(_sharedName, _dataRegionPtrs, 
+            _counter);
       }
     }
     if (!_pdata)
@@ -502,7 +510,7 @@ void* CreateFileBackedMatrix(const std::string &fileName,
 }
 
 bool FileBackedBigMatrix::create( const std::string &fileName, 
-  const std::string &filePath, const index_type numRow, const index_type numCol, 
+  const std::string &filePath, const index_type numRow, const index_type numCol,
   const int matrixType, const bool sepCols)
 {
   if (!create_uuid())
