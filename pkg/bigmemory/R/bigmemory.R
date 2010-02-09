@@ -31,9 +31,9 @@ big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   if (!is.null(backingfile))
   {
     return(filebacked.big.matrix(nrow=nrow, ncol=ncol, type=type, init=init,
-                                 dimnames=dimnames, separated=separated,
-                                 backingfile=backingfile, backingpath=backingpath,
-                                 descriptorfile=descriptorfile))
+                               dimnames=dimnames, separated=separated,
+                               backingfile=backingfile, backingpath=backingpath,
+                               descriptorfile=descriptorfile))
   }
   if (nrow < 1 | ncol < 1)
     stop('A big.matrix must have at least one row and one column')
@@ -51,9 +51,10 @@ big.matrix <- function(nrow, ncol, type='integer', init=NULL,
     rownames <- NULL
     colnames <- NULL
   }
+  if (is.null(init)) init <- NA
   address <- .Call('CCreateSharedMatrix', as.double(nrow),
-                   as.double(ncol), as.character(colnames), as.character(rownames),
-                   as.integer(typeVal), as.double(init), as.logical(separated))
+               as.double(ncol), as.character(colnames), as.character(rownames),
+               as.integer(typeVal), as.double(init), as.logical(separated))
   if (is.null(address)) {
     stop(paste("Error: memory could not be allocated for instance",
                "of type big.matrix"))
