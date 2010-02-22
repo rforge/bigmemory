@@ -102,7 +102,7 @@ dgemm = function(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
     A, as.integer(LDA), B, as.integer(LDB),
     as.double(BETA), C, as.integer(LDC), as.logical(A.is.bm), 
     as.logical(B.is.bm), as.logical(C.is.bm), as.integer (COFF))
-  invisible(0)
+  return(invisible(C))
 }
 
 # QR factorization
