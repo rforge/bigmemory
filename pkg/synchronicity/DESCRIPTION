@@ -2,7 +2,7 @@ Package: synchronicity
 Type: Package
 Title: This package provides boost mutex functionality in R.
 Version: 1.0.1
-Date: 2010-12-22
+Date: 2010-02-22
 Author: Michael J. Kane <kaneplusplus@gmail.com> and John W. Emerson <jayemerson@gmail.com>
 Depends: methods
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
