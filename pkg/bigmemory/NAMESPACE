@@ -6,7 +6,6 @@ exportClasses(big.matrix, big.matrix.descriptor)
 export(big.matrix,
        filebacked.big.matrix,
        attach.big.matrix,
-       attach.resource,
        sub.big.matrix,
        deepcopy)
 
@@ -19,6 +18,7 @@ exportMethods("[", "[<-",
               dim,
               is.big.matrix, as.big.matrix,
               describe,
+              attach.resource,
               mwhich,
               read.big.matrix, write.big.matrix,
               is.separated,
