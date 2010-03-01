@@ -944,8 +944,8 @@ inline bool Gcomp(double a, double b, int op) {
 } // close extern C, because the next function isn't an extern.
 
 template<typename T, typename MatrixType>
-SEXP MWhichMatrix( MatrixType mat, index_type nrow, SEXP selectColumn, SEXP minVal,
-  SEXP maxVal, SEXP chkMin, SEXP chkMax, SEXP opVal, double C_NA)
+SEXP MWhichMatrix( MatrixType mat, index_type nrow, SEXP selectColumn, 
+  SEXP minVal, SEXP maxVal, SEXP chkMin, SEXP chkMax, SEXP opVal, double C_NA )
 {
   index_type numSc = GET_LENGTH(selectColumn);
   double *sc = NUMERIC_DATA(selectColumn);
@@ -992,7 +992,8 @@ SEXP MWhichMatrix( MatrixType mat, index_type nrow, SEXP selectColumn, SEXP minV
         }
         // If it's an AND operation and it's false for one, it's false for
         // the whole row.
-        if ( ( (Lcomp(val, minV, 1-chkmin[j]) || Gcomp(val, maxV, 1-chkmax[j])) ||
+        if ( ( (Lcomp(val, minV, 1-chkmin[j]) || Gcomp(val, maxV, 1-chkmax[j])) 
+             ||
                (isna(val) && !isna(minV)) || (!isna(val) && isna(minV)) ) &&
              ov == 0 ) break;
       }

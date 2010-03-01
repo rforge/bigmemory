@@ -1119,8 +1119,8 @@ setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
   })
 
 filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
-                                  dimnames=NULL, separated=FALSE, backingfile=NULL,
-                                  backingpath=NULL, descriptorfile=NULL)
+  dimnames=NULL, separated=FALSE, backingfile=NULL, backingpath=NULL, 
+  descriptorfile=NULL)
 {
   if (nrow < 1 | ncol < 1)
     stop('A big.matrix must have at least one row and one column')
@@ -1154,9 +1154,9 @@ filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   }
 
 	address <- .Call('CCreateFileBackedBigMatrix', as.character(backingfile), 
-                         as.character(backingpath), as.double(nrow), as.double(ncol), 
-                         as.character(colnames), as.character(rownames), as.integer(typeVal), 
-                         as.double(init), as.logical(separated))
+    as.character(backingpath), as.double(nrow), as.double(ncol), 
+    as.character(colnames), as.character(rownames), as.integer(typeVal), 
+    as.double(init), as.logical(separated))
   if (is.null(address))
   {
     stop("Error encountered when creating instance of type big.matrix")
@@ -1257,15 +1257,15 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     path <- fix_path(path)
     if (info$sharedType == 'SharedMemory')
     {
-      address <- .Call('CAttachSharedBigMatrix', info$sharedName, info$totalRows, 
-                       info$totalCols, as.character(info$rowNames), 
-                       as.character(info$colNames), as.integer(typeLength), info$separated)
+      address <- .Call('CAttachSharedBigMatrix', info$sharedName, 
+        info$totalRows, info$totalCols, as.character(info$rowNames), 
+        as.character(info$colNames), as.integer(typeLength), info$separated)
     }
     else
     {
       address <- .Call('CAttachFileBackedBigMatrix', info$sharedName, 
-                       info$fileName, path, info$totalRows, info$totalCols, 
-                       as.character(info$rowNames), as.character(info$colNames), 
+        info$fileName, path, info$totalRows, info$totalCols, 
+        as.character(info$rowNames), as.character(info$colNames), 
         as.integer(typeLength), info$separated)
     }
     if (!is.null(address)) 

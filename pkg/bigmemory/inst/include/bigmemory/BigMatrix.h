@@ -28,7 +28,8 @@ class BigMatrix : public boost::noncopyable
   // Constructor and Destructor
   public:
     BigMatrix():_ncol(0),_nrow(0), _totalRows(0), _totalCols(0),
-                _colOffset(0), _rowOffset(0),_matType(0), _pdata(NULL),_sepCols(false){}
+                _colOffset(0), _rowOffset(0),_matType(0), _pdata(NULL),
+                _sepCols(false){}
     virtual ~BigMatrix(){}
 
     // The next function returns the matrix data.  It will generally be passed
