@@ -12,8 +12,8 @@ This package extends the bigmemory package with various analytics.
 \tabular{ll}{
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2009-06-02\cr
+Version: \tab 1.0.1\cr
+Date: \tab 2010-03-07\cr
 License: \tab LGPL-3\cr
 }
 
@@ -30,7 +30,7 @@ Maintainer: Jay Emerson <john.emerson@yale.edu>
 \keyword{package}
 \references{See \url{http://www.stat.yale.edu/~jay/bigmemory}.}
 \seealso{For example,
-\code{\link[big.matrix:bigmemory]{big.matrix}}, \code{\link[biglm:biglm-package]{biglm}}
+\code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}}
 }
 \examples{
 # Our examples are all trivial in size, rather than burning huge amounts

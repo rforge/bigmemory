@@ -34,7 +34,7 @@
 \title{Basic statistics for ``big.matrix'' objects.}
 \description{
 These functions operate on columns of a 
-\code{\link[big.matrix:bigmemory]{big.matrix}} object.
+\code{\link[bigmemory]{big.matrix}} object.
 }
 \usage{
 colmean(x, cols, na.rm)
@@ -53,7 +53,7 @@ prod(x, \dots, na.rm)
 colna(x, cols)
 }
 \arguments{
-  \item{x}{a \code{\link[big.matrix:bigmemory]{big.matrix}} object.}
+  \item{x}{a \code{\link[bigmemory]{big.matrix}} object.}
   \item{cols}{a scalar or vector of column(s) to be summarized.}
   \item{na.rm}{if \code{TRUE}, remove \code{NA} values before summarizing.}
   \item{\dots}{options associated with the correspoding default \R function}
@@ -61,7 +61,7 @@ colna(x, cols)
 \details{
 These functions essentially apply summary functions to each column (or
 each specified column) of the 
-\code{\link[big.matrix:bigmemory]{big.matrix}}in turn.
+\code{\link[bigmemory]{big.matrix}}in turn.
 }
 \value{
 For \code{colrange}, a matrix with two columns and \code{length(cols)}

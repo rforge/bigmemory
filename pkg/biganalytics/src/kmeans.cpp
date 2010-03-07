@@ -1,12 +1,12 @@
 /*
- *  bigmemoryAnalytics: an R package containing a library of functions for
+ *  biganalytics: an R package containing a library of functions for
  *  use with big.matrix objects of package bigmemory.
 
- *  Copyright (C) 2009 John W. Emerson and Michael J. Kane
+ *  Copyright (C) 2010 John W. Emerson and Michael J. Kane
  *
- *  This file is part of bigmemory.
+ *  This file is part of biganalytics.
  *
- *  bigmemory is free software; you can redistribute it and/or modify
+ *  biganalytics is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published
  *  by the Free Software Foundation; either version 3 of the License, or
  *  (at your option) any later version.
@@ -39,68 +39,44 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-
-template<typename T1, typename BMAccessorType>
-int Ckmeans2(BigMatrix *pMat, SEXP centAddr, SEXP ssAddr,
-              SEXP clustAddr, SEXP clustsizesAddr, 
-              SEXP nn, SEXP kk, SEXP mm, SEXP mmaxiters)
+template<typename T, typename MatrixType>
+SEXP kmeansMatrix(MatrixType x, index_type n, index_type m,
+                  SEXP pcen, SEXP pclust, SEXP pclustsizes,
+                  SEXP pwss, SEXP itermax)
 {
-  // BIG x m
-  //  T1 **x = (T1**) pMat->matrix();
-  BMAccessorType x(*pMat);
 
-  // k x m
-  BigMatrix *pcent = (BigMatrix*)R_ExternalPtrAddr(centAddr);
-  //double **cent = (double**) pcent->matrix();
+  index_type j, col, nchange;
+
+  int maxiters = INTEGER_VALUE(itermax);
+  SEXP Riter;
+  PROTECT(Riter = NEW_INTEGER(1));
+  int *iter = INTEGER_DATA(Riter);
+  iter[0] = 0;
+
+  BigMatrix *pcent = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(pcen));
   MatrixAccessor<double> cent(*pcent);
+  BigMatrix *Pclust = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(pclust));
+  MatrixAccessor<int> clust(*Pclust);
+  BigMatrix *Pclustsizes = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(pclustsizes));
+  MatrixAccessor<double> clustsizes(*Pclustsizes);
+  BigMatrix *Pwss = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(pwss));
+  MatrixAccessor<double> ss(*Pwss);
 
-  // k x 1
-  BigMatrix *pss = (BigMatrix*)R_ExternalPtrAddr(ssAddr);
-  //double **ss = (double**) pss->matrix();
-  MatrixAccessor<double> ss(*pss);
-
-  // n x 1
-  BigMatrix *pclust = (BigMatrix*)R_ExternalPtrAddr(clustAddr);
-  //int **clust = (int**) pclust->matrix();
-  MatrixAccessor<int> clust(*pclust);
-
-  // k x 1
-  BigMatrix *pclustsizes = (BigMatrix*)R_ExternalPtrAddr(clustsizesAddr);
-  //double **clustsizes = (double**) pclustsizes->matrix();
-  MatrixAccessor<double> clustsizes(*pclustsizes);
-
-  long n = (long) NUMERIC_VALUE(nn);        // Very unlikely to need long, but...
-  int k = INTEGER_VALUE(kk);                // Number of clusters
-  long m = (long) NUMERIC_VALUE(mm);        // columns of data
-  int maxiters = INTEGER_VALUE(mmaxiters); // maximum number of iterations
-
-  int oldcluster, newcluster;           // just for ease of coding.
-  int cl, bestcl;
-  long col, j;
-  double temp;
+  int k = (int) pcent->nrow();                // number of clusters
+  int cl, bestcl, oldcluster, newcluster;
   int done = 0;
-  long nchange;
-  int iter = 0;
 
+  double temp;
   vector<double> d(k);                        // Vector of distances, internal only.
   vector<double> temp1(k);
-  vector<vector<double> > tempcent(m, temp1);   // For copy of global centroids k x m
+  vector<vector<double> > tempcent(m, temp1); // For copy of global centroids k x m
 
-  //char filename[10];
-  //int junk;
-  //junk = sprintf(filename, "Cfile%d.txt", INTEGER_VALUE(ii));
-  //ofstream outFile;
-  //outFile.open(filename, ios::out);
-  //outFile << "This is node " << INTEGER_VALUE(ii) << endl;
-  //outFile << "Before do: n, i, k, m, p, start:" <<
-  //       n << ", " << i << ", " << k << ", " << m << ", " << p <<
-  //       ", " << start << endl;
-
-
+  // At this point I can use [][] to access things, with ss[0][cl]
+  // being used for the vectors, for example.
   // Before starting the loop, we only have cent (centers) as passed into the function.
   // Calculate clust and clustsizes, then update cent as centroids.
   
-  for (cl=0; cl<k; cl++) clustsizes[0][cl] = 0;
+  for (cl=0; cl<k; cl++) clustsizes[0][cl] = 0.0;
   for (j=0; j<n; j++) {
     bestcl = 0;
     for (cl=0; cl<k; cl++) {
@@ -111,7 +87,7 @@ int Ckmeans2(BigMatrix *pMat, SEXP centAddr, SEXP ssAddr,
       }
       if (d[cl]<d[bestcl]) bestcl = cl;
     }
-    clust[0][j] = bestcl + 1;
+    clust[0][j] = bestcl + 1;          // Saving the R cluster number, not the C index.
     clustsizes[0][bestcl]++;
     for (col=0; col<m; col++)
       tempcent[col][bestcl] += (double)x[col][j];
@@ -150,8 +126,8 @@ int Ckmeans2(BigMatrix *pMat, SEXP centAddr, SEXP ssAddr,
 
     } // End of this pass over my points.
 
-    iter++;
-    if ( (nchange==0) || (iter>=maxiters) ) done = 1;
+    iter[0]++;
+    if ( (nchange==0) || (iter[0]>=maxiters) ) done = 1;
 
   } while (done==0);
 
@@ -165,81 +141,75 @@ int Ckmeans2(BigMatrix *pMat, SEXP centAddr, SEXP ssAddr,
     }
   }
 
-  // At this point, cent is the centers, ss is the within-groups sums of squares,
-  // clust is the cluster memberships, clustsizes is the cluster sizes.
-
-  //outFile.close();
-  return iter;
+  UNPROTECT(1);
+  return(Riter);
 
 }
-
 
 extern "C"
 {
 
-SEXP Ckmeans2main(SEXP matType, 
-                  SEXP bigMatrixAddr, SEXP centAddr, SEXP ssAddr,
-                  SEXP clustAddr, SEXP clustsizesAddr,
-                  SEXP nn, SEXP kk, SEXP mm, SEXP mmaxiters)
+SEXP kmeansBigMatrix(SEXP x, SEXP cen, SEXP clust, SEXP clustsizes,
+                     SEXP wss, SEXP itermax)
 {
-  SEXP ret = PROTECT(NEW_NUMERIC(1));
-  BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(bigMatrixAddr);
-  int iter = 0;
+  BigMatrix *pMat =  reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(x));
   if (pMat->separated_columns())
   {
-    switch (INTEGER_VALUE(matType)) 
+    switch (pMat->matrix_type())
     {
       case 1:
-        iter = Ckmeans2<char, SepMatrixAccessor<char> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<char>(SepMatrixAccessor<char>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
       case 2:
-        iter = Ckmeans2<short, SepMatrixAccessor<short> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<short>(SepMatrixAccessor<short>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
       case 4:
-        iter = Ckmeans2<int, SepMatrixAccessor<int> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<int>(SepMatrixAccessor<int>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
       case 8:
-        iter = Ckmeans2<double, SepMatrixAccessor<double> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<double>(SepMatrixAccessor<double>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
     }
   }
   else
   {
-    switch (INTEGER_VALUE(matType)) 
+    switch (pMat->matrix_type())
     {
       case 1:
-        iter = Ckmeans2<char, MatrixAccessor<char> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<char>(MatrixAccessor<char>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
       case 2:
-        iter = Ckmeans2<short, MatrixAccessor<short> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<short>(MatrixAccessor<short>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
       case 4:
-        iter = Ckmeans2<int, MatrixAccessor<int> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<int>(MatrixAccessor<int>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
       case 8:
-        iter = Ckmeans2<double, MatrixAccessor<double> >(
-          pMat, centAddr, ssAddr, clustAddr, clustsizesAddr,
-          nn, kk, mm, mmaxiters);
-        break;
+        return kmeansMatrix<double>(MatrixAccessor<double>(*pMat),
+          pMat->nrow(), pMat->ncol(), cen, clust, clustsizes, wss, itermax);
     }
   }
-  NUMERIC_DATA(ret)[0] = (double)iter;
-  UNPROTECT(1);
-  return ret;
+  return R_NilValue;
+}
+
+SEXP kmeansRIntMatrix(SEXP x, SEXP cen, SEXP clust, SEXP clustsizes,
+                      SEXP wss, SEXP itermax)
+{
+  index_type numRows = static_cast<index_type>(nrows(x));
+  index_type numCols = static_cast<index_type>(ncols(x));
+  MatrixAccessor<int> mat(INTEGER_DATA(x), numRows);
+  return kmeansMatrix<int, MatrixAccessor<int> >(mat,
+    numRows, numCols, cen, clust, clustsizes, wss, itermax);
+}
+
+SEXP kmeansRNumericMatrix(SEXP x, SEXP cen, SEXP clust, SEXP clustsizes,
+                          SEXP wss, SEXP itermax)
+{
+  index_type numRows = static_cast<index_type>(nrows(x));
+  index_type numCols = static_cast<index_type>(ncols(x));
+  MatrixAccessor<double> mat(NUMERIC_DATA(x), numRows);
+  return kmeansMatrix<double, MatrixAccessor<double> >(mat,
+    numRows, numCols, cen, clust, clustsizes, wss, itermax);
 }
 
 } // extern "C"

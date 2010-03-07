@@ -3,8 +3,8 @@
 \alias{bigglm.big.matrix}
 \title{Use Thomas Lumley's ``biglm'' package with a ``big.matrix''}
 \description{
-This is a wrapper to Thomas Lumley's \code{\link[biglm:biglm-package]{biglm}}
-package, allowing its use with data stored in \code{\link[big.matrix:bigmemory]{big.matrix}} objects.
+This is a wrapper to Thomas Lumley's \code{\link[biglm]{biglm}}
+package, allowing its use with data stored in \code{\link[bigmemory]{big.matrix}} objects.
 }
 \usage{
 biglm.big.matrix( formula, data, chunksize=NULL, ..., fc=NULL,
@@ -15,12 +15,12 @@ bigglm.big.matrix( formula, data, chunksize=NULL, ..., fc=NULL,
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{a model \code{\link{formula}}.}
-  \item{data}{a \code{\link[big.matrix:bigmemory]{big.matrix}}.}
+  \item{data}{a \code{\link[bigmemory]{big.matrix}}.}
   \item{chunksize}{an integer maximum size of chunks of data to process 
                    iteratively.}
   \item{fc}{either column indices or names of variables that are factors.}
-  \item{\dots}{options associated with the \code{\link[biglm:biglm]{biglm}}}
-    or \code{\link[biglm:bigglm]{bigglm}} functions
+  \item{\dots}{options associated with the \code{\link[biglm]{biglm}}}
+    or \code{\link[biglm]{bigglm}} functions
   \item{getNextChunkFunc}{a function which retrieves chunk data}
 }
 \details{
@@ -37,7 +37,7 @@ Thomas Lumley (2005). biglm: bounded memory linear and generalized
   linear models. R package version 0.4.
 }
 \author{Michael J. Kane}
-\seealso{\code{\link[biglm:biglm-package]{biglm}}, \code{\link[big.matrix:bigmemory]{big.matrix}}}
+\seealso{\code{\link[biglm]{biglm}}, \code{\link[bigmemory]{big.matrix}}}
 \examples{
 # This example is quite silly, using the iris
 # data.  But it shows that our wrapper to Lumley's biglm() function produces
