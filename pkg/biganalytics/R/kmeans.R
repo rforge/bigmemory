@@ -45,6 +45,9 @@
 bigkmeans <- function(x, centers, iter.max = 10, nstart = 1) {
 
   require(foreach)
+  if (is.null(getDoParName())) {
+    registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
+  }
 
   ################################################################
   # This function is used to construct a list of length nstart
