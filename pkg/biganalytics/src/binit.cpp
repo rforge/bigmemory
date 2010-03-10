@@ -111,7 +111,7 @@ SEXP CBinIt1(MatrixType x, index_type nr, SEXP pcol, SEXP Baddr)
 extern "C"
 {
 
-SEXP CBinItmain2(SEXP x, SEXP cols, SEXP breaks1, SEXP breaks2)
+SEXP binit2BigMatrix(SEXP x, SEXP cols, SEXP breaks1, SEXP breaks2)
 {
   BigMatrix *pMat =  reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(x));
   if (pMat->separated_columns())
@@ -153,36 +153,23 @@ SEXP CBinItmain2(SEXP x, SEXP cols, SEXP breaks1, SEXP breaks2)
   return R_NilValue;
 }
 
-/*
-
-  int mt = INTEGER_VALUE(matType);
-  double *pCols = NUMERIC_DATA(col);
-  double *pB1 = NUMERIC_DATA(breaks1);
-  double *pB2 = NUMERIC_DATA(breaks2);
-  SEXP ret = R_NilValue;
-  ret = PROTECT(NEW_NUMERIC((index_type)(pB1[2]*pB2[2])));
-  double *pRet = NUMERIC_DATA(ret);
-  switch (mt) {
-    case 1: {
-        CBinIt2<char>(bigMatrixAddr, pRet, pCols, pB1, pB2);
-      } break;
-    case 2: {
-        CBinIt2<short>(bigMatrixAddr, pRet, pCols, pB1, pB2);
-      } break;
-    case 4: {
-        CBinIt2<int>(bigMatrixAddr, pRet, pCols, pB1, pB2);
-      } break;
-    case 8: {
-        CBinIt2<double>(bigMatrixAddr, pRet, pCols, pB1, pB2);
-      } break;
-  }
-  UNPROTECT(1);
-  return(ret);
+SEXP binit2RIntMatrix(SEXP x, SEXP cols, SEXP breaks1, SEXP breaks2)
+{
+  index_type numRows = static_cast<index_type>(nrows(x));
+  MatrixAccessor<int> mat(INTEGER_DATA(x), numRows);
+  return CBinIt2<int, MatrixAccessor<int> >(mat,
+    numRows, cols, breaks1, breaks2);
 }
 
-*/
+SEXP binit2RNumericMatrix(SEXP x, SEXP cols, SEXP breaks1, SEXP breaks2)
+{
+  index_type numRows = static_cast<index_type>(nrows(x));
+  MatrixAccessor<double> mat(NUMERIC_DATA(x), numRows);
+  return CBinIt2<double, MatrixAccessor<double> >(mat,
+    numRows, cols, breaks1, breaks2);
+}
 
-SEXP CBinItmain1(SEXP x, SEXP col, SEXP breaks)
+SEXP binit1BigMatrix(SEXP x, SEXP col, SEXP breaks)
 {
   BigMatrix *pMat =  reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(x));
   if (pMat->separated_columns())
@@ -224,35 +211,21 @@ SEXP CBinItmain1(SEXP x, SEXP col, SEXP breaks)
   return R_NilValue;
 }
 
-/*
-SEXP CBinItmain1(SEXP bigMatrixAddr, SEXP col, SEXP breaks)
+SEXP binit1RIntMatrix(SEXP x, SEXP col, SEXP breaks)
 {
-
-
-
-  int mt = INTEGER_VALUE(matType);
-  double *pCols = NUMERIC_DATA(col);
-  double *pB = NUMERIC_DATA(breaks);
-  SEXP ret = R_NilValue;
-  ret = PROTECT(NEW_NUMERIC((index_type)pB[2]));
-  double *pRet = NUMERIC_DATA(ret);
-  switch (mt) {
-    case 1: {
-        CBinIt1<char>(bigMatrixAddr, pRet, pCols, pB);
-      } break;
-    case 2: {
-        CBinIt1<short>(bigMatrixAddr, pRet, pCols, pB);
-      } break;
-    case 4: {
-        CBinIt1<int>(bigMatrixAddr, pRet, pCols, pB);
-      } break;
-    case 8: {
-        CBinIt1<double>(bigMatrixAddr, pRet, pCols, pB);
-      } break;
-  }
-  UNPROTECT(1);
-  return(ret);
+  index_type numRows = static_cast<index_type>(nrows(x));
+  MatrixAccessor<int> mat(INTEGER_DATA(x), numRows);
+  return CBinIt1<int, MatrixAccessor<int> >(mat,
+    numRows, col, breaks);
 }
-*/
+
+SEXP binit1RNumericMatrix(SEXP x, SEXP col, SEXP breaks)
+{
+  index_type numRows = static_cast<index_type>(nrows(x));
+  MatrixAccessor<double> mat(NUMERIC_DATA(x), numRows);
+  return CBinIt1<double, MatrixAccessor<double> >(mat,
+    numRows, col, breaks);
+}
+
 
 } // extern "C"

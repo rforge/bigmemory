@@ -4,7 +4,8 @@
 \title{Use Thomas Lumley's ``biglm'' package with a ``big.matrix''}
 \description{
 This is a wrapper to Thomas Lumley's \code{\link[biglm]{biglm}}
-package, allowing its use with data stored in \code{\link[bigmemory]{big.matrix}} objects.
+package, allowing to be used with massive data stored in
+\code{\link[bigmemory]{big.matrix}} objects.
 }
 \usage{
 biglm.big.matrix( formula, data, chunksize=NULL, ..., fc=NULL,
@@ -40,8 +41,8 @@ Thomas Lumley (2005). biglm: bounded memory linear and generalized
 \seealso{\code{\link[biglm]{biglm}}, \code{\link[bigmemory]{big.matrix}}}
 \examples{
 # This example is quite silly, using the iris
-# data.  But it shows that our wrapper to Lumley's biglm() function produces
-# the same answer as the plain old lm() function.
+# data.  But it shows that our wrapper to Lumley's biglm() function
+# produces the same answer as the plain old lm() function.
 
 \dontrun{
 require(bigmemory)
@@ -50,7 +51,8 @@ colnames(x) <- names(iris)
 x <- as.big.matrix(x)
 head(x)
 
-silly.biglm <- biglm.big.matrix(Sepal.Length ~ Sepal.Width + Species, data=x, fc="Species")
+silly.biglm <- biglm.big.matrix(Sepal.Length ~ Sepal.Width + Species,
+                                data=x, fc="Species")
 summary(silly.biglm)
 
 y <- data.frame(x[,])

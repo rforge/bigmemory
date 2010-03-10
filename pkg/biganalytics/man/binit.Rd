@@ -3,13 +3,13 @@
 \title{Count elements appearing in bins of one or two variables.}
 \description{
 This provides preliminary counting functionality to eventually
-support graphical exploration.
+support graphical exploration or as an alternative to \code{table}.
 }
 \usage{
 binit(x, cols, breaks=10)
 }
 \arguments{
-  \item{x}{a \code{\link{big.matrix}}.}
+  \item{x}{a \code{\link{big.matrix}} a \code{\link{matrix}}.}
   \item{cols}{a vector of column indices or names of length 1 or 2.}
   \item{breaks}{a number of bins to span the range from the maximum to the minimum, or a vector (1-variable case) or list of two vectors (2-variable case) where each vector is a triplet of min, max, and number of bins.}
 }
@@ -23,7 +23,7 @@ The function uses left-closed intervals [a,b) except in the right-most bin,
 where the interval is entirely closed.
 }
 \value{
-a list containing (a) vector (1-variable case) or a matrix (2-variable case)
+a list containing (a) a vector (1-variable case) or a matrix (2-variable case)
 of counts of the numbers of cases appearing in each of the bins,
 (b) description(s) of bin centers, and (c) description(s) of breaks between
 the bins.
@@ -31,12 +31,20 @@ the bins.
 \author{John W. Emerson and Michael J. Kane}
 \seealso{\code{\link{big.matrix}}}
 \examples{
-x <- as.big.matrix(matrix(rnorm(40), 20, 2), type="double")
-x[1,1] <- NA
+y <- matrix(rnorm(40), 20, 2)
+y[1,1] <- NA
+x <- as.big.matrix(y, type="double")
 x[,]
+binit(y, 1:2, list(c(-1,1,5), c(-1,1,2)))
 binit(x, 1:2, list(c(-1,1,5), c(-1,1,2)))
+
+binit(y, 1:2)
 binit(x, 1:2)
+
+binit(y, 1:2, 5)
 binit(x, 1:2, 5)
+
+binit(y, 1)
 binit(x, 1)
 
 x <- as.big.matrix(matrix(rnorm(400), 200, 2), type="double")

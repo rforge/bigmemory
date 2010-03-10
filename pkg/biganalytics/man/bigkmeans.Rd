@@ -90,10 +90,10 @@ An object of class \code{kmeans}, just as produced by \code{\link{kmeans}}.
     ans <- bigkmeans(x, 2, nstart=5)
   }
 
-  # Both the following are run iteratively, but with less memory overhead using
-  # bigkmeans().  Note that the gc() comparisons aren't completely fair, because
-  # the big.matrix objects aren't reflected in the gc() summary.  But the
-  # savings is there.
+  # Both the following are run iteratively, but with less memory overhead
+  # using bigkmeans().  Note that the gc() comparisons aren't completely
+  # fair, because the big.matrix objects aren't reflected in the gc()
+  # summary.  But the savings is there.
   gc(reset=TRUE)
   time.new <- system.time(print(bigkmeans(x, 2, nstart=5)$centers))
   gc()

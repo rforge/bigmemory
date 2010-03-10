@@ -12,8 +12,8 @@ This package extends the bigmemory package with various analytics.
 \tabular{ll}{
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
-Version: \tab 1.0.1\cr
-Date: \tab 2010-03-07\cr
+Version: \tab 1.0.2\cr
+Date: \tab 2010-03-10\cr
 License: \tab LGPL-3\cr
 }
 

@@ -61,7 +61,7 @@ colna(x, cols)
 \details{
 These functions essentially apply summary functions to each column (or
 each specified column) of the 
-\code{\link[bigmemory]{big.matrix}}in turn.
+\code{\link[bigmemory]{big.matrix}} in turn.
 }
 \value{
 For \code{colrange}, a matrix with two columns and \code{length(cols)}

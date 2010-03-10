@@ -1,9 +1,9 @@
 Package: biganalytics
 Type: Package
 Title: A library of utilities for big.matrix objects of package bigmemory.
-Version: 1.0.1
-Date: 2010-03-07
-Author: Michael J. Kane and John W. Emerson
+Version: 1.0.2
+Date: 2010-03-10
+Author: John W. Emerson and Michael J. Kane
 Maintainer: John W. Emerson <john.emerson@yale.edu>
 Depends: methods, stats, utils, bigmemory
 Suggests: foreach, biglm
