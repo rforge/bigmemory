@@ -9,55 +9,83 @@
 #include <R.h>
 #include <Rdefines.h>
 
-template<typename dataT>
-void CBinIt2work(dataT *pc1, dataT *pc2, index_type nr, double *pRet,
-                 double *pB1, double *pB2)
+template<typename T, typename MatrixType>
+SEXP CBinIt2(MatrixType x, index_type nr, SEXP pcols,
+             SEXP B1addr, SEXP B2addr)
 {
+
   index_type i, j, k;
-  double nbins1 = pB1[2];
-  double nbins2 = pB2[2];
+
+  double *pB1 = NUMERIC_DATA(B1addr); 
+  double *pB2 = NUMERIC_DATA(B2addr);
   double min1 = pB1[0];
   double min2 = pB2[0];
   double max1 = pB1[1];
   double max2 = pB2[1];
-  int good;
+  index_type nbins1 = (index_type) pB1[2];
+  index_type nbins2 = (index_type) pB2[2];
 
-  for (i=0; i<(index_type)nbins1; i++) {
-    for (j=0; j<(index_type)nbins2; j++) {
-      pRet[j*((index_type)nbins1)+i] = 0.0;
+  double *cols = NUMERIC_DATA(pcols);
+  index_type col1 = (index_type) cols[0] - 1;
+  index_type col2 = (index_type) cols[1] - 1;
+
+  int good;
+  T *pc1 = x[col1];
+  T *pc2 = x[col2];
+
+  SEXP Rret;
+  Rret = PROTECT(NEW_NUMERIC(nbins1*nbins2));
+  double *ret = NUMERIC_DATA(Rret);
+
+  for (i=0; i<nbins1; i++) {
+    for (j=0; j<nbins2; j++) {
+      ret[j*nbins1+i] = 0.0;
     }
   }
-  
+
   for (k=0; k<nr; k++) {
     if ( !isna(pc1[k]) && !isna(pc2[k]) ){
       good = 1;
       if ( (((double)pc1[k])>=min1) && (((double)pc1[k])<=max1) ) {
         i = (index_type) ( nbins1 * (((double)pc1[k])-min1) / (max1-min1) );
-        if (i==(index_type)nbins1) i--;
+        if (i==nbins1) i--;
       } else { good = 0; }
       if ( (((double)pc2[k])>=min2) & (((double)pc2[k])<=max2) ) {
         j = (index_type) ( nbins2 * (((double)pc2[k])-min2) / (max2-min2) );
-        if (j==(index_type)nbins2) j--;
+        if (j==nbins2) j--;
       } else { good = 0; }
       if (good == 1) {
-        pRet[j*((index_type)nbins1)+i]++;
+        ret[j*nbins1+i]++;
       }
     } // End only do work in there isn't an NA value
   } // End looping over all rows.
 
+  UNPROTECT(1);
+  return(Rret);
 }
 
-template<typename dataT>
-void CBinIt1work(dataT *pc, index_type nr, double *pRet, double *pB)
+template<typename T, typename MatrixType>
+SEXP CBinIt1(MatrixType x, index_type nr, SEXP pcol, SEXP Baddr)
 {
+
   index_type i, k;
-  double nbins = pB[2];
+
+  double *pB = NUMERIC_DATA(Baddr); 
   double min = pB[0];
   double max = pB[1];
-  int good;
+  index_type nbins = (index_type) pB[2];
 
-  for (i=0; i<(index_type)nbins; i++) {
-    pRet[i] = 0.0;
+  index_type col = (index_type) NUMERIC_VALUE(pcol); - 1;
+
+  int good;
+  T *pc = x[col];
+
+  SEXP Rret;
+  Rret = PROTECT(NEW_NUMERIC(nbins));
+  double *ret = NUMERIC_DATA(Rret);
+
+  for (i=0; i<nbins; i++) {
+    ret[i] = 0.0;
   }
  
   for (k=0; k<nr; k++) {
@@ -68,42 +96,14 @@ void CBinIt1work(dataT *pc, index_type nr, double *pRet, double *pB)
         if (i==(index_type)nbins) i--;
       } else { good = 0; }
       if (good == 1) {
-        pRet[i]++;
+        ret[i]++;
       }
     } // End only do work in there isn't an NA value
   } // End looping over all rows.
 
-}
+  UNPROTECT(1);
+  return(Rret);
 
-
-template<typename dataT>
-void CBinIt2(SEXP bigMatrixAddr, double *pRet, double *pCols,
-             double *pB1, double *pB2)
-{
-  BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(bigMatrixAddr);
-  if (pMat->separated_columns()) {
-    SepMatrixAccessor<dataT> Mat(*pMat);
-    CBinIt2work(Mat[(index_type)pCols[0]-1], Mat[(index_type)pCols[1]-1], pMat->nrow(),
-                pRet, pB1, pB2);
-  } else {
-    MatrixAccessor<dataT> Mat(*pMat);
-    CBinIt2work(Mat[(index_type)pCols[0]-1], Mat[(index_type)pCols[1]-1], pMat->nrow(),
-                pRet, pB1, pB2);
-  }
-}
-
-template<typename dataT>
-void CBinIt1(SEXP bigMatrixAddr, double *pRet, double *pCols,
-             double *pB)
-{
-  BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(bigMatrixAddr);
-  if (pMat->separated_columns()) {
-    SepMatrixAccessor<dataT> Mat(*pMat);
-    CBinIt1work(Mat[(index_type)pCols[0]-1], pMat->nrow(), pRet, pB);
-  } else {
-    MatrixAccessor<dataT> Mat(*pMat);
-    CBinIt1work(Mat[(index_type)pCols[0]-1], pMat->nrow(), pRet, pB);
-  }
 }
 
 // ----------------------------------------------------------------
@@ -111,9 +111,50 @@ void CBinIt1(SEXP bigMatrixAddr, double *pRet, double *pCols,
 extern "C"
 {
 
-SEXP CBinItmain2(SEXP matType, SEXP bigMatrixAddr, SEXP col,
-                SEXP breaks1, SEXP breaks2)
+SEXP CBinItmain2(SEXP x, SEXP cols, SEXP breaks1, SEXP breaks2)
 {
+  BigMatrix *pMat =  reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(x));
+  if (pMat->separated_columns())
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return CBinIt2<char>(SepMatrixAccessor<char>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+      case 2:
+        return CBinIt2<short>(SepMatrixAccessor<short>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+      case 4:
+        return CBinIt2<int>(SepMatrixAccessor<int>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+      case 8:
+        return CBinIt2<double>(SepMatrixAccessor<double>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+    }
+  }
+  else
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return CBinIt2<char>(MatrixAccessor<char>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+      case 2:
+        return CBinIt2<short>(MatrixAccessor<short>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+      case 4:
+        return CBinIt2<int>(MatrixAccessor<int>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+      case 8:
+        return CBinIt2<double>(MatrixAccessor<double>(*pMat),
+          pMat->nrow(), cols, breaks1, breaks2);
+    }
+  }
+  return R_NilValue;
+}
+
+/*
+
   int mt = INTEGER_VALUE(matType);
   double *pCols = NUMERIC_DATA(col);
   double *pB1 = NUMERIC_DATA(breaks1);
@@ -139,9 +180,56 @@ SEXP CBinItmain2(SEXP matType, SEXP bigMatrixAddr, SEXP col,
   return(ret);
 }
 
-SEXP CBinItmain1(SEXP matType, SEXP bigMatrixAddr, SEXP col,
-                SEXP breaks)
+*/
+
+SEXP CBinItmain1(SEXP x, SEXP col, SEXP breaks)
 {
+  BigMatrix *pMat =  reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(x));
+  if (pMat->separated_columns())
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return CBinIt1<char>(SepMatrixAccessor<char>(*pMat),
+          pMat->nrow(), col, breaks);
+      case 2:
+        return CBinIt1<short>(SepMatrixAccessor<short>(*pMat),
+          pMat->nrow(), col, breaks);
+      case 4:
+        return CBinIt1<int>(SepMatrixAccessor<int>(*pMat),
+          pMat->nrow(), col, breaks);
+      case 8:
+        return CBinIt1<double>(SepMatrixAccessor<double>(*pMat),
+          pMat->nrow(), col, breaks);
+    }
+  }
+  else
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return CBinIt1<char>(MatrixAccessor<char>(*pMat),
+          pMat->nrow(), col, breaks);
+      case 2:
+        return CBinIt1<short>(MatrixAccessor<short>(*pMat),
+          pMat->nrow(), col, breaks);
+      case 4:
+        return CBinIt1<int>(MatrixAccessor<int>(*pMat),
+          pMat->nrow(), col, breaks);
+      case 8:
+        return CBinIt1<double>(MatrixAccessor<double>(*pMat),
+          pMat->nrow(), col, breaks);
+    }
+  }
+  return R_NilValue;
+}
+
+/*
+SEXP CBinItmain1(SEXP bigMatrixAddr, SEXP col, SEXP breaks)
+{
+
+
+
   int mt = INTEGER_VALUE(matType);
   double *pCols = NUMERIC_DATA(col);
   double *pB = NUMERIC_DATA(breaks);
@@ -165,5 +253,6 @@ SEXP CBinItmain1(SEXP matType, SEXP bigMatrixAddr, SEXP col,
   UNPROTECT(1);
   return(ret);
 }
+*/
 
 } // extern "C"

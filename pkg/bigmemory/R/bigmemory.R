@@ -1303,3 +1303,24 @@ setMethod('file.name', signature(x='big.matrix'),
     return(.Call('FileName', x@address))
   })
 
+transpose.big.matrix(x, backingfile=NULL,
+                     backingpath=NULL, descriptorfile=NULL){
+  if (!is.null(backingfile))
+  {
+    temp <- filebacked.big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
+                               dimnames=dimnames(x)[[2:1]], separated=is.separated(x),
+                               backingfile=backingfile,
+                               backingpath=backingpath, descriptorfile=descriptorfile)
+  } else {
+    temp <- big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
+                       dimnames=dimnames(x)[[2:1]], separated=is.separated(x)) 
+  }
+
+  for (i in 1:nrow(x)) {
+    temp[,i] <- x[i,]
+  }
+
+  return(temp)
+}
+
+

@@ -1,6 +1,7 @@
 import(methods,bigmemory)
 export(
   bigkmeans,
+  binit,
   biglm.big.matrix, 
   bigglm.big.matrix, 
   colmin,
