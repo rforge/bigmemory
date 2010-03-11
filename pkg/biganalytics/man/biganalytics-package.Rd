@@ -6,7 +6,11 @@
 biganalytics: A library of utilities for big.matrix objects of package bigmemory.
 }
 \description{
-This package extends the bigmemory package with various analytics.
+This package extends the bigmemory package with various analytics.  In addition
+to the more obvious summary statistics (see \code{\link{colmean}}, etc...),
+\pkg{biganalytics} offers \code{\link{biglm.big.matrix}},
+\code{\link{bigglm.big.matrix}}, \code{\link{bigkmeans}}, and
+\code{\link{binit}}.
 }
 \details{
 \tabular{ll}{
@@ -29,8 +33,9 @@ Maintainer: Jay Emerson <john.emerson@yale.edu>
 }
 \keyword{package}
 \references{See \url{http://www.stat.yale.edu/~jay/bigmemory}.}
-\seealso{For example,
-\code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}}
+\seealso{For example, see
+\code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}},
+\code{\link{bigkmeans}}, \code{\link{binit}}, \code{\link{colmean}}.
 }
 \examples{
 # Our examples are all trivial in size, rather than burning huge amounts

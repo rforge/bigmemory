@@ -25,8 +25,8 @@ binit <- function(x, cols, breaks=10)
           mins <- colmin(x, cols, na.rm=TRUE)
           maxs <- colmax(x, cols, na.rm=TRUE)
         } else {
-          mins <- apply(x[,cols], 2, min, na.tm=TRUE)
-          maxs <- apply(x[,cols], 2, max, na.tm=TRUE)
+          mins <- apply(x[,cols], 2, min, na.rm=TRUE)
+          maxs <- apply(x[,cols], 2, max, na.rm=TRUE)
         }
         breaks <- list(c(mins[1], maxs[1], usebreaks[1]),
                        c(mins[2], maxs[2], usebreaks[2]))

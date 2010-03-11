@@ -67,7 +67,8 @@ to more easily manage and analyze data sets larger than available
 These features open the door for powerful and
 memory-efficient parallel analyses and data mining of massive data sets.
 
-This package is still actively developed.  Please send us an email
+This project (bigmemory and sister packages) is still actively developed.
+Please send us an email
 letting us know you are trying the package, and we'll keep you
 abreast on updates.
 }
@@ -98,12 +99,12 @@ were row limitations (due to a bug that has now been fixed) in versions
 >=3.82.
 }
 \author{
-John W. Emerson and Michael J. Kane
+Michael J. Kane and John W. Emerson
 
 Maintainer: Jay Emerson and Mike Kane <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
-\references{See \url{http://www.bigmemory.org}.}
+\references{See \url{http://www.bigmemory.org/}.}
 \seealso{For example,
 \code{\link{big.matrix}}, \code{\link{mwhich}}, \code{\link{read.big.matrix}}
 }

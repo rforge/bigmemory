@@ -1303,8 +1303,8 @@ setMethod('file.name', signature(x='big.matrix'),
     return(.Call('FileName', x@address))
   })
 
-transpose.big.matrix(x, backingfile=NULL,
-                     backingpath=NULL, descriptorfile=NULL){
+transpose.big.matrix <- function(x, backingfile=NULL,
+                     backingpath=NULL, descriptorfile=NULL) {
   if (!is.null(backingfile))
   {
     temp <- filebacked.big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
