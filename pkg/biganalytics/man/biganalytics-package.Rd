@@ -16,8 +16,8 @@ to the more obvious summary statistics (see \code{\link{colmean}}, etc...),
 \tabular{ll}{
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
-Version: \tab 1.0.2\cr
-Date: \tab 2010-03-10\cr
+Version: \tab 1.0.3\cr
+Date: \tab 2010-03-13\cr
 License: \tab LGPL-3\cr
 }
 
