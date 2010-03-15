@@ -159,6 +159,18 @@ class BigMatrix : public boost::noncopyable
     Names _colNames;
     Names _rowNames;
 };
+
+class LocalBigMatrix : public BigMatrix
+{
+  public:
+    LocalBigMatrix() : BigMatrix() {_shared=false;}
+    virtual ~LocalBigMatrix() {destroy();};
+    virtual bool create( const index_type numRow, const index_type numCol,
+      const int matrixType, const bool sepCols);
+
+  protected:
+    virtual bool destroy();
+};
  
 class SharedBigMatrix : public BigMatrix
 {
