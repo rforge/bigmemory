@@ -1324,3 +1324,15 @@ transpose.big.matrix <- function(x, backingfile=NULL,
 }
 
 
+setGeneric('flush.filebacking', function(con) standardGeneric('flush'))
+
+setMethod('flush', signature(con='big.matrix'),
+  function(con) 
+  {
+    if (!is.filebacked(con))
+    {
+      warning("You cannot call flush on a non-filebacked big.matrix")
+      return(invisible(TRUE))
+    }
+    return(invisible(.Call("Flush", con@address)))
+  })

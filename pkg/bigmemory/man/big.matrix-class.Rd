@@ -33,6 +33,7 @@
 \alias{tail,big.matrix-method}
 \alias{typeof,big.matrix-method}
 \alias{write.big.matrix,big.matrix,character-method}
+\alias{flush,big.matrix-method}
 
 \title{Class "big.matrix"}
 \description{The \code{big.matrix} class is designed for matrices with 

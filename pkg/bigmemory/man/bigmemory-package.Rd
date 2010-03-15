@@ -17,8 +17,8 @@ to that of an \R \code{\link{matrix}}.
 \tabular{ll}{
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
-Version: \tab 4.0.5\cr
-Date: \tab 2010-02-08\cr
+Version: \tab 4.0.6\cr
+Date: \tab 2010-03-15\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
@@ -43,6 +43,8 @@ apply
 deepcopy
 
 describe, attach.big.matrix, attach.resource
+
+flush
 }
 
 Multi-gigabyte data sets challenge and frustrate \R

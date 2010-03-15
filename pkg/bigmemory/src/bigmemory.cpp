@@ -2011,5 +2011,17 @@ SEXP FileName( SEXP address )
     reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));   
   return String2RChar(pMat->file_name());   
 }
+
+SEXP Flush( SEXP address )  
+{   
+  FileBackedBigMatrix *pMat =   
+    reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));   
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = pMat->flush() ? (Rboolean)TRUE : Rboolean(FALSE);
+  UNPROTECT(1);
+  return ret;
+}
+
+
 } // extern "C"
 

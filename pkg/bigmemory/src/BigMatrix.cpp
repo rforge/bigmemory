@@ -726,3 +726,21 @@ bool FileBackedBigMatrix::destroy()
     return false;
   }
 }
+
+bool FileBackedBigMatrix::flush()
+{
+  index_type i;
+  try
+  {
+    for (i=0; i < _dataRegionPtrs.size(); ++i)
+    {
+      if ( !(_dataRegionPtrs[i])->flush() ) return false;
+    }
+  }
+  catch(std::exception &e)
+  {
+    printf("%s\n", e.what());
+    return false;
+  }
+  return true;
+}

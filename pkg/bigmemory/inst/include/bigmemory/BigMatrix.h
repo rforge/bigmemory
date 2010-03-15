@@ -220,6 +220,7 @@ class FileBackedBigMatrix : public SharedBigMatrix
       const index_type numRow, const index_type numCol, const int matrixType, 
       const bool sepCols);
     std::string file_name() const {return _fileName;}
+    bool flush();
   protected:
     virtual bool destroy();
 
