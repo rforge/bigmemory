@@ -28,6 +28,125 @@ std::string ttos(T i)
   return s.str();
 }
 
+template<typename T>
+void* CreateLocalMatrix( const index_type &nrow, const index_type &ncol )
+{
+  return new char[nrow*ncol*sizeof(T)];
+}
+
+template<typename T>
+void* CreateLocalSepMatrix( const index_type &nrow, 
+  const index_type &ncol )
+{
+  char **pRet = new char*[ncol];
+  index_type i;
+  try
+  {
+    for (i=0; i < ncol; ++i)
+    {
+      pRet[i] = new char[nrow*sizeof(T)];
+    }
+  }
+  catch(std::exception &e)
+  {
+    printf("%s\n", e.what());
+    while(i > 1)
+    {
+      delete [] pRet[--i];
+    }
+    delete [] pRet;
+    return NULL;
+  }
+  return reinterpret_cast<void*>(pRet);
+}
+
+bool LocalBigMatrix::create( const index_type numRow, 
+  const index_type numCol, const int matrixType, 
+  const bool sepCols )
+{
+  try
+  {
+    _nrow = numRow;
+    _totalRows = _nrow;
+    _ncol = numCol;
+    _totalCols = _ncol;
+    _matType = matrixType;
+    _sepCols = sepCols;
+    if (_sepCols)
+    {
+      switch(_matType)
+      {
+        case 1:
+          _pdata = CreateLocalSepMatrix<char>(_nrow, _ncol);
+          break;
+        case 2:
+          _pdata = CreateLocalSepMatrix<short>(_nrow, _ncol);
+          break;
+        case 4:
+          _pdata = CreateLocalSepMatrix<int>(_nrow, _ncol);
+          break;
+        case 8:
+          _pdata = CreateLocalSepMatrix<double>(_nrow, _ncol);
+      }
+    }
+    else
+    {
+      switch(_matType)
+      {
+        case 1:
+          _pdata = CreateLocalMatrix<char>(_nrow, _ncol);
+          break;
+        case 2:
+          _pdata = CreateLocalMatrix<short>(_nrow, _ncol);
+          break;
+        case 4:
+          _pdata = CreateLocalMatrix<int>(_nrow, _ncol);
+          break;
+        case 8:
+          _pdata = CreateLocalMatrix<double>(_nrow, _ncol);
+      }
+    }
+    if (_pdata == NULL)
+    {
+      return false;
+    }
+    return true;
+  }
+  catch(std::exception &e)
+  {
+    printf("%s\n", e.what());
+    printf("%s line %d\n", __FILE__, __LINE__);
+    return false;
+  }
+}
+
+bool LocalBigMatrix::destroy()
+{
+  try
+  {
+    if (_sepCols)
+    {
+      char** p = reinterpret_cast<char**>(_pdata);
+      index_type i;
+      for (i=0; i < _ncol; ++i)
+      {
+        delete [] p[i];
+      }
+      delete [] p;
+    }
+    else
+    {
+      delete [] reinterpret_cast<char*>(_pdata);
+    }
+    return true;
+  }
+  catch(std::exception &e)
+  {
+    printf("%s\n", e.what());
+    return false;
+  }
+}
+
 bool SharedBigMatrix::create_uuid()
 {
   try
@@ -707,13 +826,6 @@ bool FileBackedBigMatrix::destroy()
       }
     }
         // In all cases, do the following:
-    _ncol=0;
-    _nrow=0;
-    _totalRows=0;
-    _totalCols=0;
-    _colOffset=0;
-    _rowOffset=0;
-    _pdata=0;
     _colNames.clear();
     _rowNames.clear();
     return true;
