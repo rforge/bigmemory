@@ -1324,7 +1324,7 @@ transpose.big.matrix <- function(x, backingfile=NULL,
 }
 
 
-setGeneric('flush.filebacking', function(con) standardGeneric('flush'))
+setGeneric('flush', function(con) standardGeneric('flush'))
 
 setMethod('flush', signature(con='big.matrix'),
   function(con) 

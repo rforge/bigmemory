@@ -1050,6 +1050,95 @@ SEXP MWhichMatrix( MatrixType mat, index_type nrow, SEXP selectColumn,
   return(ret);
 }
 
+template<typename T>
+SEXP CCreateRAMMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
+  SEXP typeLength, SEXP ini, SEXP separated, R_CFinalizer_t pFinalizer)
+{
+  T *pMat;
+  try
+  {
+    pMat = new T();
+    if (!pMat->create( static_cast<index_type>(NUMERIC_VALUE(row)),
+      static_cast<index_type>(NUMERIC_VALUE(col)),
+      INTEGER_VALUE(typeLength),
+      static_cast<bool>(LOGICAL_VALUE(separated))))
+    {
+      delete pMat;
+      return NULL_USER_OBJECT;
+    }
+    if (colnames != NULL_USER_OBJECT)
+    {
+      pMat->column_names(RChar2StringVec(colnames));
+    }
+    if (rownames != NULL_USER_OBJECT)
+    {
+      pMat->row_names(RChar2StringVec(rownames));
+    }
+    if (GET_LENGTH(ini) != 0)
+    {
+      if (pMat->separated_columns())
+      {
+        switch (pMat->matrix_type())
+        {
+          case 1:
+            SetAllMatrixElements<char, SepMatrixAccessor<char> >(
+              pMat, ini, NA_CHAR, R_CHAR_MIN, R_CHAR_MAX, NA_REAL);
+            break;
+          case 2:
+            SetAllMatrixElements<short, SepMatrixAccessor<short> >(
+              pMat, ini, NA_SHORT, R_SHORT_MIN, R_SHORT_MAX, NA_REAL);
+            break;
+          case 4:
+            SetAllMatrixElements<int, SepMatrixAccessor<int> >(
+              pMat, ini, NA_INTEGER, R_INT_MIN, R_INT_MAX, NA_REAL);
+            break;
+          case 8:
+            SetAllMatrixElements<double, SepMatrixAccessor<double> >(
+              pMat, ini, NA_REAL, R_DOUBLE_MIN, R_DOUBLE_MAX, NA_REAL);
+        }
+      }
+      else
+      {
+        switch (pMat->matrix_type())
+        {
+          case 1:
+            SetAllMatrixElements<char, MatrixAccessor<char> >(
+              pMat, ini, NA_CHAR, R_CHAR_MIN, R_CHAR_MAX, NA_REAL );
+            break;
+          case 2:
+            SetAllMatrixElements<short, MatrixAccessor<short> >(
+              pMat, ini, NA_SHORT, R_SHORT_MIN, R_SHORT_MAX, NA_REAL );
+            break;
+          case 4:
+            SetAllMatrixElements<int, MatrixAccessor<int> >(
+              pMat, ini, NA_INTEGER, R_INT_MIN, R_INT_MAX, NA_REAL );
+            break;
+          case 8:
+            SetAllMatrixElements<double, MatrixAccessor<double> >(
+              pMat, ini, NA_REAL, R_DOUBLE_MIN, R_DOUBLE_MAX, NA_REAL);
+        }
+      }
+    }
+    SEXP address = R_MakeExternalPtr( dynamic_cast<BigMatrix*>(pMat),
+      R_NilValue, R_NilValue);
+    R_RegisterCFinalizerEx(address, pFinalizer, (Rboolean)TRUE);
+//    R_RegisterCFinalizerEx(address, (R_CFinalizer_t) CDestroySharedMatrix, 
+//      (Rboolean) TRUE);
+    return address;
+  }
+  catch(std::exception &e)
+  {
+    printf("%s\n", e.what());
+  }
+  catch(...)
+  {
+    printf("Exception caught while trying to create shared matrix.");
+  }
+  delete(pMat); 
+  error("The shared matrix could not be created\n");
+  return(R_NilValue);
+}
+
 extern "C"{
 
 void SetRowOffsetInfo( SEXP bigMatAddr, SEXP rowOffset, SEXP numRows )
@@ -1759,6 +1848,14 @@ void CDestroySharedMatrix(SEXP bigMatrixAddr)
 SEXP CCreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   SEXP typeLength, SEXP ini, SEXP separated)
 {
+  return CCreateRAMMatrix<SharedMemoryBigMatrix>(row, col, colnames,
+    rownames, typeLength, ini, separated, 
+    (R_CFinalizer_t) CDestroySharedMatrix);
+}
+/*
+SEXP CCreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
+  SEXP typeLength, SEXP ini, SEXP separated)
+{
   SharedMemoryBigMatrix *pMat;
   try
   {
@@ -1842,6 +1939,7 @@ SEXP CCreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   error("The shared matrix could not be created\n");
   return(R_NilValue);
 }
+*/
 
 void* GetDataPtr(SEXP address)
 {

@@ -1,6 +1,6 @@
 \name{flush}
 \alias{flush}
-\title{Updating a \code{big.matrix} filebacking.}
+\title{Updating a big.matrix filebacking.}
 \description{
 For filebacked \code{big.matrix} object, flush written information to the
 filebacking.
@@ -14,7 +14,7 @@ flush(con)
 }
 \details{
 This function flushes data that has been written to a filebacked 
-\code{big.matrix} to it filebacking.
+\code{big.matrix} to its filebacking.
 }
 \value{
 \code{TRUE} or \code{FALSE} indicating whether or not the flush was successful.
