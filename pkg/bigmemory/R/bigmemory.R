@@ -837,13 +837,14 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
 setGeneric('read.big.matrix', 
   function(fileName, sep=',', header=FALSE, col.names=NULL, row.names=NULL, 
            has.row.names=FALSE, ignore.row.names=FALSE, type=NA, skip=0, 
-           separated=FALSE, backingfile=NULL, backingpath=NULL, descriptorfile=NULL, 
-           extraCols=NULL) standardGeneric('read.big.matrix'))
+           separated=FALSE, backingfile=NULL, backingpath=NULL, 
+           descriptorfile=NULL, extraCols=NULL, shared=TRUE) 
+  standardGeneric('read.big.matrix'))
 
 setMethod('read.big.matrix', signature(fileName='character'),
   function(fileName, sep, header, col.names, row.names, has.row.names, 
            ignore.row.names, type, skip, separated, backingfile, backingpath, 
-           descriptorfile, extraCols)
+           descriptorfile, extraCols, shared=TRUE)
   {
     if (is.logical(col.names) | is.logical(row.names))
       stop("row.names and col.names, if used, must only be vectors of names (not logicals).")
@@ -921,7 +922,7 @@ setMethod('read.big.matrix', signature(fileName='character'),
                          dimnames=list(rowNames, colNames), init=NULL, 
                          separated=separated, backingfile=backingfile,
                          backingpath=backingpath,
-                         descriptorfile=descriptorfile)
+                         descriptorfile=descriptorfile, shared=TRUE)
 
     # has.row.names indicates whether or not there are row names;
     # we take ignore.row.names from the user, but pass (essentially)
