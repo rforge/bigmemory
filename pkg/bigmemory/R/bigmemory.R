@@ -26,10 +26,11 @@ setGeneric('description', function(x) standardGeneric('description'))
 
 big.matrix <- function(nrow, ncol, type='integer', init=NULL,
                        dimnames=NULL, separated=FALSE, backingfile=NULL,
-                       backingpath=NULL, descriptorfile=NULL)
+                       backingpath=NULL, descriptorfile=NULL, shared=TRUE)
 {
   if (!is.null(backingfile))
   {
+    if (!shared) warning("All filebacked objects are shared.")
     return(filebacked.big.matrix(nrow=nrow, ncol=ncol, type=type, init=init,
                                dimnames=dimnames, separated=separated,
                                backingfile=backingfile, backingpath=backingpath,
@@ -52,9 +53,15 @@ big.matrix <- function(nrow, ncol, type='integer', init=NULL,
     colnames <- NULL
   }
   if (is.null(init)) init <- NA
-  address <- .Call('CCreateSharedMatrix', as.double(nrow),
-               as.double(ncol), as.character(colnames), as.character(rownames),
-               as.integer(typeVal), as.double(init), as.logical(separated))
+  if (shared) {
+    address <- .Call('CreateSharedMatrix', as.double(nrow),
+                 as.double(ncol), as.character(colnames), as.character(rownames),
+                 as.integer(typeVal), as.double(init), as.logical(separated))
+  } else {
+    address <- .Call('CreateLocalMatrix', as.double(nrow),
+                 as.double(ncol), as.character(colnames), as.character(rownames),
+                 as.integer(typeVal), as.double(init), as.logical(separated))
+  }
   if (is.null(address)) {
     stop(paste("Error: memory could not be allocated for instance",
                "of type big.matrix"))
@@ -1153,7 +1160,7 @@ filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
     anon.backing <- TRUE
   }
 
-	address <- .Call('CCreateFileBackedBigMatrix', as.character(backingfile), 
+	address <- .Call('CreateFileBackedBigMatrix', as.character(backingfile), 
     as.character(backingpath), as.double(nrow), as.double(ncol), 
     as.character(colnames), as.character(rownames), as.integer(typeVal), 
     as.double(init), as.logical(separated))
@@ -1336,3 +1343,10 @@ setMethod('flush', signature(con='big.matrix'),
     }
     return(invisible(.Call("Flush", con@address)))
   })
+
+setGeneric('is.shared', function(x) standardGeneric('is.shared'))
+
+setMethod('is.shared', signature(x='big.matrix'),
+  function(x) return(.Call("IsShared", x@address)))
+
+

@@ -1051,7 +1051,7 @@ SEXP MWhichMatrix( MatrixType mat, index_type nrow, SEXP selectColumn,
 }
 
 template<typename T>
-SEXP CCreateRAMMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
+SEXP CreateRAMMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   SEXP typeLength, SEXP ini, SEXP separated)
 {
   T *pMat;
@@ -1837,17 +1837,17 @@ void SetAllMatrixElements(SEXP bigMatAddr, SEXP value)
   }
 }
 
-SEXP CCreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
+SEXP CreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   SEXP typeLength, SEXP ini, SEXP separated)
 {
-  return CCreateRAMMatrix<SharedMemoryBigMatrix>(row, col, colnames,
+  return CreateRAMMatrix<SharedMemoryBigMatrix>(row, col, colnames,
     rownames, typeLength, ini, separated);
 }
 
-SEXP CCreateLocalMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
+SEXP CreateLocalMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   SEXP typeLength, SEXP ini, SEXP separated)
 {
-  return CCreateRAMMatrix<LocalBigMatrix>(row, col, colnames,
+  return CreateRAMMatrix<LocalBigMatrix>(row, col, colnames,
     rownames, typeLength, ini, separated);
 }
 
@@ -1858,7 +1858,7 @@ void* GetDataPtr(SEXP address)
   return pMat->data_ptr();
 }
 
-SEXP CCreateFileBackedBigMatrix(SEXP fileName, SEXP filePath, SEXP row, 
+SEXP CreateFileBackedBigMatrix(SEXP fileName, SEXP filePath, SEXP row, 
   SEXP col, SEXP colnames, SEXP rownames, SEXP typeLength, SEXP ini, 
   SEXP separated)
 {
@@ -2030,6 +2030,15 @@ SEXP Flush( SEXP address )
   return ret;
 }
 
+SEXP IsShared( SEXP address )
+{
+  FileBackedBigMatrix *pMat =   
+    reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));   
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = pMat->shared() ? (Rboolean)TRUE : Rboolean(FALSE);
+  UNPROTECT(1);
+  return ret;
+}
 
 } // extern "C"
 

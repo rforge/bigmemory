@@ -5,6 +5,7 @@
 \alias{is.big.matrix}
 \alias{is.separated}
 \alias{is.filebacked}
+\alias{is.shared}
 \alias{[.big.matrix}
 \title{The core ``big.matrix'' operations.}
 \description{
@@ -15,7 +16,7 @@ may be file-backed.
 \usage{
 big.matrix(nrow, ncol, type = "integer", init = NULL,
   dimnames = NULL, separated = FALSE, backingfile = NULL,
-  backingpath = NULL, descriptorfile = NULL)
+  backingpath = NULL, descriptorfile = NULL, shared = TRUE)
 filebacked.big.matrix(nrow, ncol, type = "integer", init = NULL, 
   dimnames = NULL, separated = FALSE, backingfile = NULL,
   backingpath = NULL, descriptorfile = NULL)
@@ -24,6 +25,7 @@ as.big.matrix(x, type = NULL, separated = FALSE,
 is.big.matrix(x)
 is.separated(x)
 is.filebacked(x)
+is.shared(x)
 }
 \arguments{
   \item{x}{a \code{matrix} or \code{vector} for \code{as.big.matrix}; if a vector, a one-column\cr \code{big.matrix} is created by \code{as.big.matrix}.}
@@ -35,7 +37,8 @@ is.filebacked(x)
   \item{separated}{use separated column organization of the data; see details.}
   \item{backingfile}{the root name for the file(s) for the cache of \code{x}.}
   \item{backingpath}{the path to the directory containing the file backing cache.}
-  \item{descriptorfile}{the name of the file to hold the filebacked description, for subsequent use with \code{\link{attach.big.matrix}}; if NULL, the \code{backingfile} is used as the root.  The descriptor file is placed in the same directory as the backing files.}
+  \item{descriptorfile}{the name of the file to hold the filebacked description, for subsequent use with \code{\link{attach.big.matrix}}; if \code{NULL}, the \code{backingfile} is used as the root.  The descriptor file is placed in the same directory as the backing files.}
+  \item{shared}{\code{TRUE} by default, and always \code{TRUE} if the \code{big.matrix} is filebacked.  For a non-filebacked \code{big.matrix}, \code{shared=FALSE} uses non-shared memory, which can be more stable for large (say, >50\% of RAM) objects.  Shared memory allocation can sometimes fail in such cases due to exhausted shared-memory resources in the system.}
 }
 \details{
 A \code{big.matrix} consists of an object in \R that does nothing more than point to
