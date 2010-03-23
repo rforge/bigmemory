@@ -1009,7 +1009,8 @@ setMethod('apply', signature(X="big.matrix"),
 
 bmapply <- function(X, MARGIN, FUN, ...)
 {
-  if (length(MARGIN)>1) stop("MARGIN > 1 not supported with big.matrix objects.\n")
+  if (length(MARGIN)>1) 
+    stop("MARGIN > 1 not supported with big.matrix objects.\n")
   FUN <- match.fun(FUN)
   dn.ans <- dimnames(X)[MARGIN]
   if (MARGIN==1) {
@@ -1059,27 +1060,6 @@ bmapply <- function(X, MARGIN, FUN, ...)
 
 # Following the R convention we are going to assume Unix directory 
 # separators '/' as opposed to the Windows convention '\'.
-
-fix_path = function(path)
-{
-  if (is.null(path) || path == '')
-  {
-    path = ''
-    return(path)
-  }
-  else if (substr(path, nchar(path), nchar(path))!='/')
-  {
-    if (is.na(file.info(path)$isdir))
-      stop("The supplied backing path does not exist.")
-    path= paste(path, '/', sep='')
-  }
-  else 
-  {
-    if ( is.na(file.info(substr(path, 1, nchar(path)-1))$isdir) )
-      stop( "The supplied backing path does not exist.")
-  }
-  return(path)
-}
 
 setGeneric('is.sub.big.matrix', function(x)
 	standardGeneric('is.sub.big.matrix'))
@@ -1152,12 +1132,18 @@ filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   {
     stop('You must specify a backing file')
   }
-  backingpath <- fix_path(backingpath)
+  if ( (basename(backingfile) != backingfile) | 
+    (basename(descriptorfile) != descriptorfile) )
+  {
+    stop(paste("The path to the descriptor and backing file are",
+      , "specified with the backingpath option"))
+  }
+  backingpath <- ifelse( is.null(backingpath), '.', path.expand(backingpath) )
   anon.backing <- FALSE
   if (backingfile == '')
   {
     backingfile <- tempfile()
-    backingpath <- ''
+    backingpath <- '.'
     anon.backing <- TRUE
   }
 
@@ -1177,12 +1163,14 @@ filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   if (is.null(descriptorfile) && !anon.backing)
   {
     warning(paste("A descriptor file has not been specified.  ",
-                  "A descriptor named ", backingfile, ".desc will be created.", sep=''))
+                  "A descriptor named ", backingfile, 
+                  ".desc will be created.", sep=''))
     descriptorfile <- paste(backingfile, ".desc", sep='' )
   }
   if (!anon.backing)
   {
-    dput(describe(x), paste(backingpath, descriptorfile, sep=''))
+    descriptorfilepath <- file.path(backingpath, descriptorfile) 
+    dput(describe(x), descriptorfilepath)
   }
   return(x)
 }
@@ -1240,9 +1228,26 @@ setMethod('attach.resource', signature(obj='character'),
     path <- list(...)[['path']]
     if (is.null(path))
     {
-      path <- ''
+      path <- '.'
     }
-    info <- dget(paste(fix_path(path), obj, sep=""))
+    path <- path.expand(path)
+    if (basename(obj) != obj)
+    {
+      if (path != ".")
+        warning(paste("Two paths were specified in attach.resource.",
+          "The one associated with the file will be used.", sep="  "))
+      path <- dirname(obj)
+      obj <- basename(obj) 
+    }
+    
+    fileWithPath <- file.path(path, obj)
+    fi = file.info(fileWithPath)
+    print(dir())
+    if (is.na(fi$isdir))
+      stop( paste("The file", fileWithPath, "could not be found") )
+    if (fi$isdir)
+      stop( fileWithPath, "is a directory" )
+    info <- dget(fileWithPath)
     return(attach.resource(info, path=path))
   })
 
@@ -1252,7 +1257,7 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     path <- list(...)[['path']]
     if (is.null(path))
     {
-      path <- ''
+      path <- '.'
     }
     info <- description(obj)
     typeLength <- NULL
@@ -1262,7 +1267,12 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     if (info$type == 'double') typeLength <- 8
     if (is.null(typeLength)) 
       stop('invalid type')
-    path <- fix_path(path)
+    path <- path.expand(path)
+    fi = file.info(path)
+    if (path != '.' && is.na(fi$isdir))
+      stop( paste("The directory", path, "could not be found") )
+    if (!is.na(fi$isdir) && !fi$isdir)
+      stop( paste(path, "is not a directory.") )
     if (info$sharedType == 'SharedMemory')
     {
       address <- .Call('CAttachSharedBigMatrix', info$sharedName, 
@@ -1316,9 +1326,9 @@ transpose.big.matrix <- function(x, backingfile=NULL,
   if (!is.null(backingfile))
   {
     temp <- filebacked.big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
-                               dimnames=dimnames(x)[[2:1]], separated=is.separated(x),
-                               backingfile=backingfile,
-                               backingpath=backingpath, descriptorfile=descriptorfile)
+            dimnames=dimnames(x)[[2:1]], separated=is.separated(x),
+            backingfile=backingfile,
+            backingpath=backingpath, descriptorfile=descriptorfile)
   } else {
     temp <- big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
                        dimnames=dimnames(x)[[2:1]], separated=is.separated(x)) 
