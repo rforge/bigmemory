@@ -1138,12 +1138,12 @@ filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
     stop(paste("The path to the descriptor and backing file are",
       , "specified with the backingpath option"))
   }
-  backingpath <- ifelse( is.null(backingpath), '.', path.expand(backingpath) )
+  backingpath <- ifelse( is.null(backingpath), './', path.expand(backingpath) )
   anon.backing <- FALSE
   if (backingfile == '')
   {
     backingfile <- tempfile()
-    backingpath <- '.'
+    backingpath <- './'
     anon.backing <- TRUE
   }
 
@@ -1228,12 +1228,12 @@ setMethod('attach.resource', signature(obj='character'),
     path <- list(...)[['path']]
     if (is.null(path))
     {
-      path <- '.'
+      path <- './'
     }
     path <- path.expand(path)
     if (basename(obj) != obj)
     {
-      if (path != ".")
+      if (path != "./")
         warning(paste("Two paths were specified in attach.resource.",
           "The one associated with the file will be used.", sep="  "))
       path <- dirname(obj)
@@ -1256,7 +1256,7 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     path <- list(...)[['path']]
     if (is.null(path))
     {
-      path <- '.'
+      path <- './'
     }
     info <- description(obj)
     typeLength <- NULL
@@ -1268,7 +1268,7 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
       stop('invalid type')
     path <- path.expand(path)
     fi = file.info(path)
-    if (path != '.' && is.na(fi$isdir))
+    if (path != './' && is.na(fi$isdir))
       stop( paste("The directory", path, "could not be found") )
     if (!is.na(fi$isdir) && !fi$isdir)
       stop( paste(path, "is not a directory.") )
