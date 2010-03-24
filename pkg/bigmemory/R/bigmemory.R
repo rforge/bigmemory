@@ -1242,7 +1242,6 @@ setMethod('attach.resource', signature(obj='character'),
     
     fileWithPath <- file.path(path, obj)
     fi = file.info(fileWithPath)
-    print(dir())
     if (is.na(fi$isdir))
       stop( paste("The file", fileWithPath, "could not be found") )
     if (fi$isdir)
