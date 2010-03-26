@@ -27,7 +27,7 @@
         path <- path.expand(path)
         if (basename(obj) != obj)
         {
-          if (path != ".")
+
             warning(paste("Two paths were specified in attach.resource.",
               "The one associated with the file will be used.", sep="  "))
           path <- dirname(obj)

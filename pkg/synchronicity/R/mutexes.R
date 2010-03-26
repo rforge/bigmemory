@@ -1,24 +1,3 @@
-fix_path = function(path)
-{
-  if (is.null(path) || path == '')
-  {
-    path = ''
-    return(path)
-  }
-  else if (substr(path, nchar(path), nchar(path))!='/')
-  {
-    if (is.na(file.info(path)$isdir))
-      stop("The supplied backing path does not exist.")
-    path= paste(path, '/', sep='')
-  }
-  else 
-  {
-    if ( is.na(file.info( substr(path, 1, nchar(path)-1) )) )
-      stop( "The supplied backing path does not exist.")
-  }
-  return(path)
-}
-
 # MUTEXES
 
 setClass('mutex')
