@@ -40,8 +40,7 @@ class BigMatrix : public boost::noncopyable
     index_type ncol() const {return _ncol;}
     index_type nrow() const {return _nrow;}
    
-    // For a submatrix, total_* includes the rows that beindex_type to the 
-    // supermatrix.
+    // For a submatrix, total_* includes the rows in the supermatrix.
     index_type total_rows() const {return _totalRows;}
     index_type total_columns() const {return _totalCols;}
     index_type col_offset() const {return _colOffset;}
