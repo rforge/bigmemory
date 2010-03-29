@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <map>
 #include <boost/shared_ptr.hpp>
-#include <iostream>
 
 #include <R.h>
 #include <Rdefines.h>
@@ -30,9 +30,6 @@ template<typename T>
 class IndexMapper : public Mapper<T>
 {
   public:
-    typedef vector<int> Levels;
-
-  public:
     IndexMapper( T *pFirst, T *pLast )
     {
       _begin = pFirst;
@@ -43,13 +40,41 @@ class IndexMapper : public Mapper<T>
 
     virtual int to_index( const T value ) const
     {
-      return distance(std::lower_bound( _begin, _end, value ), _begin);
+      return distance(_begin, std::lower_bound( _begin, _end, value ));
     }
 
   protected:
     T* _begin;
     T* _end;
 };
+
+template<typename T>
+class BreakMapper : public Mapper<T>
+{
+  public:
+    BreakMapper( double min, double max, double numBreaks ) : _min(min) 
+    {
+      _width = max - _min;
+      _breakWidth = _width / (numBreaks+1);
+      _numBreaks = numBreaks;
+    }
+
+    virtual int to_index( const T value ) const
+    {
+      int bin = (value-min) / _breakWidth;
+      if (bin < 0 || bin > _numBreaks+1)
+        return NA_INTEGER;
+      return bin;
+    }
+
+  protected:
+    double _min;
+    double _width;
+    double _breakWidth;
+    double _numBreaks;
+    std::vector<int> _bins;
+};
+
 
 
 template<typename ValueType, typename InputIter>
@@ -100,7 +125,9 @@ SEXP UniqueLevels( MatrixAccessor m, SEXP columns )
 
 // For now, assume an index mapper.
 template<typename RType, typename MatrixAccessor>
-SEXP TableIndices( MatrixAccessor m, SEXP uniqueLevels, SEXP columns )
+SEXP TAPPLY( MatrixAccessor m, SEXP uniqueLevels, SEXP columns,
+  bool makeMap, bool makeTable, bool makeSummary,
+  std::map<std::string, int> &lmi, SEXP ret )
 {
   typedef boost::shared_ptr<Mapper<RType> > 
     MapperPtr;
@@ -109,6 +136,7 @@ SEXP TableIndices( MatrixAccessor m, SEXP uniqueLevels, SEXP columns )
   NewVec<RType> RNew;
   Mappers mappers;
   int i;
+  int protectCount=2;
   int totalListSize =0;
   std::vector<int> accMult;
   // Create the data structures that map values to indices for each of the
@@ -128,10 +156,13 @@ SEXP TableIndices( MatrixAccessor m, SEXP uniqueLevels, SEXP columns )
       accMult.push_back( mappers[i]->size() * accMult[i-1]);
     }
   }
-
   typedef std::vector<int> Indices;
   typedef std::vector<Indices> TableIndices;
-  TableIndices ti( totalListSize );
+  TableIndices ti;
+  if (makeMap)
+  {
+    ti.resize(totalListSize);
+  }
   int j; 
   // Get the indices for each of the column-value combinations.
   for (i=0; i < m.nrow(); ++i)
@@ -146,20 +177,30 @@ SEXP TableIndices( MatrixAccessor m, SEXP uniqueLevels, SEXP columns )
     tableIndex += mappers[0]->to_index(
       static_cast<RType>(
         (m[static_cast<index_type>(NUMERIC_DATA(columns)[0]-1)][i])) );
-    ti[tableIndex].push_back(i+1);
+    if (makeMap)
+    {
+      ti[tableIndex].push_back(i+1);
+    }
   }
-  
-  SEXP ret = PROTECT(NEW_LIST( ti.size() ));
-  SEXP vec;
-  // Copy to a list of vectors that R can read.
-  for (i=0; i < ti.size(); ++i)
-  {
-    Indices &ind = ti[i];
-    vec = PROTECT(RNew(ti[i].size()));
-    std::copy( ind.begin(), ind.end(), RData(vec) );
-    SET_VECTOR_ELT( ret, i, vec );
+ 
+  if (makeMap)
+  { 
+    SEXP mapRet = PROTECT(NEW_LIST( ti.size() ));
+    ++protectCount;
+    SEXP vec;
+    // Copy to a list of vectors that R can read.
+    for (i=0; i < ti.size(); ++i)
+    {
+      Indices &ind = ti[i];
+      vec = PROTECT(RNew(ti[i].size()));
+      ++protectCount;
+      std::copy( ind.begin(), ind.end(), RData(vec) );
+      SET_VECTOR_ELT( ret, i, vec );
+    }
+    SET_VECTOR_ELT(ret, lmi[string("map")], mapRet);
   }
-  UNPROTECT( 1+ti.size() );
+     
+  UNPROTECT( protectCount );
   return ret;
 }
 
@@ -209,27 +250,64 @@ SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns )
   return R_NilValue;
 }
 
-SEXP TableIndices( SEXP bigMatAddr, SEXP columns )
+// Return both the table indices in a list and the unique levels.
+SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP returnMap,
+  SEXP returnTable, SEXP returnSummary )
 {
-  SEXP uniqueLevels = UniqueLevels(bigMatAddr, columns);
+  SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns));
   BigMatrix *pMat =
     reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
+  int retSize = static_cast<int>(LOGICAL_VALUE(returnMap)) + 
+    static_cast<int>(LOGICAL_VALUE(returnTable)) +
+    static_cast<int>(LOGICAL_VALUE(returnSummary));
+  std::map<std::string, int> ListName2Index lmi;
+  int i=0;
+  lmi["levels"] = i++;
+  if ( LOGICAL_VALUE(returnMap) )
+    lmi["map"] = i++;
+  if ( LOGICAL_VALUE(returnTable) )
+    lmi["table"] = i++;
+  if ( LOGICAL_VALUE(returnSummary) )
+    lmi["summary"] = i++;
+  
+  SEXP ret = PROTECT(NEW_LIST(retSize));
+  // TODO: Add names to the return list;
+  SET_VECTOR_ELT( ret, 0, uniqueLevels );
+  SEXP second;
   if (pMat->separated_columns())
   {
     switch (pMat->matrix_type())
     {
       case 1:
-        return TableIndices<int>( SepMatrixAccessor<char>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), 
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
+        break;
       case 2:
-        return TableIndices<int>( SepMatrixAccessor<short>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), 
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
+        break;
       case 4:
-        return TableIndices<int>( SepMatrixAccessor<int>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), 
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
       case 8:
-        return TableIndices<double>( SepMatrixAccessor<double>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<double>( SepMatrixAccessor<double>(*pMat),
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
     }
   }
   else
@@ -237,20 +315,94 @@ SEXP TableIndices( SEXP bigMatAddr, SEXP columns )
     switch (pMat->matrix_type())
     {
       case 1:
-        return TableIndices<int>( MatrixAccessor<char>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<int>( MatrixAccessor<char>(*pMat), 
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
       case 2:
-        return TableIndices<int>( MatrixAccessor<short>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<int>( MatrixAccessor<short>(*pMat), 
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
       case 4:
-        return TableIndices<int>( MatrixAccessor<int>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<int>( MatrixAccessor<int>(*pMat), 
+          uniqueLevels, columns,
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
       case 8:
-        return TableIndices<double>( MatrixAccessor<double>(*pMat), 
-          uniqueLevels, columns );
+        return TAPPLY<double>( MatrixAccessor<double>(*pMat), 
+          uniqueLevels, columns, 
+          static_cast<bool>(LOGICAL_VALUE(returnMap)),
+          static_cast<bool>(LOGICAL_VALUE(returnTable)),
+          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
+          ret );
     }
   }
-  return R_NilValue;
+  return ret;
 }
+
+SEXP TableCounts( SEXP bigMatAddr, SEXP columns )
+{
+  SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns));
+  BigMatrix *pMat =
+    reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
+  SEXP ret = PROTECT(NEW_LIST(2));
+  SET_VECTOR_ELT( ret, 0, uniqueLevels );
+  SEXP second;
+  if (pMat->separated_columns())
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        second = PROTECT(TableStat<int>( SepMatrixAccessor<char>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+      case 2:
+        second = PROTECT(TableStat<int>( SepMatrixAccessor<short>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+      case 4:
+        second = PROTECT(TableStat<int>( SepMatrixAccessor<int>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+      case 8:
+        second = PROTECT(TableStat<double>( SepMatrixAccessor<double>(*pMat),
+          uniqueLevels, columns ));
+        break;
+    }
+  }
+  else
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        second = PROTECT(TableStat<int>( MatrixAccessor<char>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+      case 2:
+        second = PROTECT(TableStat<int>( MatrixAccessor<short>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+      case 4:
+        second = PROTECT(TableStat<int>( MatrixAccessor<int>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+      case 8:
+        second = PROTECT(TableStat<double>( MatrixAccessor<double>(*pMat), 
+          uniqueLevels, columns ));
+        break;
+    }
+  }
+  SET_VECTOR_ELT(ret, 1, second);
+  UNPROTECT(3);
+  return ret;
+}
+
 
 }
