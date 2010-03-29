@@ -10,7 +10,8 @@ export(big.matrix,
        deepcopy)
 
 exportMethods("[", "[<-",
-              dimnames, 
+              dimnames,
+              length,
               nrow, ncol,
               print,
               head, tail,

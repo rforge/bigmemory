@@ -17,6 +17,7 @@
 \alias{[,big.matrix,missing,missing,logical-method}
 \alias{describe,big.matrix-method}
 \alias{dim,big.matrix-method}
+\alias{length,big.matrix-method}
 \alias{dimnames<-,big.matrix,list-method}
 \alias{dimnames,big.matrix-method}
 \alias{head,big.matrix-method}
@@ -76,6 +77,7 @@ The following are probably more interesting:
     \item{apply}{\code{signature(x = "big.matrix")}: \code{apply()} where \code{MARGIN} may only be 1 or 2, but otherwise conforming to what you would expect from \code{apply()}.}
     \item{describe}{\code{signature(x = "big.matrix")}: provide necessary and sufficient information for the sharing of the object. }
     \item{dim}{\code{signature(x = "big.matrix")}: returns the dimension of the \code{big.matrix}. }
+    \item{length}{\code{signature(x = "big.matrix")}: returns the product of the dimensions of the \code{big.matrix}. }
     \item{dimnames<-}{\code{signature(x = "big.matrix", value = "list")}: set the row and column names, prohibited by default (see \code{\link{bigmemory}} to override). }
     \item{dimnames}{\code{signature(x = "big.matrix")}: get the row and column names. }
     \item{head}{\code{signature(x = "big.matrix")}: get the first 6 (or \code{n}) rows. }

@@ -6,7 +6,8 @@
 Manage massive matrices with support for shared memory and memory-mapped files.
 }
 \description{
-Create, store, access, and manipulate massive matrices.  Matrices are
+Create, store, access, and manipulate massive matrices.  Matrices are,
+by default,
 allocated to shared memory and may use memory-mapped files.  Packages
 \pkg{biganalytics}, \pkg{synchronicity}, and \pkg{bigalgebra} provide
 advanced functionality.  Access to and manipulation of a \code{\link{big.matrix}}
@@ -17,8 +18,8 @@ to that of an \R \code{\link{matrix}}.
 \tabular{ll}{
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
-Version: \tab 4.0.8\cr
-Date: \tab 2010-03-26\cr
+Version: \tab 4.0.9\cr
+Date: \tab 2010-03-29\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
@@ -33,7 +34,7 @@ is.big.matrix, is.separated, is.filebacked
 
 sub.big.matrix, is.sub.big.matrix
 
-dim, dimnames, nrow, ncol, print, head, tail, typeof
+dim, dimnames, nrow, ncol, print, head, tail, typeof, length
 
 read.big.matrix, write.big.matrix
 
@@ -99,6 +100,11 @@ This restriction has been removed in versions >=4.0.  There
 were row limitations (due to a bug that has now been fixed) in versions
 <=3.8 of roughly 1 billion, but this has been fixed in versions
 >=3.82.
+
+Note that you can't simply use a \code{big.matrix} with many (most) existing
+\R functions (e.g. \code{\link{lm}}, \code{\link{kmeans}}).  One nice
+exception is \code{\link{split}}, because this function only accesses
+subsets of the matrix.
 }
 \author{
 Michael J. Kane and John W. Emerson

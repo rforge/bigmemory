@@ -179,6 +179,9 @@ setMethod('nrow', signature(x="big.matrix"),
 setMethod('dim', signature(x="big.matrix"),
   function(x) return(c(nrow(x), ncol(x))))
 
+setMethod('length', signature(x="big.matrix"),
+  function(x) return(prod(dim(x))))
+
 GetElements.bm <- function(x, i, j, drop=TRUE)
 {
   if (!is.numeric(i) & !is.character(i) & !is.logical(i))
@@ -1362,5 +1365,7 @@ setGeneric('is.shared', function(x) standardGeneric('is.shared'))
 
 setMethod('is.shared', signature(x='big.matrix'),
   function(x) return(.Call("IsShared", x@address)))
+
+
 
 
