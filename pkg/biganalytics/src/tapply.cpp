@@ -254,6 +254,9 @@ SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns )
 SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP returnMap,
   SEXP returnTable, SEXP returnSummary )
 {
+  SEXP ret;
+  return ret;
+/*
   SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns));
   BigMatrix *pMat =
     reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
@@ -345,10 +348,14 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP returnMap,
     }
   }
   return ret;
+*/
 }
 
 SEXP TableCounts( SEXP bigMatAddr, SEXP columns )
 {
+  SEXP ret;
+  return ret;
+/*
   SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns));
   BigMatrix *pMat =
     reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
@@ -402,6 +409,7 @@ SEXP TableCounts( SEXP bigMatAddr, SEXP columns )
   SET_VECTOR_ELT(ret, 1, second);
   UNPROTECT(3);
   return ret;
+*/
 }
 
 
