@@ -262,6 +262,7 @@ GetCols.bm <- function(x, j, drop=TRUE)
       names(retList[[1]]) <- thesenames
     }
   }
+
   return(retList[[1]])
 }
 
@@ -277,6 +278,7 @@ GetRows.bm <- function(x, i, drop=TRUE)
       stop("row vector length must match the number of rows of the matrix.")
     i <- which(i)
   }
+
   tempi <- .Call("CCleanIndices", as.double(i), as.double(nrow(x)))
   if (is.null(tempi[[1]])) stop("Illegal row index usage in extraction.\n")
   if (tempi[[1]]) i <- tempi[[2]]
@@ -295,6 +297,7 @@ GetRows.bm <- function(x, i, drop=TRUE)
       names(retList[[1]]) <- thesenames
     }
   }
+
   return(retList[[1]])
 }
 

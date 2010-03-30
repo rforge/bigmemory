@@ -1,27 +1,10 @@
-#
-# March 29, 2010
-#
 
-# Hey!  Check this out: split(x, x[,2]), where x is a big.matrix.
-# Need is.shared()
-
-mmap = function(x, y) {
-  if (is.null(x)) return(NULL)
-  ans <- match(x, y)
-  if (any(is.na(ans))) stop("Couldn't find a match to one of the arguments.")
-  return(ans)
-}
-
-library(bigmemory)
-library(foreach)
-if (is.null(getDoParName())) {
-  registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
-}
-
-bigtabulate <- function(x,
-                        ccols, breaks=vector("list", length=length(ccols)),
-                        stats=list("table", useNA="no"),
-                        distributed=FALSE) {
+#mmap = function(x, y) {
+#  if (is.null(x)) return(NULL)
+#  ans <- match(x, y)
+#  if (any(is.na(ans))) stop("Couldn't find a match to one of the arguments.")
+#  return(ans)
+#}
 
   # - x can be a matrix, data.frame, or big.matrix
   # - if any of the stats are beyond "table" and "summary", then
@@ -32,12 +15,22 @@ bigtabulate <- function(x,
   # - length(ccols) must equal length(breaks); NA indicates factor handing,
   # or triplets set up binning.
   # - useNA is the only argument (2nd) to "table"
-  # - cols is the only argument (2nd) for "summary"
+  # - cols is the 2nd argument (2nd) for "summary", required, followed by na.rm if needed.
   # - other arguments may be specified for further stats, with
   # cols required to be the second argument; all other arguments after
   # cols should either be in order or named appropriately; special functions
   # need to take a matrix as the first argument, so a custom wrapper might be
   # needed for really unusual cases, I suppose.
+
+bigtabulate <- function(x,
+                        ccols, breaks=vector("list", length=length(ccols)),
+                        stats=list("table", useNA="no"),
+                        distributed=FALSE, simplify=TRUE) {
+
+  require(foreach)
+  if (is.null(getDoParName())) {
+    registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
+  }
 
   if (!is.matrix(x) && !is.big.matrix(x) && !is.data.frame(x))
     stop("condstat requires matrix, data.frame, or big.matrix objects\n")
@@ -61,9 +54,6 @@ bigtabulate <- function(x,
     if (!is.null(getDoParName()) && getDoParName()!="doSEQ")
       x <- as.big.matrix(x, descriptorfile=ifelse(distributed, "", NULL))
   }
-
-  print(class(x))
-  print(head(x))
 
   # Check and prepare ccols
   if (length(ccols)!=length(breaks))
@@ -151,48 +141,52 @@ bigtabulate <- function(x,
   }
 
   if (is.big.matrix(x)) {
-    #ans <- .Call("BigMatrixTAPPLY", x, ccols, as.numeric(breakm), return.map,
-    #             do.table, as.integer(table.useNA),
-    #             do.summary, summary.cols, summary.na.rm)
+    ans <- .Call("BigMatrixTAPPLY", x, ccols, as.numeric(breakm), return.map,
+                 do.table, as.integer(table.useNA),
+                 do.summary, summary.cols, summary.na.rm)
   } else {
     if (is.integer(x)) {
-      #ans <- .Call("RIntTAPPLY", x, ccols, as.numeric(breakm), return.map,
-      #             do.table, as.integer(table.useNA),
-      #             do.summary, summary.cols, summary.na.rm)
+      ans <- .Call("RIntTAPPLY", x, ccols, as.numeric(breakm), return.map,
+                   do.table, as.integer(table.useNA),
+                   do.summary, summary.cols, summary.na.rm)
     } else {
-      #ans <- .Call("RNumericTAPPLY", x, ccols, as.numeric(breakm), return.map,
-      #             do.table, as.integer(table.useNA),
-      #             do.summary, summary.cols, summary.na.rm)
+      ans <- .Call("RNumericTAPPLY", x, ccols, as.numeric(breakm), return.map,
+                   do.table, as.integer(table.useNA),
+                   do.summary, summary.cols, summary.na.rm)
 
-      # SPOOF THE RETURN FOR TESTING.
-      ans <- NULL
-      ans$table <- table(x[,ccols[1]], x[,ccols[2]])
-      ans$levels <- list(levels(factor(x[,ccols[1]])), levels(factor(x[,ccols[2]])))
-      names(ans$levels) <- colnames(x)[ccols]
-      ans$map <- by(1:nrow(x), list(x[,ccols[1]], x[,ccols[2]]),
-                    function(x) return(x))
-      class(ans$map) <- "list"
-      ans$map <- ans$map[1:9]
-      names(ans$map) <- 1:9
+      # SPOOF THE iris RETURN FOR TESTING.
+      #ans <- NULL
+      #ans$table <- table(x[,ccols[1]], x[,ccols[2]])
+      #ans$min <- tapply(x[,1], list(x[,ccols[1]], x[,ccols[2]]), min)
+      #ans$max <- tapply(x[,1], list(x[,ccols[1]], x[,ccols[2]]), max)
+      #ans$mean <- tapply(x[,1], list(x[,ccols[1]], x[,ccols[2]]), mean)
+      #ans$sd <- tapply(x[,1], list(x[,ccols[1]], x[,ccols[2]]), sd)
+      #ans$NAs <- tapply(x[,1], list(x[,ccols[1]], x[,ccols[2]]), function(x) sum(is.na(x)))
+      #ans$levels <- list(levels(factor(x[,ccols[1]])), levels(factor(x[,ccols[2]])))
+      #names(ans$levels) <- colnames(x)[ccols]
+      #ans$map <- by(1:nrow(x), list(x[,ccols[1]], x[,ccols[2]]),
+      #              function(x) return(x))
+      #class(ans$map) <- "list"
+      #ans$map <- ans$map[1:9]
+      #names(ans$map) <- 1:9
 
     }
   }
 
+  z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
   ans.table <- NULL
   if (do.table) {
-    ans.table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
+    z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
   }
   ans.summary <- NULL
   if (do.summary) {
-    cat("Processing of summary not yet implemented.\n")
-    #ans$min
-    #ans$max
-    #ans$mean
-    #ans$sd
-    #ans$NAs
+    z$min <- array(ans$min, dim=sapply(dn, length), dimnames=dn)
+    z$max <- array(ans$max, dim=sapply(dn, length), dimnames=dn)
+    z$mean <- array(ans$mean, dim=sapply(dn, length), dimnames=dn)
+    z$sd <- array(ans$sd, dim=sapply(dn, length), dimnames=dn)
+    z$NAs <- array(ans$NAs, dim=sapply(dn, length), dimnames=dn)
   }
-  z <- list(table=ans.table, summary=ans.summary)
 
   if (return.map) {
     # Here, process fargs chunkwise.  Use foreach on the chunks.
@@ -210,7 +204,6 @@ bigtabulate <- function(x,
         y <- x[i,,drop=FALSE]
       }
       temp <- vector("list", length=0)
-      #if (is.null(names(fargs))) names(fargs) <- 1:length(fargs)
       for (j in names(fargs)) {
         farg <- fargs[[j]]
         tempname <- names(formals(farg[[1]]))[1]
@@ -226,7 +219,7 @@ bigtabulate <- function(x,
 
     for (j in names(fargs)) {
       temp <- lapply(fans, function(x) return(x[[j]]))
-      if (all(sapply(temp, length)==1))
+      if (all(sapply(temp, length)==1) && simplify)
         temp <- array(unlist(temp), dim=sapply(dn, length), dimnames=dn)
       else {
         if (length(unique(sapply(temp, length)))==2) {
@@ -250,17 +243,17 @@ bigtabulate <- function(x,
 }
 
 
-x <- iris
-x[,2] <- round(x[,2])
+#x <- iris
+#x[,2] <- round(x[,2])
 
-ans <- bigtabulate( x,
-                    c(2, 5),
-                    stats=list(table=list("table", useNA="no"),
-                               summary=list("summary", cols=c("Sepal.Length", "Petal.Width")),
-                               median=list(median, cols="Petal.Length"),
-                               means=list(colMeans, cols=c("Sepal.Length", "Petal.Length"), na.rm=TRUE),
-                               range=list(range, cols="Petal.Length", na.rm=TRUE)),
-                    distributed=TRUE)
+#ans <- bigtabulate( x,
+#                    c(2, 5),
+#                    stats=list(table=list("table", useNA="no"),
+#                               summary=list("summary", cols=c("Sepal.Length", "Petal.Width")),
+#                               median=list(median, cols="Petal.Length"),
+#                               means=list(colMeans, cols=c("Sepal.Length", "Petal.Length"), na.rm=TRUE),
+#                               range=list(range, cols="Petal.Length", na.rm=TRUE)),
+#                    distributed=FALSE, simplify=TRUE)
 
 
 
