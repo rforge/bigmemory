@@ -1,0 +1,4 @@
+import(methods)
+export(bigtabulate)
+useDynLib(bigtabulate)
+

@@ -1,0 +1,11 @@
+Package: bigtabulate
+Type: Package
+Title: tapply() juiced up for matrix and big.matrix objects.
+Version: 1.0.1
+Date: 2010-03-30
+Author: John W. Emerson and Michael J. Kane
+Maintainer: John W. Emerson <john.emerson@yale.edu>
+Depends: methods, foreach
+Suggests: bigmemory
+Description: This package extends the bigmemory package with tapply()-like behavior.
+License: LGPL-3
