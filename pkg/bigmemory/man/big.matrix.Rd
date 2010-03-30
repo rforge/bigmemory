@@ -126,8 +126,7 @@ colnames(x)
 rownames(x)
 x[1:8,1] <- 11:18
 x[,]
-apply(x, 1, range)
-apply(x, 2, summary)
+
 
 # The following shared memory example is quite silly, as you wouldn't
 # likely do this in a single R session.  But if zdescription were

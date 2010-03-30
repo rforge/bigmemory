@@ -25,7 +25,6 @@ exportMethods("[", "[<-",
               is.separated,
               is.filebacked,
               is.sub.big.matrix,
-              apply,
               flush,
               is.shared)
 

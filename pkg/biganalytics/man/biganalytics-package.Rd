@@ -32,7 +32,7 @@ John W. Emerson and Michael J. Kane
 Maintainer: Jay Emerson <john.emerson@yale.edu>
 }
 \keyword{package}
-\references{See \url{http://www.stat.yale.edu/~jay/bigmemory}.}
+\references{See \url{http://www.bigmemory.org/}.}
 \seealso{For example, see
 \code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}},
 \code{\link{bigkmeans}}, \code{\link{binit}}, \code{\link{colmean}}.

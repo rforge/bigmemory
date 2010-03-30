@@ -2,7 +2,6 @@
 \Rdversion{1.1}
 \docType{class}
 \alias{big.matrix-class}
-\alias{apply,big.matrix-method}
 \alias{[<-,big.matrix,ANY,ANY-method}
 \alias{[<-,big.matrix,ANY,missing-method}
 \alias{[<-,big.matrix,missing,ANY-method}
@@ -75,7 +74,6 @@ As you would expect:
     \item{[}{\code{signature(x = "big.matrix", i = "missing", j = "missing", drop = "logical")}: ... }
 
 The following are probably more interesting:
-    \item{apply}{\code{signature(x = "big.matrix")}: \code{apply()} where \code{MARGIN} may only be 1 or 2, but otherwise conforming to what you would expect from \code{apply()}.}
     \item{describe}{\code{signature(x = "big.matrix")}: provide necessary and sufficient information for the sharing of the object. }
     \item{dim}{\code{signature(x = "big.matrix")}: returns the dimension of the \code{big.matrix}. }
     \item{length}{\code{signature(x = "big.matrix")}: returns the product of the dimensions of the \code{big.matrix}. }
