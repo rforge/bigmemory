@@ -185,8 +185,9 @@ std::vector<ValueType> get_unique( const InputIter itStart,
 
 template<typename RType, typename MatrixAccessorType>
 SEXP UniqueLevels( MatrixAccessorType m, SEXP columns, 
-  double *pBreaks, SEXP useNA )
+  SEXP breakSexp, SEXP useNA )
 {
+  double *pBreaks = NUMERIC_DATA(breakSexp);
   NewVec<RType> RNew;
   VecPtr<RType> RData;
   NAMaker<typename MatrixAccessorType::value_type> make_na;
@@ -244,18 +245,43 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
 
 // For now, assume an index mapper.
 template<typename RType, typename MatrixAccessorType>
-SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns, 
-  SEXP processColumns, double *pBreaks, bool makeMap, 
-  bool makeTable, const int useNA, bool makeSummary, 
-  std::map<std::string,int> &lmi, SEXP ret )
+SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
+  SEXP processColumns, SEXP returnMap, SEXP returnTable, SEXP useNA, 
+  SEXP returnSummary )
+  
 {
-  MatrixAccessor<double> breaks( pBreaks, 3 );
+  std::vector<std::string> retNames;
+  retNames.push_back(std::string("levels"));
+  SEXP uniqueLevels=PROTECT(UniqueLevels<RType>(m, columns, breakSexp, useNA));
+  std::map<std::string, int> lmi;
+  int i, j, k;
+  i=0;
+  lmi["levels"] = i++;
+  if ( LOGICAL_VALUE(returnMap) )
+  {
+    lmi["map"] = i++;
+    retNames.push_back(std::string("map"));
+  }
+  if ( LOGICAL_VALUE(returnTable) )
+  {
+    lmi["table"] = i++;
+    retNames.push_back(std::string("table"));
+  }
+  if ( LOGICAL_VALUE(returnSummary) )
+  {
+    lmi["summary"] = i++;
+    retNames.push_back(std::string("summary"));
+  }
+  
+  SEXP ret = PROTECT(NEW_LIST(i));
+  setAttrib( ret, R_NamesSymbol, StringVec2RChar( retNames ) );
+  SET_VECTOR_ELT( ret, lmi[string("levels")], uniqueLevels );
+  MatrixAccessor<double> breaks( NUMERIC_DATA(breakSexp), 3 );
   typedef boost::shared_ptr<Mapper<RType> > MapperPtr;
   typedef std::vector<MapperPtr> Mappers;
   VecPtr<RType> RData;
   NewVec<RType> RNew;
   Mappers mappers;
-  int i, j, k;
   int protectCount=2;
   int totalListSize =0;
   std::vector<int> accMult;
@@ -269,13 +295,13 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns,
     {
       mappers.push_back( MapperPtr(
         new BreakMapper<RType>( breaks[i][0], breaks[i][1], 
-          breaks[i][2], useNA > 0 ) ) );
+          breaks[i][2], INTEGER_VALUE(useNA) > 0 ) ) );
     }
     else
     {
       mappers.push_back( MapperPtr( 
         new IndexMapper<RType>( RData(vec), 
-          RData(vec) + vecLen, useNA > 0 ) ) );
+          RData(vec) + vecLen, INTEGER_VALUE(useNA) > 0 ) ) );
     }
     totalListSize = (totalListSize == 0 ? vecLen : totalListSize*vecLen);
     if (i==0)
@@ -297,16 +323,16 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns,
   typedef std::vector<index_type> ProcessColumns;
   ProcessColumns procCols;
  
-  if (makeMap)
+  if ( LOGICAL_VALUE(returnMap) )
   {
     tis.resize(totalListSize);
   }
-  if (makeTable || makeSummary)
+  if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
   {
     tvs.resize(totalListSize);
     std::fill( tvs.begin(), tvs.end(), 0 );
   }
-  if (makeSummary)
+  if ( LOGICAL_VALUE(returnSummary) )
   {
     procCols.resize(GET_LENGTH(processColumns));
     for (k=0; k < procCols.size(); ++k)
@@ -339,15 +365,15 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns,
     if (tableIndex == -1 || mapperVal == -1)
       continue;
     tableIndex += mapperVal;
-    if (makeMap)
+    if ( LOGICAL_VALUE(returnMap) )
     {
       tis[tableIndex].push_back(i+1);
     }
-    if (makeTable || makeSummary)
+    if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
     {
       ++tvs[tableIndex];
     }
-    if (makeSummary)
+    if ( LOGICAL_VALUE(returnTable) )
     {
       for (k=0; k < ts.size(); ++k)
       {
@@ -379,7 +405,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns,
       }
     }
   }
-  if (makeMap)
+  if ( LOGICAL_VALUE(returnMap) )
   { 
     SEXP mapRet = PROTECT(NEW_LIST( tis.size() ));
     ++protectCount;
@@ -395,14 +421,14 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns,
     }
     SET_VECTOR_ELT(ret, lmi[string("map")], mapRet);
   }
-  if (makeTable)
+  if ( LOGICAL_VALUE(returnTable) )
   {
     SEXP tableRet = PROTECT(NEW_INTEGER(tvs.size()));
     ++protectCount;
     std::copy( tvs.begin(), tvs.end(), INTEGER_DATA(tableRet) );
     SET_VECTOR_ELT(ret, lmi[string("table")], tableRet);
   }   
-  if (makeSummary)
+  if ( LOGICAL_VALUE(returnSummary) )
   {
     SEXP summaryRet = PROTECT(NEW_LIST(ts.size()));
     ++protectCount;
@@ -443,55 +469,24 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns,
 extern "C"
 {
 
-SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns, SEXP breaks, SEXP useNA )
+SEXP RNumericTAPPLY( SEXP numericMatrix , SEXP columns, SEXP breaks,
+  SEXP processColumns, SEXP returnMap, SEXP returnTable, SEXP useNA,
+  SEXP returnSummary )
 {
-  BigMatrix *pMat =
-    reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
-  if (pMat->separated_columns())
-  {
-    switch (pMat->matrix_type())
-    {
-      case 1:
-        return UniqueLevels<int>(
-          SepMatrixAccessor<char>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-      case 2:
-        return UniqueLevels<int>(
-          SepMatrixAccessor<short>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-      case 4:
-        return UniqueLevels<int>(
-          SepMatrixAccessor<int>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-      case 8:
-        return UniqueLevels<double>(
-          SepMatrixAccessor<double>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-    }
-  }
-  else
-  {
-    switch (pMat->matrix_type())
-    {
-      case 1:
-        return UniqueLevels<int>(
-          MatrixAccessor<char>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-      case 2:
-        return UniqueLevels<int>(
-          MatrixAccessor<short>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-      case 4:
-        return UniqueLevels<int>(
-          MatrixAccessor<int>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-      case 8:
-        return UniqueLevels<double>(
-          MatrixAccessor<double>(*pMat), columns, 
-            NUMERIC_DATA(breaks), useNA );
-    }
-  }
-  return R_NilValue;
+  return TAPPLY<double>( MatrixAccessor<double>( NUMERIC_DATA(numericMatrix),
+    static_cast<index_type>(Rf_nrows(numericMatrix)) ), 
+    columns, breaks, processColumns, returnMap, returnTable, useNA, 
+    returnSummary );
+}
+
+SEXP RIntTAPPLY( SEXP numericMatrix , SEXP columns, SEXP breaks,
+  SEXP processColumns, SEXP returnMap, SEXP returnTable, SEXP useNA,
+  SEXP returnSummary )
+{
+  return TAPPLY<int>( MatrixAccessor<int>( INTEGER_DATA(numericMatrix),
+    static_cast<index_type>(Rf_nrows(numericMatrix)) ), 
+    columns, breaks, processColumns, returnMap, returnTable, useNA, 
+    returnSummary );
 }
 
 // Return both the table indices in a list and the unique levels
@@ -502,75 +497,28 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks,
   SEXP processColumns, SEXP returnMap, SEXP returnTable, SEXP useNA, 
   SEXP returnSummary )
 {
-  std::vector<std::string> retNames;
-  retNames.push_back(std::string("levels"));
-  SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns, breaks, useNA));
-  BigMatrix *pMat =
-    reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
-  std::map<std::string, int> lmi;
-  int i=0;
-  lmi["levels"] = i++;
-  if ( LOGICAL_VALUE(returnMap) )
-  {
-    lmi["map"] = i++;
-    retNames.push_back(std::string("map"));
-  }
-  if ( LOGICAL_VALUE(returnTable) )
-  {
-    lmi["table"] = i++;
-    retNames.push_back(std::string("table"));
-  }
-  if ( LOGICAL_VALUE(returnSummary) )
-  {
-    lmi["summary"] = i++;
-    retNames.push_back(std::string("summary"));
-  }
-  
-  SEXP ret = PROTECT(NEW_LIST(i));
-  setAttrib( ret, R_NamesSymbol, StringVec2RChar( retNames ) );
-  SET_VECTOR_ELT( ret, lmi[string("levels")], uniqueLevels );
+  BigMatrix *pMat = reinterpret_cast<BigMatrix*>(
+    R_ExternalPtrAddr(bigMatAddr));
   if (pMat->separated_columns())
   {
     switch (pMat->matrix_type())
     {
       case 1:
-        return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
-        break;
+        return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), columns, 
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
       case 2:
-        return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
-        break;
+        return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), columns,
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
       case 4:
-        return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
+        return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), columns,
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
       case 8:
-        return TAPPLY<double>( SepMatrixAccessor<double>(*pMat),
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
+        return TAPPLY<double>( SepMatrixAccessor<double>(*pMat), columns,
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
     }
   }
   else
@@ -578,44 +526,24 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks,
     switch (pMat->matrix_type())
     {
       case 1:
-        return TAPPLY<int>( MatrixAccessor<char>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
+        return TAPPLY<int>( MatrixAccessor<char>(*pMat), columns,
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
       case 2:
-        return TAPPLY<int>( MatrixAccessor<short>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
+        return TAPPLY<int>( MatrixAccessor<short>(*pMat), columns, 
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
       case 4:
-        return TAPPLY<int>( MatrixAccessor<int>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
+        return TAPPLY<int>( MatrixAccessor<int>(*pMat), columns, 
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
       case 8:
-        return TAPPLY<double>( MatrixAccessor<double>(*pMat), 
-          uniqueLevels, columns, processColumns,
-          NUMERIC_DATA(breaks),
-          static_cast<bool>(LOGICAL_VALUE(returnMap)),
-          static_cast<bool>(LOGICAL_VALUE(returnTable)),
-          INTEGER_VALUE(useNA),
-          static_cast<bool>(LOGICAL_VALUE(returnSummary)),
-          lmi, ret );
+        return TAPPLY<double>( MatrixAccessor<double>(*pMat), columns, 
+          breaks, processColumns, returnMap, returnTable, useNA,
+          returnSummary );
     }
   }
-  return ret;
+  return R_NilValue;
 }
 
 }
