@@ -32,11 +32,13 @@ bigtabulate <- function(x,
     # perhaps with an anonymous backing for distribution.
     if (!is.null(getDoParName()) && getDoParName()!="doSEQ") {
       require(bigmemory)
-      if (is.matrix(x))
-        x <- as.big.matrix(x, descriptorfile=ifelse(distributed, "", NULL))
+      if (is.matrix(x)) {
+        x <- as.big.matrix(x, backingfile=ifelse(distributed, "", NULL))
+        warning("Temporary shared big.matrix created for parallel calculations.")
+      }
       if (!is.shared(x) || !is.filebacked(x)) {
-        x <- deepcopy(x, descriptorfile=ifelse(distributed, "", NULL))
-        warning("Shared big.matrix needed, so creating a shared copy.")
+        x <- deepcopy(x, backingfile=ifelse(distributed, "", NULL))
+        warning("Temporary shared big.matrix created for parallel calculations.")
       }
     }
   }
