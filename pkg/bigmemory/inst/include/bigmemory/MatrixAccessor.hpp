@@ -12,7 +12,7 @@ class MatrixAccessor
     typedef T value_type;
 
   public:
-    MatrixAccessor( T* pData, const index_type &nrow)
+    MatrixAccessor(T* pData, const index_type &nrow)
     {
       _pMat = pData;
       _totalRows = nrow;

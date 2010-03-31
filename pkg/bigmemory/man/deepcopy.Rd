@@ -7,7 +7,8 @@ new copy optionally filebacked.
 }
 \usage{
 deepcopy(x, cols = NULL, type = NULL, separated = NULL,
-  backingfile = NULL, backingpath = NULL, descriptorfile = NULL)
+  backingfile = NULL, backingpath = NULL, descriptorfile = NULL,
+  shared=TRUE)
 }
 \arguments{
   \item{x}{a \code{\link{big.matrix}}.}
@@ -17,6 +18,7 @@ deepcopy(x, cols = NULL, type = NULL, separated = NULL,
   \item{backingfile}{the root name for the file(s) for the cache of \code{x}.}
   \item{backingpath}{the path to the directory containing the filebacking cache.}
   \item{descriptorfile}{we recommend specifying this for filebacking.}
+  \item{shared}{\code{TRUE} by default, and always \code{TRUE} if the \code{big.matrix} is filebacked.  For a non-filebacked \code{big.matrix}, \code{shared=FALSE} uses non-shared memory, which can be more stable for large (say, >50\% of RAM) objects.  Shared memory allocation can sometimes fail in such cases due to exhausted shared-memory resources in the system.}
 }
 \details{
 This is needed to make a duplicate of a \code{\link{big.matrix}}, because traditional

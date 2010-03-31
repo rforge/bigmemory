@@ -21,7 +21,8 @@ filebacked.big.matrix(nrow, ncol, type = "integer", init = NULL,
   dimnames = NULL, separated = FALSE, backingfile = NULL,
   backingpath = NULL, descriptorfile = NULL)
 as.big.matrix(x, type = NULL, separated = FALSE,
-  backingfile = NULL, backingpath = NULL, descriptorfile = NULL)
+  backingfile = NULL, backingpath = NULL, descriptorfile = NULL,
+  shared=TRUE)
 is.big.matrix(x)
 is.separated(x)
 is.filebacked(x)

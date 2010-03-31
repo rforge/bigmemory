@@ -19,7 +19,7 @@ check_matrix = function(A, classes=c('big.matrix', 'matrix'),
   {
     stop("The matrix type is not correct")
   }
-  return( ifelse( is.big.matrix(A), TRUE, FALSE ) )
+  return( ifelse( class(A) == 'big.matrix', TRUE, FALSE ) )
 }
 
 # Do I need a function to add a scalar to each element of a matrix?
