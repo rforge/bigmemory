@@ -9,7 +9,7 @@ support graphical exploration or as an alternative to \code{table}.
 binit(x, cols, breaks=10)
 }
 \arguments{
-  \item{x}{a \code{\link{big.matrix}} a \code{\link{matrix}}.}
+  \item{x}{a \code{\link[bigmemory]{big.matrix}} a \code{\link{matrix}}.}
   \item{cols}{a vector of column indices or names of length 1 or 2.}
   \item{breaks}{a number of bins to span the range from the maximum to the minimum, or a vector (1-variable case) or list of two vectors (2-variable case) where each vector is a triplet of min, max, and number of bins.}
 }
@@ -29,7 +29,7 @@ of counts of the numbers of cases appearing in each of the bins,
 the bins.
 }
 \author{John W. Emerson and Michael J. Kane}
-\seealso{\code{\link{big.matrix}}}
+\seealso{\code{\link[bigmemory]{big.matrix}}}
 \examples{
 y <- matrix(rnorm(40), 20, 2)
 y[1,1] <- NA

@@ -4,7 +4,7 @@
 \alias{apply,big.matrix-method}
 \title{apply() for big.matrix objects.}
 \description{
-\code{\link{apply}} for \code{\link{big.matrix}} objects.
+\code{\link{apply}} for \code{\link[bigmemory]{big.matrix}} objects.
 }
 \section{Methods}{
 \describe{
