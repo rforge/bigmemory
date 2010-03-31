@@ -9,17 +9,18 @@ Manage massive matrices with support for shared memory and memory-mapped files.
 Create, store, access, and manipulate massive matrices.  Matrices are,
 by default,
 allocated to shared memory and may use memory-mapped files.  Packages
-\pkg{biganalytics}, \pkg{synchronicity}, and \pkg{bigalgebra} provide
+\pkg{biganalytics}, \pkg{synchronicity}, \pkg{bigalgebra}, and \pkg{bigtabulate} provide
 advanced functionality.  Access to and manipulation of a \code{\link{big.matrix}}
 object is exposed in \R by an \acronym{S4} class whose interface is simlar
-to that of an \R \code{\link{matrix}}.
+to that of an \R \code{\link{matrix}}.  Use of these packages in parallel environments
+can provide substantial speed and memory efficiencies.
 }
 \details{
 \tabular{ll}{
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
-Version: \tab 4.0.9\cr
-Date: \tab 2010-03-30\cr
+Version: \tab 4.1.0\cr
+Date: \tab 2010-03-31\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
@@ -39,7 +40,6 @@ dim, dimnames, nrow, ncol, print, head, tail, typeof, length
 read.big.matrix, write.big.matrix
 
 mwhich
-apply
 
 deepcopy
 
@@ -91,7 +91,9 @@ Versions >=4.0 represent a major redesign, with the mutexes (locking)
 abstracted to package \pkg{synchronicity}, the exploratory data analysis
 functionality relocated
 to package \pkg{biganalytics}, and new linear algebra support available in
-package \pkg{bigalgebra}.  Package \pkg{bigmemory} itself is now minimalist,
+package \pkg{bigalgebra}.  Package \pkg{bigtabulate} provides \code{\link{tapply}}-like
+functionality for users while providing a self-contained example for developers interested
+in working with \code{big.matrix} objects.  Package \pkg{bigmemory} itself is now minimalist,
 providing only the core functionality with no dependencies.
 
 Versions <4.0 supported a limited number of columns
