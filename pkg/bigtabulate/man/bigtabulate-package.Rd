@@ -18,9 +18,12 @@ may be applied, as well.
 \tabular{ll}{
 Package: \tab bigtabulate\cr
 Type: \tab Package\cr
-Version: \tab 1.0.1\cr
-Date: \tab 2010-03-30\cr
+Version: \tab 1.0.2\cr
+Date: \tab 2010-03-31\cr
 License: \tab LGPL-3\cr
+Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
+URL: \tab http://www.bigmemory.org\cr
+LazyLoad: \tab yes\cr
 }
 
 The \pkg{bigmemory} package contains the core support and basic summary
