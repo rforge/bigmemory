@@ -4,7 +4,7 @@
 bigtabulate: a tapply()-like function for both matrices, data.frames, and big.matrix objects.
 }
 \description{
-This package extends the bigmemory package for use with \code{\link{big.matrix} objects,
+This package extends the bigmemory package for use with \code{\link{big.matrix}} objects,
 but also supports
 use with \R \code{matrix} and \code{data.frame} objects.  The function \code{\link{bigtabulate}}
 is like \code{\link{tapply}}, doing tabulations based on a specified conditional
