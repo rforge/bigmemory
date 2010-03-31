@@ -111,10 +111,10 @@ subsets of the matrix.
 \author{
 Michael J. Kane and John W. Emerson
 
-Maintainer: Jay Emerson and Mike Kane <bigmemoryauthors@gmail.com>
+Maintainers: Jay Emerson and Mike Kane <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
-\references{See \url{http://www.bigmemory.org/}.}
+\references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}
 \seealso{For example,
 \code{\link{big.matrix}}, \code{\link{mwhich}}, \code{\link{read.big.matrix}}
 }

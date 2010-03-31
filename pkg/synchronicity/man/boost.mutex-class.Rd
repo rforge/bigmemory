@@ -41,7 +41,7 @@ Class \code{"\linkS4class{mutex}"}, directly.
     \item{unlock}{\code{signature(m = "boost.mutex")}: ... }
 	 }
 }
-\author{ Michael J. Kane}
+\author{Michael J. Kane <kaneplusplus@gmail.com>}
 \seealso{\code{\link{boost.mutex}}}
 \examples{
 showClass("boost.mutex")

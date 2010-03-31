@@ -22,16 +22,12 @@ Copyright: \tab (C) 2010 Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
-Use this package for ipc support.
 }
-\author{
-Michael Kane
-
-Maintainer: <kaneplusplus@gmail.com>
-}
+\author{Michael J. Kane <kaneplusplus@gmail.com>}
 \references{
-Boost Interprocess
+The Bigmemory Project: \url{http://www.bigmemory.org/}.
+Boost Interprocess Library: \url{http://www.boost.org/}.
 }
 \examples{
-print('synchronicity')
+# No examples are provided here.
 }

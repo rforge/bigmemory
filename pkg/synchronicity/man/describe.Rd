@@ -22,7 +22,7 @@ The \code{describe} function returns a \code{boost.mutex.descriptor} object.
 the \code{attach.resource} function returns a \code{boost.mutex} object
 described by \code{obj}.
 }
-\author{Michael J. Kane}
+\author{Michael J. Kane <kaneplusplus@gmail.com>}
 \examples{
   m = boost.mutex()
   mm = attach.resource(describe(m))

@@ -33,7 +33,7 @@ functions; \pkg{bigtabulate} contains extended tabulation functionality.
 \author{
 John W. Emerson and Michael J. Kane
 
-Maintainer: Jay Emerson <john.emerson@yale.edu>
+Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{See \url{http://www.bigmemory.org}.}

@@ -20,7 +20,7 @@ otherwise.  If a timeout has been set \code{timeout} returns the number
 of seconds a \code{boost.mutex} object will attempt to acquire a lock and
 \code{NULL} otherwise.
 }
-\author{ Michael J. Kane }
+\author{Michael J. Kane <kaneplusplus@gmail.com>}
 
 \seealso{\code{\link{synchronicity}}}
 \examples{

@@ -15,7 +15,7 @@ shared.name(m)
 A string specifying the shared resource associated with the given 
 \code{boost.mutex} object.
 }
-\author{ Michael J. Kane}
+\author{Michael J. Kane <kaneplusplus@gmail.com>}
 \seealso{\code{\link{synchronicity}}}
 \examples{
 x = boost.mutex()

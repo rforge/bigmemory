@@ -20,9 +20,7 @@ A unique string.
 \references{
 http://www.boostpro.com/vault/
 }
-\author{
-Michael Kane
-}
+\author{Michael J. Kane <kaneplusplus@gmail.com>}
 \examples{
 print(uuid())
 print(uuid())

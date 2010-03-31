@@ -60,7 +60,7 @@ except in the right-most bin, where the interval is entirely closed.
 \value{
 a list of array-like objects, each similar to what is returned by \code{\link{tapply}}.
 }
-\author{John W. Emerson and Michael J. Kane}
+\author{John W. Emerson and Michael J. Kane <bigmemoryauthors@gmail.com}
 \seealso{\code{\link{big.matrix}}, \code{\link{tapply}}}
 \examples{
 x <- data(iris)

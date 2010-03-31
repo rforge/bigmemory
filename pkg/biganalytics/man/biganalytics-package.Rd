@@ -32,10 +32,10 @@ functions; \pkg{biganalytics} contains more advanced analytics on
 \author{
 John W. Emerson and Michael J. Kane
 
-Maintainer: Jay Emerson <john.emerson@yale.edu>
+Maintainers: Jay Emerson <john.emerson@yale.edu>
 }
 \keyword{package}
-\references{See \url{http://www.bigmemory.org/}.}
+\references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}
 \seealso{For example, see
 \code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}},
 \code{\link{bigkmeans}}, \code{\link{binit}}, \code{\link{colmean}}.
