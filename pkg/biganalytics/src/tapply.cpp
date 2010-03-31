@@ -1,7 +1,7 @@
 #include "bigmemory/BigMatrix.h"
 #include "bigmemory/MatrixAccessor.hpp"
-#include "bigmemory/util.h"
 #include "bigmemory/isna.hpp"
+#include "bigmemory/util.h"
 
 #include <utility>
 #include <vector>
@@ -14,6 +14,22 @@
 
 #include <R.h>
 #include <Rdefines.h>
+
+#include <iostream>
+
+SEXP StringVec2RChar( const vector<string> &strVec )
+{
+  if (strVec.empty())
+    return NULL_USER_OBJECT;
+  SEXP ret = PROTECT(allocVector(STRSXP, strVec.size()));
+  vector<string>::size_type i;
+  for (i=0; i < strVec.size(); ++i)
+  {
+    SET_STRING_ELT(ret, i, mkChar(strVec[i].c_str()));
+  }
+  UNPROTECT(1);
+  return ret;
+}
 
 template<typename T>
 class Mapper
@@ -66,17 +82,25 @@ template<typename T>
 class BreakMapper : public Mapper<T>
 {
   public:
-    BreakMapper( double min, double max, double numBreaks ) : _min(min) 
+    BreakMapper( double min, double max, double numBreaks, bool useNA ) 
+      : _min(min), _useNA(useNA)
     {
       _width = max - _min;
-      _breakWidth = _width / (numBreaks+1);
-      _numBreaks = numBreaks;
+      _breakWidth = _width / (numBreaks-1);
+      _totalBreaks= numBreaks-1;
+      _naIndex = _totalBreaks+1;
+      Mapper<T>::_size = _totalBreaks + static_cast<std::size_t>(_useNA);
     }
 
     virtual int to_index( const T value ) const
     {
-      int bin = (value-min) / _breakWidth;
-      if (bin < 0 || bin > _numBreaks+1)
+      if (isna(value))
+      {
+        return _useNA ? _naIndex : -1;
+      }
+      int bin = static_cast<int>(
+        (static_cast<double>(value)-_min) / _breakWidth);
+      if (bin < 0 || bin > _totalBreaks)
         return -1;
       return bin;
     }
@@ -85,7 +109,9 @@ class BreakMapper : public Mapper<T>
     double _min;
     double _width;
     double _breakWidth;
-    double _numBreaks;
+    double _totalBreaks; // The total number of valid breaks (not including NA).
+    bool _useNA;
+    index_type _naIndex;
     std::vector<int> _bins;
 };
 
@@ -157,22 +183,57 @@ std::vector<ValueType> get_unique( const InputIter itStart,
   return v;
 }
 
-template<typename RType, typename MatrixAccessor>
-SEXP UniqueLevels( MatrixAccessor m, SEXP columns, SEXP useNA )
+template<typename RType, typename MatrixAccessorType>
+SEXP UniqueLevels( MatrixAccessorType m, SEXP columns, 
+  double *pBreaks, SEXP useNA )
 {
   NewVec<RType> RNew;
   VecPtr<RType> RData;
-  typedef std::vector<typename MatrixAccessor::value_type> Values;
-  index_type i;
+  NAMaker<typename MatrixAccessorType::value_type> make_na;
+  typedef std::vector<typename MatrixAccessorType::value_type> Values;
+  index_type i,j;
+  MatrixAccessor<double> breaks( pBreaks, 3 );
   SEXP ret = PROTECT(NEW_LIST(GET_LENGTH(columns)));
   int protectCount = 1;
   Values v;
+  const index_type minRowIndex = 0;
+  const index_type maxRowIndex = 1;
+  const index_type breaksIndex = 2;
+
+  index_type column;
   for (i=0; i < GET_LENGTH(columns); ++i)
   {
-    index_type column = static_cast<index_type>(NUMERIC_DATA(columns)[i])-1;
-    v = get_unique<typename MatrixAccessor::value_type>( 
-      (m[column]), (m[column] + m.nrow()), INTEGER_VALUE(useNA) );
-    SEXP sv = PROTECT(RNew(v.size()));
+    SEXP sv;
+    column = static_cast<index_type>(NUMERIC_DATA(columns)[i])-1;
+    if ( !isna(breaks[i][0]) )
+    {
+      v.resize(breaks[i][breaksIndex]);
+      for (j=0; j < breaks[i][breaksIndex]; ++j)
+      {
+        v[j] = static_cast<typename MatrixAccessorType::value_type>(j);
+      }
+      if (INTEGER_VALUE(useNA) == 1)
+      {
+        for (j=0; j < m.nrow(); ++j)
+        {
+          if (isna(m[column][j]))
+          {
+            v.push_back(make_na());
+            break;
+          }
+        }
+      }
+      else if (INTEGER_VALUE(useNA) == 2)
+      { 
+        v.push_back(make_na());
+      }
+    }
+    else
+    {
+      v = get_unique<typename MatrixAccessorType::value_type>( 
+        (m[column]), (m[column] + m.nrow()), INTEGER_VALUE(useNA) );
+    }
+    sv = PROTECT(RNew(v.size()));
     ++protectCount;
     std::copy( v.begin(), v.end(), RData(sv) );
     SET_VECTOR_ELT( ret, i, sv );
@@ -182,14 +243,14 @@ SEXP UniqueLevels( MatrixAccessor m, SEXP columns, SEXP useNA )
 }
 
 // For now, assume an index mapper.
-template<typename RType, typename MatrixAccessor>
-SEXP TAPPLY( MatrixAccessor m, SEXP uniqueLevels, SEXP columns, 
-  SEXP processColumns, bool makeMap, bool makeTable, const int useNA, 
-  bool makeSummary,
-  std::map<std::string, int> &lmi, SEXP ret )
+template<typename RType, typename MatrixAccessorType>
+SEXP TAPPLY( MatrixAccessorType m, SEXP uniqueLevels, SEXP columns, 
+  SEXP processColumns, double *pBreaks, bool makeMap, 
+  bool makeTable, const int useNA, bool makeSummary, 
+  std::map<std::string,int> &lmi, SEXP ret )
 {
-  typedef boost::shared_ptr<Mapper<RType> > 
-    MapperPtr;
+  MatrixAccessor<double> breaks( pBreaks, 3 );
+  typedef boost::shared_ptr<Mapper<RType> > MapperPtr;
   typedef std::vector<MapperPtr> Mappers;
   VecPtr<RType> RData;
   NewVec<RType> RNew;
@@ -204,9 +265,18 @@ SEXP TAPPLY( MatrixAccessor m, SEXP uniqueLevels, SEXP columns,
   {
     SEXP vec = VECTOR_ELT(uniqueLevels, i);
     int vecLen = GET_LENGTH(vec);
-    mappers.push_back( MapperPtr( 
-      new IndexMapper<RType>( RData(vec), 
-        RData(vec) + vecLen, useNA > 0 ) ) );
+    if (!isna(breaks[i][0]))
+    {
+      mappers.push_back( MapperPtr(
+        new BreakMapper<RType>( breaks[i][0], breaks[i][1], 
+          breaks[i][2], useNA > 0 ) ) );
+    }
+    else
+    {
+      mappers.push_back( MapperPtr( 
+        new IndexMapper<RType>( RData(vec), 
+          RData(vec) + vecLen, useNA > 0 ) ) );
+    }
     totalListSize = (totalListSize == 0 ? vecLen : totalListSize*vecLen);
     if (i==0)
       accMult.push_back( vecLen );
@@ -373,7 +443,7 @@ SEXP TAPPLY( MatrixAccessor m, SEXP uniqueLevels, SEXP columns,
 extern "C"
 {
 
-SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns, SEXP useNA )
+SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns, SEXP breaks, SEXP useNA )
 {
   BigMatrix *pMat =
     reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
@@ -383,16 +453,20 @@ SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns, SEXP useNA )
     {
       case 1:
         return UniqueLevels<int>(
-          SepMatrixAccessor<char>(*pMat), columns, useNA );
+          SepMatrixAccessor<char>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
       case 2:
         return UniqueLevels<int>(
-          SepMatrixAccessor<short>(*pMat), columns, useNA );
+          SepMatrixAccessor<short>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
       case 4:
         return UniqueLevels<int>(
-          SepMatrixAccessor<int>(*pMat), columns, useNA );
+          SepMatrixAccessor<int>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
       case 8:
         return UniqueLevels<double>(
-          SepMatrixAccessor<double>(*pMat), columns, useNA );
+          SepMatrixAccessor<double>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
     }
   }
   else
@@ -401,16 +475,20 @@ SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns, SEXP useNA )
     {
       case 1:
         return UniqueLevels<int>(
-          MatrixAccessor<char>(*pMat), columns, useNA );
+          MatrixAccessor<char>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
       case 2:
         return UniqueLevels<int>(
-          MatrixAccessor<short>(*pMat), columns, useNA );
+          MatrixAccessor<short>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
       case 4:
         return UniqueLevels<int>(
-          MatrixAccessor<int>(*pMat), columns, useNA );
+          MatrixAccessor<int>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
       case 8:
         return UniqueLevels<double>(
-          MatrixAccessor<double>(*pMat), columns, useNA );
+          MatrixAccessor<double>(*pMat), columns, 
+            NUMERIC_DATA(breaks), useNA );
     }
   }
   return R_NilValue;
@@ -420,24 +498,36 @@ SEXP UniqueLevels( SEXP bigMatAddr, SEXP columns, SEXP useNA )
 //useNa =0 "no", 1 "ifany", 2 "always".
 //ccols breaks, boolean return.map, boolean table, integer useNA,
 //boolean summary?, numeric summary columns, boolean summary.na.rm
-SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
-  SEXP returnMap, SEXP returnTable, SEXP useNA, SEXP returnSummary )
+SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks, 
+  SEXP processColumns, SEXP returnMap, SEXP returnTable, SEXP useNA, 
+  SEXP returnSummary )
 {
-  SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns, useNA));
+  std::vector<std::string> retNames;
+  retNames.push_back(std::string("levels"));
+  SEXP uniqueLevels = PROTECT(UniqueLevels(bigMatAddr, columns, breaks, useNA));
   BigMatrix *pMat =
     reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
   std::map<std::string, int> lmi;
   int i=0;
   lmi["levels"] = i++;
   if ( LOGICAL_VALUE(returnMap) )
+  {
     lmi["map"] = i++;
+    retNames.push_back(std::string("map"));
+  }
   if ( LOGICAL_VALUE(returnTable) )
+  {
     lmi["table"] = i++;
+    retNames.push_back(std::string("table"));
+  }
   if ( LOGICAL_VALUE(returnSummary) )
+  {
     lmi["summary"] = i++;
+    retNames.push_back(std::string("summary"));
+  }
   
   SEXP ret = PROTECT(NEW_LIST(i));
-  // TODO: Add names to the return list;
+  setAttrib( ret, R_NamesSymbol, StringVec2RChar( retNames ) );
   SET_VECTOR_ELT( ret, lmi[string("levels")], uniqueLevels );
   if (pMat->separated_columns())
   {
@@ -446,6 +536,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 1:
         return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -455,6 +546,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 2:
         return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -464,6 +556,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 4:
         return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -472,6 +565,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 8:
         return TAPPLY<double>( SepMatrixAccessor<double>(*pMat),
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -486,6 +580,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 1:
         return TAPPLY<int>( MatrixAccessor<char>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -494,6 +589,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 2:
         return TAPPLY<int>( MatrixAccessor<short>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -502,6 +598,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 4:
         return TAPPLY<int>( MatrixAccessor<int>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
@@ -510,6 +607,7 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP processColumns,
       case 8:
         return TAPPLY<double>( MatrixAccessor<double>(*pMat), 
           uniqueLevels, columns, processColumns,
+          NUMERIC_DATA(breaks),
           static_cast<bool>(LOGICAL_VALUE(returnMap)),
           static_cast<bool>(LOGICAL_VALUE(returnTable)),
           INTEGER_VALUE(useNA),
