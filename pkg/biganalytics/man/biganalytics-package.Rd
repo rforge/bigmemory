@@ -4,13 +4,14 @@
 \docType{package}
 \title{
 biganalytics: A library of utilities for big.matrix objects of package bigmemory.
+Some work with R matrices, independently of bigmemory.
 }
 \description{
 This package extends the bigmemory package with various analytics.  In addition
 to the more obvious summary statistics (see \code{\link{colmean}}, etc...),
 \pkg{biganalytics} offers \code{\link{biglm.big.matrix}},
-\code{\link{bigglm.big.matrix}}, \code{\link{bigkmeans}}, and
-\code{\link{binit}}.
+\code{\link{bigglm.big.matrix}}, \code{\link{bigkmeans}},
+\code{\link{binit}}, and \code{"\link[=apply-method]{apply}"}.
 }
 \details{
 \tabular{ll}{
@@ -26,7 +27,8 @@ LazyLoad: \tab yes\cr
 
 The \pkg{bigmemory} package contains the core support and basic summary
 functions; \pkg{biganalytics} contains more advanced analytics on
-\code{big.matrix} objects.
+\code{big.matrix} objects.  Sister packages \pkg{synchronicity},
+\pkg{bigtabulate}, and \pkg{bigalgebra} provide additional functionality.
 
 }
 \author{
@@ -55,4 +57,5 @@ x[,]
 mean(x)
 colmean(x)
 summary(x)
+apply(x, 1, mean)
 }
