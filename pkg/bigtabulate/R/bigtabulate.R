@@ -118,21 +118,13 @@ bigtabulate <- function(x,
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
 
-  if (table) {
-    z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
-  }
+  if (table) z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
 
-  if (summary) {
-## NEW HANDLING HERE for Jay to redo as necessary.
-##    z$min <- array(ans$min, dim=sapply(dn, length), dimnames=dn)
-##    z$max <- array(ans$max, dim=sapply(dn, length), dimnames=dn)
-##    z$mean <- array(ans$mean, dim=sapply(dn, length), dimnames=dn)
-##    z$sd <- array(ans$sd, dim=sapply(dn, length), dimnames=dn)
-##    z$NAs <- array(ans$NAs, dim=sapply(dn, length), dimnames=dn)
-  }
+  if (summary) z$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
+ 
   if (!is.null(splitcol)) {
     z$split <- ans$split
-    names(z$split) <- dn
+    names(z$split) <- names(dn)
   }
 
   if (length(z)==1) return(z[[1]])
