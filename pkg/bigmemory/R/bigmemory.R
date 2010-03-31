@@ -83,10 +83,11 @@ setMethod('is.big.matrix', definition=function(x) return(FALSE))
 setGeneric('as.big.matrix', 
   function(x, type=NULL, separated=FALSE,
            backingfile=NULL, backingpath=NULL,
-           descriptorfile=NULL) standardGeneric('as.big.matrix'))
+           descriptorfile=NULL, shared=TRUE) standardGeneric('as.big.matrix'))
 
 setMethod('as.big.matrix', signature(x='matrix'),
-  function(x, type, separated, backingfile, backingpath, descriptorfile)
+  function(x, type, separated, backingfile, backingpath, descriptorfile,
+    shared)
   {
     if (!is.numeric(x)) {
       warning("Casting to numeric type")
@@ -96,15 +97,10 @@ setMethod('as.big.matrix', signature(x='matrix'),
 
     if (type=="integer" | type=="double" | type=="short" | type=="char") 
     {
-      if (!is.null(backingfile)) {
-        y <- big.matrix(nrow=nrow(x), ncol=ncol(x), type=type, 
-                        init=NULL, dimnames=dimnames(x), separated=separated,
-                        backingfile=backingfile, backingpath=backingpath,
-                        descriptorfile=descriptorfile)
-      } else {
-        y <- big.matrix(nrow=nrow(x), ncol=ncol(x), type=type, init=NULL, 
-                        dimnames=dimnames(x), separated=separated)
-      }
+      y <- big.matrix(nrow=nrow(x), ncol=ncol(x), type=type, 
+        init=NULL, dimnames=dimnames(x), separated=separated,
+        backingfile=backingfile, backingpath=backingpath,
+        descriptorfile=descriptorfile, shared=shared)
       y[1:nrow(x),1:ncol(x)] <- x
       junk <- gc() 
     } else stop('bigmemory: that type is not implemented.')
@@ -112,12 +108,13 @@ setMethod('as.big.matrix', signature(x='matrix'),
   })
 
 setMethod('as.big.matrix', signature(x='vector'),
-  function(x, type, separated, backingfile, backingpath, descriptorfile)
+  function(x, type, separated, backingfile, backingpath, descriptorfile,
+    shared)
   {
     x <- matrix(x, length(x), 1)
     warning("Coercing vector to a single-column matrix.")
     return(as.big.matrix(x, type, separated, backingfile, 
-                         backingpath, descriptorfile))
+                         backingpath, descriptorfile, shared))
   })
   
 colnames.bm <- function(x)
@@ -262,7 +259,6 @@ GetCols.bm <- function(x, j, drop=TRUE)
       names(retList[[1]]) <- thesenames
     }
   }
-
   return(retList[[1]])
 }
 
@@ -278,7 +274,6 @@ GetRows.bm <- function(x, i, drop=TRUE)
       stop("row vector length must match the number of rows of the matrix.")
     i <- which(i)
   }
-
   tempi <- .Call("CCleanIndices", as.double(i), as.double(nrow(x)))
   if (is.null(tempi[[1]])) stop("Illegal row index usage in extraction.\n")
   if (tempi[[1]]) i <- tempi[[2]]
@@ -297,7 +292,6 @@ GetRows.bm <- function(x, i, drop=TRUE)
       names(retList[[1]]) <- thesenames
     }
   }
-
   return(retList[[1]])
 }
 
@@ -993,7 +987,7 @@ cleanupcols <- function(cols=NULL, nc=NULL, colnames=NULL) {
 
 deepcopy <- function(x, cols=NULL, type=NULL, separated=NULL,
                      backingfile=NULL, backingpath=NULL,
-                     descriptorfile=NULL)
+                     descriptorfile=NULL, shared=TRUE)
 {
   cols <- cleanupcols(cols, ncol(x), colnames(x))
   if (nrow(x) > 2^31-1)
@@ -1004,7 +998,7 @@ deepcopy <- function(x, cols=NULL, type=NULL, separated=NULL,
   y <- big.matrix(nrow=nrow(x), ncol=length(cols), type=type, init=NULL,
                   dimnames=dimnames(x), separated=separated,
                   backingfile=backingfile, backingpath=backingpath,
-                  descriptorfile=descriptorfile)
+                  descriptorfile=descriptorfile, shared)
   for (i in 1:length(cols)) y[,i] <- x[,cols[i]]
 
   return(y)
@@ -1084,21 +1078,20 @@ filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
   {
     stop('You must specify a backing file')
   }
-  if ( (basename(backingfile) != backingfile) | 
-    (basename(descriptorfile) != descriptorfile) )
+  anon.backing <- ifelse( backingfile == '', TRUE, FALSE )
+  if (anon.backing)
+  {
+    backingfile <- tempfile()
+    backingpath <- dirname(backingfile)
+    backingfile <- basename(backingfile)
+  }
+  if ( !anon.backing && ((basename(backingfile) != backingfile) | 
+    (basename(descriptorfile) != descriptorfile)) )
   {
     stop(paste("The path to the descriptor and backing file are",
       , "specified with the backingpath option"))
   }
   backingpath <- ifelse( is.null(backingpath), '.', path.expand(backingpath) )
-  anon.backing <- FALSE
-  if (backingfile == '.')
-  {
-    backingfile <- tempfile()
-    backingpath <- dirname(backingfile)
-    backingfile <- basename(backingfile)
-    anon.backing <- TRUE
-  }
   backingpath = file.path(backingpath, '.')
   backingpath = substr( backingpath, 1, nchar(backingpath)-1 )
 	address <- .Call('CreateFileBackedBigMatrix', as.character(backingfile), 
@@ -1277,17 +1270,11 @@ setMethod('file.name', signature(x='big.matrix'),
   })
 
 transpose.big.matrix <- function(x, backingfile=NULL,
-                     backingpath=NULL, descriptorfile=NULL) {
-  if (!is.null(backingfile))
-  {
-    temp <- filebacked.big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
-            dimnames=dimnames(x)[[2:1]], separated=is.separated(x),
-            backingfile=backingfile,
-            backingpath=backingpath, descriptorfile=descriptorfile)
-  } else {
-    temp <- big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
-                       dimnames=dimnames(x)[[2:1]], separated=is.separated(x)) 
-  }
+                     backingpath=NULL, descriptorfile=NULL, shared=TRUE) {
+  temp <- big.matrix(nrow=ncol(x), ncol=nrow(x), type=typeof(x),
+    dimnames=dimnames(x)[[2:1]], separated=is.separated(x),
+    backingfile=backingfile, backingpath=backingpath, 
+    descriptorfile=descriptorfile, shared=TRUE)
 
   for (i in 1:nrow(x)) {
     temp[,i] <- x[i,]
