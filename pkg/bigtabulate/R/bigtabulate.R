@@ -27,11 +27,12 @@ bigtabulate <- function(x,
     if (is.null(colnames(x))) stop("column names do not exist.")
     else ccols <- mmap(ccols, colnames(x))
 
-  # Prepare breaks: could be a vector of length(ccols) with numbers of
-  # breaks, assumed to span the ranges of the variables, or a list of
-  # the same length containing a mixture of numbers of breaks or triplets
+  # Prepare breaks: could be a vector of length(ccols) of numbers of
+  # breaks (or NA), assumed to span the ranges of the variables; or a list of
+  # the same length containing a mixture of numbers of breaks (or NA) or triplets
   # of (min, max, breaks).  The result of the preparation is a matrix
-  # with 3 rows and length(ccols) columns of (min, max, breaks) values.
+  # with 3 rows and length(ccols) columns of (min, max, breaks) values (possibly NA).
+  # NA indicates factor-like handling of the variable for the tabulations.
   breaks[sapply(breaks, is.null)] <- NA
   breakm <- matrix(NA, 3, length(breaks))
   if (is.numeric(breaks)) {
@@ -78,12 +79,13 @@ bigtabulate <- function(x,
     else summary.cols <- mmap(summary.cols, colnames(x))
   if (!is.null(splitcol)) {
     if (!is.na(splitcol)) {
+      if (is.logical(splitcol)) splitcol <- which(splitcol)
       if (!is.numeric(splitcol) & !is.character(splitcol))
-        stop("splitcol must be numeric or character specifying one column, or NA or NULL.")
+        stop("splitcol must be numeric, logical, or character specifying one column, or NA or NULL.")
       if (is.character(splitcol))
         if (is.null(colnames(x))) stop("column names do not exist.")
         else splitcol <- mmap(splitcol, colnames(x))
-      if (length(splitcol)!=1) stop("splitcol must be length 1.")
+      if (length(splitcol)!=1) stop("splitcol must identify a single column or be NA or NULL.")
     }
   }
 
@@ -109,19 +111,18 @@ bigtabulate <- function(x,
   # The return will always contain
   # - ans$levels, a list of length(ccols) of factor levels possibly plus "NA"
 
-  # It may contain:
+  # It will contain at least one of the following:
   # - ans$table:	vector of length prod(dim())
   # - ans$summary:	list of length prod(dim()) of cell summary matrices with 5 columns
-  # - ans$split:	list of length prod(dim()) containing the split or map result
+  # - ans$split:	list of length prod(dim()) containing the split or map result;
+  #                     nothing returned if is.null(splitcol), so don't return anything from C++
+  #                     in that case.
 
 
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
-
   if (table) z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
-
   if (summary) z$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
- 
   if (!is.null(splitcol)) {
     z$split <- ans$split
     names(z$split) <- names(dn)
