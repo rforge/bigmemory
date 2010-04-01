@@ -2,7 +2,7 @@ bigtabulate <- function(x,
                         ccols, breaks=vector("list", length=length(ccols)),
                         table=TRUE, useNA="no",
                         summary=TRUE, summary.cols=NA, summary.na.rm=FALSE,
-                        splitcol=NULL) {
+                        splitcol=NULL, splitret="list") {
 
   if (!is.matrix(x) && !is.data.frame(x)) {
     if (class(x)=="big.matrix")
@@ -88,23 +88,25 @@ bigtabulate <- function(x,
       if (length(splitcol)!=1) stop("splitcol must identify a single column or be NA or NULL.")
     }
   }
+  splitlist <- FALSE
+  if (splitret=="list") splitlist <- TRUE
 
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                  as.logical(table), as.integer(table.useNA),
                  as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
-                 as.numeric(splitcol))
+                 as.numeric(splitcol), as.logical(splitlist))
   } else {
     if (is.integer(x)) {
       ans <- .Call("RIntTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                    as.logical(table), as.integer(table.useNA),
                    as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
-                   as.numeric(splitcol))
+                   as.numeric(splitcol), as.logical(splitlist))
     } else {
       ans <- .Call("RNumericTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                    as.logical(table), as.integer(table.useNA),
                    as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
-                   as.numeric(splitcol))
+                   as.numeric(splitcol), as.logical(splitlist))
     }
   }
 
@@ -133,37 +135,84 @@ bigtabulate <- function(x,
 
 }
 
+bigsplit <- function(x, ccols,
+                     breaks=vector("list", length=length(ccols)),
+                     splitcol=NA, useNA="no", map=FALSE) {
+
+  ans <- bigtabulate(x, ccols=ccols, breaks=breaks,
+                     table=FALSE, useNA=useNA,
+                     summary=FALSE,
+                     splitcol=splitcol)
+  if (map) {
+    # Here, convert to a vector of cell numbers like used in tapply().
+    # Is there a better way to do this in R?  Or should it be handled in C++?
+    # If in C++ it would certainly reduce memory overhead.  Need to think.
+    ans <- lapply(1:length(ans), function(i) return(rbind(ans[[i]], rep(i, length(ans[[i]])))))
+    ans <- matrix(unlist(ans), ncol=2, byrow=TRUE)
+    ans <- ans[order(ans[,1]),][,2]
+  }
+  return(ans)
+}
+
+bigtable <- function(x, ccols,
+                     breaks=vector("list", length=length(ccols)),
+                     useNA="no") {
+  return(bigtabulate(x, ccols=ccols, breaks=breaks,
+                     table=TRUE, useNA=useNA,
+                     summary=FALSE,
+                     splitcol=NULL))
+}
+
+bigtsummary <- function(x, ccols,
+                        breaks=vector("list", length=length(ccols)),
+                        cols, useNA="no", na.rm=FALSE) {
+  return(bigtabulate(x, ccols=cols, breaks=breaks,
+                     table=FALSE, useNA=useNA,
+                     summary=TRUE, summary.cols=cols, summary.na.rm=na.rm,
+                     splitcol=NULL))
+}
+
+bigaggregate <- function(x, stats, usesplit=NULL, simplify=TRUE,  
+                         ccols=NA, breaks=vector("list", length=length(ccols)), useNA="no",
+                         distributed=FALSE) {
+
+  if (is.null(usesplit))
+    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, splitcol=NA, useNA=useNA, map=FALSE)
+
+  # At this point I have usesplit, which is the map.  Everything else is much like I had
+  # previously in commented code, below.
+
+  require(foreach)
+  if (is.null(getDoParName())) {
+    registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
+  }
+  if (!is.list(stats[[1]])) stats <- list(stats=stats)
+  if (is.null(names(stats))) stop("stats must be a named list")
+  if (length(unique(names(stats)))!=length(stats))
+    stop("names of stats list must be unique")
+
+  if (!is.null(getDoParName()) && getDoParName()!="doSEQ") {
+    require(bigmemory)
+    if (is.matrix(x)) {
+      x <- as.big.matrix(x, backingfile=ifelse(distributed, "", NULL))
+      warning("Temporary shared big.matrix created for parallel calculations.")
+    }
+    if (!is.shared(x) || !is.filebacked(x)) {
+      x <- deepcopy(x, backingfile=ifelse(distributed, "", NULL))
+      warning("Temporary shared big.matrix created for parallel calculations.")
+    }
+  }
+
+  # Now prepare the arguments.
+  for (i in 1:length(stats)) {
+
+  # Now do the foreach looping over usesplit.
+
+}
 
 #                        stats=list("table", useNA="no"),
-#                        distributed=FALSE, simplify=TRUE) {
-
-#  require(foreach)
-#  if (is.null(getDoParName())) {
-#    registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
-#  }
-
-#  if (!is.list(stats[[1]])) stats <- list(stats=stats)
-#  if (is.null(names(stats))) stop("stats must be a named list")
-#  if (length(unique(names(stats)))!=length(stats))
-#    stop("names of stats list must be unique")
 #  calls <- names(stats)
 
-#  if ( !all(calls %in% c("table", "summary")) ) {
-#    # Here, we would potentially work in parallel, so make it a big.matrix.
-#    # So if there is a parallel backend registered, make it a big.matrix,
-#    # perhaps with an anonymous backing for distribution.
-#    if (!is.null(getDoParName()) && getDoParName()!="doSEQ") {
-#      require(bigmemory)
-#      if (is.matrix(x)) {
-#        x <- as.big.matrix(x, backingfile=ifelse(distributed, "", NULL))
-#        warning("Temporary shared big.matrix created for parallel calculations.")
-#      }
-#      if (!is.shared(x) || !is.filebacked(x)) {
-#        x <- deepcopy(x, backingfile=ifelse(distributed, "", NULL))
-#        warning("Temporary shared big.matrix created for parallel calculations.")
-#      }
-#    }
-#  }
 
 #  # Prepare stats
 #  do.table <- FALSE
