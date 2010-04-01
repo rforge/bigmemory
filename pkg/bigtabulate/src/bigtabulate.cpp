@@ -259,8 +259,8 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   lmi["levels"] = i++;
   if ( splitcol != NULL_USER_OBJECT )
   {
-    lmi["map"] = i++;
-    retNames.push_back(std::string("map"));
+    lmi["split"] = i++;
+    retNames.push_back(std::string("split"));
   }
   if ( LOGICAL_VALUE(returnTable) )
   {
@@ -469,7 +469,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         }
       }
     }
-    SET_VECTOR_ELT(ret, lmi[string("map")], mapRet);
+    SET_VECTOR_ELT(ret, lmi[string("split")], mapRet);
   }
   if ( LOGICAL_VALUE(returnTable) )
   {

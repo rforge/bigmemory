@@ -134,6 +134,7 @@ bigtabulate <- function(x,
   if (table) z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
   if (summary) z$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
   if (!is.null(splitcol)) {
+    print(ans$split)
     z$split <- ans$split
     names(z$split) <- names(dn)
   }
