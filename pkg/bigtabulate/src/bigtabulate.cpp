@@ -246,9 +246,9 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
 // For now, assume an index mapper.
 template<typename RType, typename MatrixAccessorType>
 SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
-  SEXP returnMap, SEXP returnTable, SEXP useNA, 
-  SEXP returnSummary, SEXP processColumns, SEXP summaryNARM )
-  
+  SEXP returnTable, SEXP useNA, 
+  SEXP returnSummary, SEXP processColumns, SEXP summaryNARM,
+  SEXP splitcol, SEXP splitlist )
 {
   std::vector<std::string> retNames;
   retNames.push_back(std::string("levels"));
@@ -257,7 +257,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   int i, j, k;
   i=0;
   lmi["levels"] = i++;
-  if ( LOGICAL_VALUE(returnMap) )
+  if ( splitcol != NULL_USER_OBJECT )
   {
     lmi["map"] = i++;
     retNames.push_back(std::string("map"));
@@ -311,9 +311,14 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       accMult.push_back( mappers[i]->size() * accMult[i-1]);
     }
   }
-  typedef std::vector<int> Indices;
+  typedef std::vector<double> Indices;
   typedef std::vector<Indices> TableIndices;
   TableIndices tis;
+
+  typedef std::vector<RType> Values;
+  typedef std::vector<Values> TableIndexValues;
+  TableIndexValues tiv;
+
   Indices tvs(totalListSize, 0);
   
   typedef std::vector<double> TableSummary;
@@ -323,9 +328,12 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   typedef std::vector<index_type> ProcessColumns;
   ProcessColumns procCols;
  
-  if ( LOGICAL_VALUE(returnMap) )
+  if ( splitcol != NULL_USER_OBJECT )
   {
-    tis.resize(totalListSize);
+    if ( isna(NUMERIC_VALUE(splitcol)) )
+      tis.resize(totalListSize);
+    else
+      tiv.resize(totalListSize);
   }
   if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
   {
@@ -365,9 +373,13 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     if (tableIndex == -1 || mapperVal == -1)
       continue;
     tableIndex += mapperVal;
-    if ( LOGICAL_VALUE(returnMap) )
+    if ( splitcol != NULL_USER_OBJECT )
     {
-      tis[tableIndex].push_back(i+1);
+      if ( isna(NUMERIC_VALUE(splitcol)) )
+        tis[tableIndex].push_back(i+1);
+      else
+        tiv[tableIndex].push_back( 
+          m[static_cast<index_type>(NUMERIC_VALUE(splitcol))][i] );
     }
     if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
     {
@@ -411,19 +423,51 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       }
     }
   }
-  if ( LOGICAL_VALUE(returnMap) )
+  if ( splitcol != NULL_USER_OBJECT )
   { 
-    SEXP mapRet = PROTECT(NEW_LIST( tis.size() ));
-    ++protectCount;
-    SEXP vec;
-    // Copy to a list of vectors that R can read.
-    for (i=0; i < tis.size(); ++i)
+    SEXP mapRet;
+    if ( LOGICAL_VALUE(splitlist) )
     {
-      Indices &ind = tis[i];
-      vec = PROTECT(NEW_NUMERIC(tis[i].size()));
+      mapRet = PROTECT(NEW_LIST( tis.size() ));
       ++protectCount;
-      std::copy( ind.begin(), ind.end(), RData(vec) );
-      SET_VECTOR_ELT( mapRet, i, vec );
+      SEXP vec;
+      // Copy to a list of vectors that R can read.
+      if ( isna(NUMERIC_VALUE(splitcol)) )
+      {
+        for (i=0; i < tis.size(); ++i)
+        {
+          Indices &ind = tis[i];
+          vec = PROTECT(NEW_NUMERIC(tis[i].size()));
+          ++protectCount;
+          std::copy( ind.begin(), ind.end(), RData(vec) );
+          SET_VECTOR_ELT( mapRet, i, vec );
+        }
+      }
+      else
+      {
+        index_type outCol = static_cast<index_type>(NUMERIC_VALUE(splitcol));
+        for (i=0; i < tiv.size(); ++i)
+        {
+          Values &ind = tiv[i];
+          vec = PROTECT(NEW_NUMERIC(tiv[i].size()));
+          ++protectCount;
+          std::copy( ind.begin(), ind.end(), RData(vec) );
+          SET_VECTOR_ELT( mapRet, i, vec );
+        }
+      }
+    }
+    else
+    {
+      mapRet = NEW_NUMERIC(m.nrow());
+      double *pmr = NUMERIC_DATA(mapRet);
+      for (i=0; i < tis.size(); ++i)
+      {
+        Indices &inds = tis[i];
+        for (j=0; j < inds.size(); ++j)
+        {
+          pmr[j] = i;
+        }
+      }
     }
     SET_VECTOR_ELT(ret, lmi[string("map")], mapRet);
   }
@@ -477,23 +521,23 @@ extern "C"
 {
 
 SEXP RNumericTAPPLY( SEXP numericMatrix , SEXP columns, SEXP breaks,
-  SEXP returnMap, SEXP returnTable, SEXP useNA, SEXP returnSummary, 
-  SEXP processColumns, SEXP summaryNARM )
+  SEXP returnTable, SEXP useNA, SEXP returnSummary, 
+  SEXP processColumns, SEXP summaryNARM, SEXP splitcol, SEXP splitlist )
 {
   return TAPPLY<double>( MatrixAccessor<double>( NUMERIC_DATA(numericMatrix),
     static_cast<index_type>(Rf_nrows(numericMatrix)) ), 
-    columns, breaks, returnMap, returnTable, useNA, 
-    returnSummary, processColumns, summaryNARM );
+    columns, breaks, returnTable, useNA, 
+    returnSummary, processColumns, summaryNARM, splitcol, splitlist );
 }
 
 SEXP RIntTAPPLY( SEXP numericMatrix , SEXP columns, SEXP breaks,
-  SEXP returnMap, SEXP returnTable, SEXP useNA, SEXP returnSummary, 
-  SEXP processColumns, SEXP summaryNARM )
+  SEXP returnTable, SEXP useNA, SEXP returnSummary, 
+  SEXP processColumns, SEXP summaryNARM, SEXP splitcol, SEXP splitlist )
 {
   return TAPPLY<int>( MatrixAccessor<int>( INTEGER_DATA(numericMatrix),
     static_cast<index_type>(Rf_nrows(numericMatrix)) ), 
-    columns, breaks, returnMap, returnTable, useNA, 
-    returnSummary, processColumns, summaryNARM );
+    columns, breaks, returnTable, useNA, 
+    returnSummary, processColumns, summaryNARM, splitcol, splitlist );
 }
 
 // Return both the table indices in a list and the unique levels
@@ -501,8 +545,8 @@ SEXP RIntTAPPLY( SEXP numericMatrix , SEXP columns, SEXP breaks,
 //ccols breaks, boolean return.map, boolean table, integer useNA,
 //boolean summary?, numeric summary columns, boolean summary.na.rm
 SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks, 
-  SEXP returnMap, SEXP returnTable, SEXP useNA, SEXP returnSummary, 
-  SEXP processColumns, SEXP summaryNARM )
+  SEXP returnTable, SEXP useNA, SEXP returnSummary, 
+  SEXP processColumns, SEXP summaryNARM, SEXP splitcol, SEXP splitlist )
 {
   BigMatrix *pMat = reinterpret_cast<BigMatrix*>(
     R_ExternalPtrAddr(bigMatAddr));
@@ -512,20 +556,20 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks,
     {
       case 1:
         return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), columns, 
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
       case 2:
         return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), columns,
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
       case 4:
         return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), columns,
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
       case 8:
         return TAPPLY<double>( SepMatrixAccessor<double>(*pMat), columns,
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
     }
   }
   else
@@ -534,20 +578,20 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks,
     {
       case 1:
         return TAPPLY<int>( MatrixAccessor<char>(*pMat), columns,
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
       case 2:
         return TAPPLY<int>( MatrixAccessor<short>(*pMat), columns, 
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
       case 4:
         return TAPPLY<int>( MatrixAccessor<int>(*pMat), columns, 
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
       case 8:
         return TAPPLY<double>( MatrixAccessor<double>(*pMat), columns, 
-          breaks, processColumns, returnMap, returnTable, useNA,
-          returnSummary, summaryNARM );
+          breaks, processColumns, returnTable, useNA,
+          returnSummary, summaryNARM, splitcol, splitlist );
     }
   }
   return R_NilValue;
