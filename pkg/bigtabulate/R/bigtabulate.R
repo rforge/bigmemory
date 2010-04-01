@@ -147,14 +147,10 @@ bigsplit <- function(x, ccols,
                      breaks=vector("list", length=length(ccols)), useNA="no", 
                      splitcol=NA, splitret="list") {
 
-  ans <- bigtabulate(x, ccols=ccols, breaks=breaks,
+  return(bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=FALSE, useNA=useNA,
                      summary=FALSE,
-                     splitcol=splitcol, splitret=splitret)
-
-  # FIgure out what to do now, and what options to provide.
-
-  return(ans)
+                     splitcol=splitcol, splitret=splitret))
 }
 
 bigtable <- function(x, ccols,
@@ -179,7 +175,7 @@ bigtsummary <- function(x, ccols,
 
 bigaggregate <- function(x, stats, usesplit=NULL,
                          ccols=NA, breaks=vector("list", length=length(ccols)), useNA="no",
-                         distributed=FALSE) {
+                         distributed=FALSE, rettype="celllist", simplify=TRUE) {
 
   if (is.null(usesplit))
     usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, splitcol=NA, splitlist="list")
@@ -255,14 +251,17 @@ bigaggregate <- function(x, stats, usesplit=NULL,
 
   temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
 
-  return(temp)
+  if (rettype=="statlist") {
+    # Provide list of length(stats) of arrayed answers.
+    z <- NULL
+    for (j in names(stats)) {
+      res <- lapply(temp, function(x) return(x[[j]]))
+      if (all(sapply(res, length)==1) && simplify)
+        res <- array(unlist(res), dim=sapply(dn, length), dimnames=dn)
+      else {
+        # Here, there could be some empty cells with single NA values that need replication:
 
-#  for (j in names(stats)) {
-#    temp <- lapply(stats, function(x) return(x[[j]]))
-#      if (all(sapply(temp, length)==1) && simplify)
-#        temp <- array(unlist(temp), dim=sapply(dn, length), dimnames=dn)
-#      else {
-#        if (length(unique(sapply(temp, length)))==2) {
+#        if (length(unique(sapply(res, length)))==2) {
 #          nc <- max(unique(sapply(temp, length)), na.rm=TRUE)
 #          usenames <- names(temp[[which(sapply(temp, length)==nc)[1]]])
 #          for (k in which(sapply(temp, length)==1)) {
@@ -270,13 +269,18 @@ bigaggregate <- function(x, stats, usesplit=NULL,
 #            names(temp[[k]]) <- usenames
 #          }
 #        }
-#        temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
-#      }
-#      z[[j]] <- temp
-#    }
-#  }
+
+        res <- array(temp, dim=sapply(dn, length), dimnames=dn)
+      }
+      z[[j]] <- temp
+    }
+  }
 
 #  z[is.null(z)] <- NULL
+
+  }
+
+  return(temp)
 
 }
 
