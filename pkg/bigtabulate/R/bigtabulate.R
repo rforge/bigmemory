@@ -127,8 +127,7 @@ bigtabulate <- function(x,
   # - ans$summary:	list of length prod(dim()) of cell summary matrices with 5 columns
   # - ans$split:	list of length prod(dim()) containing the split or map result;
   #                     nothing returned if is.null(splitcol), so don't return anything from C++
-  #                     in that case.
-
+  #                     in that case.  Or a vector of the factor levels.
 
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
@@ -152,20 +151,16 @@ bigsplit <- function(x, ccols,
                      table=FALSE, useNA=useNA,
                      summary=FALSE,
                      splitcol=splitcol, splitret=splitret)
-  if (map) {
-    # Here, convert to a vector of cell numbers like used in tapply().
-    # Is there a better way to do this in R?  Or should it be handled in C++?
-    # If in C++ it would certainly reduce memory overhead.  Need to think.
-    ans <- lapply(1:length(ans), function(i) return(rbind(ans[[i]], rep(i, length(ans[[i]])))))
-    ans <- matrix(unlist(ans), ncol=2, byrow=TRUE)
-    ans <- ans[order(ans[,1]),][,2]
-  }
+
+  # FIgure out what to do now, and what options to provide.
+
   return(ans)
 }
 
 bigtable <- function(x, ccols,
                      breaks=vector("list", length=length(ccols)),
                      useNA="no") {
+
   return(bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=TRUE, useNA=useNA,
                      summary=FALSE,
@@ -187,7 +182,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
                          distributed=FALSE) {
 
   if (is.null(usesplit))
-    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, splitcol=NA, map=FALSE)
+    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, splitcol=NA, splitlist="list")
 
   # At this point I have usesplit, which is the map.  Everything else is much like I had
   # previously in commented code, below.
@@ -259,6 +254,8 @@ bigaggregate <- function(x, stats, usesplit=NULL,
   }
 
   temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
+
+  return(temp)
 
 #  for (j in names(stats)) {
 #    temp <- lapply(stats, function(x) return(x[[j]]))
