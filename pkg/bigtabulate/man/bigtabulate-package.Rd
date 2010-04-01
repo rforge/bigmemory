@@ -10,8 +10,8 @@ use with \R \code{matrix} objects.  The function \code{\link{bigtabulate}}
 is like \code{\link{tapply}}, doing tabulations based on a specified conditional
 structure.  In other words, for every cell of a (possibly multidimensional)
 contingency table, collect some statistic(s) of interest.  At the lowest level,
-this supports an extremely fast alternative to \code{link{table}} for matrices
-that also works on \code{\link{big.matrix}} objects.  But general functions
+this supports an extremely fast alternative to \code{\link{table}} for matrices
+that also works on \code{\link[bigmemory]{big.matrix}} objects.  But general functions
 may be applied, as well.
 }
 \details{
@@ -39,7 +39,7 @@ Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 \references{See \url{http://www.bigmemory.org}.}
 \seealso{For example, see
 \code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}},
-\code{\link{bigkmeans}}, \code{\link{binit}}, \code{\link{colmean}}, \code{\link{tapply}}.
+\code{\link[biganalytics]{bigkmeans}}, \code{\link[biganalytics]{binit}}, \code{\link[biganalytics]{colmean}}, \code{\link{tapply}}.
 }
 \examples{
 # A basic example:

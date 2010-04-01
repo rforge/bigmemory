@@ -25,7 +25,7 @@ bigtabulate <- function(x,
     stop("column indices must be numeric or character vectors.")
   if (is.character(ccols))
     if (is.null(colnames(x))) stop("column names do not exist.")
-    else ccols <- mmap(ccols, colnames(x))
+    else ccols <- bigmemory:::mmap(ccols, colnames(x))
 
   # Prepare breaks: could be a vector of length(ccols) of numbers of
   # breaks (or NA), assumed to span the ranges of the variables; or a list of
@@ -76,7 +76,7 @@ bigtabulate <- function(x,
     stop("column indices must be numeric or character vectors.")
   if (is.character(summary.cols))
     if (is.null(colnames(x))) stop("column names do not exist.")
-    else summary.cols <- mmap(summary.cols, colnames(x))
+    else summary.cols <- bigmemory:::mmap(summary.cols, colnames(x))
   if (!is.null(splitcol)) {
     if (!is.na(splitcol)) {
       if (is.logical(splitcol)) splitcol <- which(splitcol)
@@ -84,7 +84,7 @@ bigtabulate <- function(x,
         stop("splitcol must be numeric, logical, or character specifying one column, or NA or NULL.")
       if (is.character(splitcol))
         if (is.null(colnames(x))) stop("column names do not exist.")
-        else splitcol <- mmap(splitcol, colnames(x))
+        else splitcol <- bigmemory:::mmap(splitcol, colnames(x))
       if (length(splitcol)!=1) stop("splitcol must identify a single column or be NA or NULL.")
     }
   }

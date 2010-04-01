@@ -420,7 +420,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     for (i=0; i < tis.size(); ++i)
     {
       Indices &ind = tis[i];
-      vec = PROTECT(RNew(tis[i].size()));
+      vec = PROTECT(NEW_NUMERIC(tis[i].size()));
       ++protectCount;
       std::copy( ind.begin(), ind.end(), RData(vec) );
       SET_VECTOR_ELT( mapRet, i, vec );
@@ -433,49 +433,39 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     ++protectCount;
     std::copy( tvs.begin(), tvs.end(), INTEGER_DATA(tableRet) );
     SET_VECTOR_ELT(ret, lmi[string("table")], tableRet);
-  }   
+  } 
   if ( LOGICAL_VALUE(returnSummary) )
   {
-    SEXP summaryRet = PROTECT(NEW_LIST(ts.size()));
+    // If we change the data structures holding the summaries, can
+    // we get better performance.
+    std::vector<std::string> colnames;
+    colnames.push_back(string("min"));
+    colnames.push_back(string("max"));
+    colnames.push_back(string("mean"));
+    colnames.push_back(string("sd"));
+    colnames.push_back(string("NAs"));
+    SEXP summaryRet = PROTECT(NEW_LIST(ts[0].size()));
     ++protectCount;
-    for (i=0; i < ts.size(); ++i)
+    for (i=0; i < GET_LENGTH(summaryRet); ++i)
     {
-      TableSummaries &ss = ts[i];
-      // Again, min, max, mean, sd.
-      SEXP summaryEntry = PROTECT(NEW_LIST(5));
+      SEXP dimnames = PROTECT(NEW_LIST(2));
       ++protectCount;
-      SEXP minVec = PROTECT(NEW_NUMERIC(ss.size()));
-      ++protectCount;
-      SEXP maxVec = PROTECT(NEW_NUMERIC(ss.size()));
-      ++protectCount;
-      SEXP meanVec = PROTECT(NEW_NUMERIC(ss.size()));
-      ++protectCount;
-      SEXP sdVec = PROTECT(NEW_NUMERIC(ss.size()));
-      ++protectCount;
-      SEXP NAVec = PROTECT(NEW_NUMERIC(ss.size()));
-      ++protectCount;
-      for (j=0; j < ss.size(); ++j)
+      SET_VECTOR_ELT(dimnames, 0, StringVec2RChar(colnames) );
+      SET_VECTOR_ELT(dimnames, 1, R_NilValue );
+      
+      SEXP retMat = allocMatrix(REALSXP, 5, ts.size());
+      setAttrib(retMat, R_DimNamesSymbol, dimnames);
+      MatrixAccessor<double> rm( NUMERIC_DATA(retMat), ts.size() );
+      for (j=0; j < ts.size(); ++j)
       {
-        NUMERIC_DATA(minVec)[j] = ss[j][0];
-        NUMERIC_DATA(maxVec)[j] = ss[j][1];
-        NUMERIC_DATA(meanVec)[j] = ss[j][2]/static_cast<double>(tvs[j]);
-        NUMERIC_DATA(sdVec)[j] = ss[j][3] / static_cast<double>(tvs[j]) - 
-          pow( NUMERIC_DATA(meanVec)[j], 2.0 );
-        NUMERIC_DATA(NAVec)[j] = ss[j][6];
+        rm[0][j] = ts[j][i][0];
+        rm[1][j] = ts[j][i][1];
+        rm[2][j] = ts[j][i][2]/static_cast<double>(tvs[j]);
+        rm[3][j] = ts[j][i][3] / static_cast<double>(tvs[j]) -
+          pow( rm[2][j], 2.0 );
+        rm[4][j] = ts[j][i][6];
       }
-      SET_VECTOR_ELT(summaryEntry, 0, minVec);
-      SET_VECTOR_ELT(summaryEntry, 1, maxVec);
-      SET_VECTOR_ELT(summaryEntry, 2, meanVec);
-      SET_VECTOR_ELT(summaryEntry, 3, sdVec);
-      SET_VECTOR_ELT(summaryEntry, 4, NAVec);
-      std::vector<std::string> names;
-      names.push_back("min");
-      names.push_back("max");
-      names.push_back("mean");
-      names.push_back("sd");
-      names.push_back("NAs");
-      setAttrib( summaryEntry, R_NamesSymbol, StringVec2RChar(names) );
-      SET_VECTOR_ELT(summaryRet, i, summaryEntry);
+      SET_VECTOR_ELT(summaryRet, i, retMat);
     }
     SET_VECTOR_ELT(ret, lmi[string("summary")], summaryRet);
   }
