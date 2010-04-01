@@ -82,7 +82,8 @@ CreateNextDataFrameGenerator = function( formula, data, chunksize, fc,
   }
   if (is.null(chunksize) && is.null(getNextChunkFunc))
   {
-    chunksize = floor(nrow(data)/ncol(data)^2)
+    chunksize = max(floor(nrow(data)/ncol(data)^2), 10000)
+    if (chunksize > nrow(data)) chunksize = nrow(data)
     getNextChunkFunc = chunkGenerator(chunksize, nrow(data))
   }
   levelList=NA
