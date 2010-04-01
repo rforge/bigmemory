@@ -91,6 +91,15 @@ bigtabulate <- function(x,
   splitlist <- FALSE
   if (splitret=="list") splitlist <- TRUE
 
+  # splitcol=NULL	Don't return any map type of anything.
+  # splitcol=NA		Essentially split 1:nrow(x)
+  # splitcol=a column   Split this single column.
+  # splitlist=TRUE by default: the return is a list of either split 1:nrow(x) or col entries
+  # splitlist=FALSE: only valid if splitcol==NA, in which case a vector of as.numeric(factor) entries
+
+  if (is.numeric(splitcol) && !splitlist)
+    stop("non-list split is not allowed on a column")
+
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                  as.logical(table), as.integer(table.useNA),
@@ -136,13 +145,13 @@ bigtabulate <- function(x,
 }
 
 bigsplit <- function(x, ccols,
-                     breaks=vector("list", length=length(ccols)),
-                     splitcol=NA, useNA="no", map=FALSE) {
+                     breaks=vector("list", length=length(ccols)), useNA="no", 
+                     splitcol=NA, splitret="list") {
 
   ans <- bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=FALSE, useNA=useNA,
                      summary=FALSE,
-                     splitcol=splitcol)
+                     splitcol=splitcol, splitret=splitret)
   if (map) {
     # Here, convert to a vector of cell numbers like used in tapply().
     # Is there a better way to do this in R?  Or should it be handled in C++?
@@ -164,20 +173,21 @@ bigtable <- function(x, ccols,
 }
 
 bigtsummary <- function(x, ccols,
-                        breaks=vector("list", length=length(ccols)),
-                        cols, useNA="no", na.rm=FALSE) {
+                        breaks=vector("list", length=length(ccols)), useNA="no", 
+                        cols, na.rm=FALSE) {
+
   return(bigtabulate(x, ccols=cols, breaks=breaks,
                      table=FALSE, useNA=useNA,
                      summary=TRUE, summary.cols=cols, summary.na.rm=na.rm,
                      splitcol=NULL))
 }
 
-bigaggregate <- function(x, stats, usesplit=NULL, simplify=TRUE,  
+bigaggregate <- function(x, stats, usesplit=NULL,
                          ccols=NA, breaks=vector("list", length=length(ccols)), useNA="no",
                          distributed=FALSE) {
 
   if (is.null(usesplit))
-    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, splitcol=NA, useNA=useNA, map=FALSE)
+    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, splitcol=NA, map=FALSE)
 
   # At this point I have usesplit, which is the map.  Everything else is much like I had
   # previously in commented code, below.
@@ -205,92 +215,53 @@ bigaggregate <- function(x, stats, usesplit=NULL, simplify=TRUE,
 
   # Now prepare the arguments.
   for (i in 1:length(stats)) {
+    thisname <- names(stats)[i]
+    args <- stats[[i]]
+    if (!is.list(args))
+      stop(paste("stats element", thisname,"needs to be list."))
+    if (!is.function(args[[1]]) && !is.character(args[[1]]))
+      stop("first argument of stats element", thisname, "needs to be a function."))
+    if (if.character(args[[2]]))
+      if (is.null(colnames(x))) stop("column names do not exist.")
+      else args[[2]] <- mmap(args[[2]], colnames(x))
+    }
+    if (!is.numeric(args[[2]])) args[[2]] <- as.numeric(args[[2]])
+    stats[[i]] <- args
+    names(stats)[i] <- thisname
+  }
 
-  # Now do the foreach looping over usesplit.
+  # Here, process fargs chunkwise.  Use foreach on the chunks.
+  xdesc <- if (!is.matrix(x)) describe(x) else NULL
+  fans <- foreach(i=usesplit) %dopar% {
+    if (is.null(i)) {
+      temp <- as.list(rep(NA, length(stats)))
+      names(temp) <- names(stats)
+      return(temp)
+    }
+    if (!is.null(xdesc)) {
+      y <- attach.big.matrix(xdesc)
+      y <- y[i,,drop=FALSE]
+    } else {
+      y <- x[i,,drop=FALSE]
+    }
+    temp <- vector("list", length=0)
+    for (j in names(stats)) {
+      farg <- stats[[j]]
+      tempname <- names(formals(farg[[1]]))[1]
+      if (is.character(farg[[1]])) farg[[1]] <- as.symbol(farg[[1]])
+      farg[[2]] <- y[,farg[[2]],drop=FALSE]
+      if (!is.null(tempname)) names(farg)[2] <- tempname
+      else names(farg)[2] <- ""
+      mode(farg) <- "call"
+      temp[[j]] <- eval(farg)
+    }
+    return(temp)
+  }
 
-}
+  temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
 
-#                        stats=list("table", useNA="no"),
-#  calls <- names(stats)
-
-
-#  # Prepare stats
-#  do.table <- FALSE
-#  table.useNA <- NA
-#  do.summary <- FALSE
-#  summary.cols <- NA
-#  summary.na.rm <- FALSE
-#  return.map <- FALSE
-#  fargs <- vector("list", length=0)
-#  for (i in 1:length(stats)) {
-#    args <- stats[[i]]
-#    if (is.function(args[[1]])) {
-#      return.map <- TRUE
-#      if (is.character(args[[2]]))
-#        if (is.null(colnames(x))) stop("column names do not exist.")
-#        else args[[2]] <- mmap(args[[2]], colnames(x))
-#      if (!is.numeric(args[[2]])) args[[2]] <- as.numeric(args[[2]])
-#      fargs[[names(stats)[i]]] <- args
-#    } else {
-#      if (args[[1]]=="table") {
-#        do.table <- TRUE
-#        table.useNA <- 0
-#        if (length(args)==2) {
-#          if (args[[2]]=="ifany") table.useNA <- 1
-#          if (args[[2]]=="always") table.useNA <- 2
-#        }
-#      }
-#      if (args[[1]]=="summary") {
-#        do.summary <- TRUE
-#        if (length(args)==1) stop("additional arguments needed for summary")
-#        summary.cols <- args[[2]]
-#        if (length(args)==3) summary.na.rm <- args[[3]]
-#        if (!is.logical(summary.na.rm)) stop("summary.na.rm must be logical")
-#        if (!is.numeric(summary.cols) & !is.character(summary.cols))
-#          stop("column indices must be numeric or character vectors.")
-#        if (is.character(summary.cols))
-#          if (is.null(colnames(x))) stop("column names do not exist.")
-#          else summary.cols <- mmap(summary.cols, colnames(x))
-#        if (!is.numeric(summary.cols)) summary.cols <- as.numeric(summary.cols)
-#      }
-#    }
-#  }
-
-
-#  ans.table <- NULL
-#  ans.summary <- NULL
-
-#  if (return.map) {
-#    # Here, process fargs chunkwise.  Use foreach on the chunks.
-#    xdesc <- if (!is.matrix(x)) describe(x) else NULL
-#    fans <- foreach(i=ans$map) %dopar% {
-#      if (is.null(i)) {
-#        temp <- as.list(rep(NA, length(fargs)))
-#        names(temp) <- names(fargs)
-#        return(temp)
-#      }
-#      if (!is.null(xdesc)) {
-#        y <- attach.big.matrix(xdesc)
-#        y <- y[i,,drop=FALSE]
-#      } else {
-#        y <- x[i,,drop=FALSE]
-#      }
-#      temp <- vector("list", length=0)
-#      for (j in names(fargs)) {
-#        farg <- fargs[[j]]
-#        tempname <- names(formals(farg[[1]]))[1]
-#        if (is.character(farg[[1]])) farg[[1]] <- as.symbol(farg[[1]])
-#        farg[[2]] <- y[,farg[[2]],drop=FALSE]
-#        if (!is.null(tempname)) names(farg)[2] <- tempname
-#        else names(farg)[2] <- ""
-#        mode(farg) <- "call"
-#        temp[[j]] <- eval(farg)
-#      }
-#      return(temp)
-#    }
-
-#    for (j in names(fargs)) {
-#      temp <- lapply(fans, function(x) return(x[[j]]))
+#  for (j in names(stats)) {
+#    temp <- lapply(stats, function(x) return(x[[j]]))
 #      if (all(sapply(temp, length)==1) && simplify)
 #        temp <- array(unlist(temp), dim=sapply(dn, length), dimnames=dn)
 #      else {
@@ -309,6 +280,9 @@ bigaggregate <- function(x, stats, usesplit=NULL, simplify=TRUE,
 #  }
 
 #  z[is.null(z)] <- NULL
+
+}
+
 
 
 
