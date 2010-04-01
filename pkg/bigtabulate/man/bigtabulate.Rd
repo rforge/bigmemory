@@ -66,13 +66,7 @@ a list of array-like objects, each similar to what is returned by \code{\link{ta
 data(iris)
 iris[,2] <- round(iris[,2]) # So columns 2 and 5 will be factor-like.
 
-ans <- bigtabulate( iris,
-                    c(2, 5),
-                    stats=list(table=list("table", useNA="no"),
-                               summary=list("summary", cols=c("Sepal.Length", "Petal.Width")),
-                               median=list(median, cols="Petal.Length"),
-                               means=list(colMeans, cols=c("Sepal.Length", "Petal.Length"), na.rm=TRUE),
-                               range=list(range, cols="Petal.Length", na.rm=TRUE)),
-                    distributed=FALSE, simplify=TRUE)
+ans1 <- bigtabulate(iris, c(2, 5), table=TRUE, summary=FALSE)
+ans2 <- bigtabulate(iris, c(2, 5), table=FALSE, summary=TRUE, summary.cols=1, splitcol=NA)
 }
 \keyword{methods}

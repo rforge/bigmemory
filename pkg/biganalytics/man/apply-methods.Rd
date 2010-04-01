@@ -8,7 +8,11 @@
 the performance will be degraded (compared to \code{apply} with regular \R
 matrices) because of \acronym{S4} overhead associated with extracting data from
 \code{big.matrix} objects.  This sort of limitation is unavoidable and would
+<<<<<<< .mine
+be the case (or even worse) with other "custom" data structures.
+=======
 be the case (or even worse) with other ``custom'' data structures.
+>>>>>>> .r140
 This would only really matter if you are applying over lengthy rows or columns,
 of course.
 }

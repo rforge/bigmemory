@@ -209,10 +209,10 @@ bigaggregate <- function(x, stats, usesplit=NULL,
     thisname <- names(stats)[i]
     args <- stats[[i]]
     if (!is.list(args))
-      stop(paste("stats element", thisname,"needs to be list."))
+      stop(paste("stats element", thisname, "needs to be list."))
     if (!is.function(args[[1]]) && !is.character(args[[1]]))
-      stop("first argument of stats element", thisname, "needs to be a function."))
-    if (if.character(args[[2]]))
+      stop(paste("first argument of stats element", thisname, "needs to be a function."))
+    if (if.character(args[[2]])) {
       if (is.null(colnames(x))) stop("column names do not exist.")
       else args[[2]] <- mmap(args[[2]], colnames(x))
     }
@@ -251,34 +251,32 @@ bigaggregate <- function(x, stats, usesplit=NULL,
 
   temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
 
-  if (rettype=="statlist") {
-    # Provide list of length(stats) of arrayed answers.
-    z <- NULL
-    for (j in names(stats)) {
-      res <- lapply(temp, function(x) return(x[[j]]))
-      if (all(sapply(res, length)==1) && simplify)
-        res <- array(unlist(res), dim=sapply(dn, length), dimnames=dn)
-      else {
-        # Here, there could be some empty cells with single NA values that need replication:
-
-#        if (length(unique(sapply(res, length)))==2) {
-#          nc <- max(unique(sapply(temp, length)), na.rm=TRUE)
-#          usenames <- names(temp[[which(sapply(temp, length)==nc)[1]]])
-#          for (k in which(sapply(temp, length)==1)) {
-#            if (is.na(temp[[k]])) temp[[k]] <- as.numeric(rep(NA, nc))
-#            names(temp[[k]]) <- usenames
-#          }
-#        }
-
-        res <- array(temp, dim=sapply(dn, length), dimnames=dn)
-      }
-      z[[j]] <- temp
-    }
-  }
+#  if (rettype=="statlist") {
+#    # Provide list of length(stats) of arrayed answers.
+#    z <- NULL
+#    for (j in names(stats)) {
+#      res <- lapply(temp, function(x) return(x[[j]]))
+#      if (all(sapply(res, length)==1) && simplify)
+#        res <- array(unlist(res), dim=sapply(dn, length), dimnames=dn)
+#      else {
+#        # Here, there could be some empty cells with single NA values that need replication:
+#
+##        if (length(unique(sapply(res, length)))==2) {
+##          nc <- max(unique(sapply(temp, length)), na.rm=TRUE)
+##          usenames <- names(temp[[which(sapply(temp, length)==nc)[1]]])
+##          for (k in which(sapply(temp, length)==1)) {
+##            if (is.na(temp[[k]])) temp[[k]] <- as.numeric(rep(NA, nc))
+##            names(temp[[k]]) <- usenames
+##          }
+##        }
+#
+#        res <- array(temp, dim=sapply(dn, length), dimnames=dn)
+#      }
+#      z[[j]] <- temp
+#    }
+#  }
 
 #  z[is.null(z)] <- NULL
-
-  }
 
   return(temp)
 
