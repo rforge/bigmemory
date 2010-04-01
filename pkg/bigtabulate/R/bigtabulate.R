@@ -66,7 +66,7 @@ bigtabulate <- function(x,
   table.useNA <- -1
   if (useNA=="no") table.useNA <- 0
   if (useNA=="ifany") table.useNA <- 1
-  if (useNA=="always) table.useNA <- 2
+  if (useNA=="always") table.useNA <- 2
   if (table.useNA==-1) stop("invalid argument to useNA.")
 
   if (!is.logical(summary)) stop("summary must be logical.")
