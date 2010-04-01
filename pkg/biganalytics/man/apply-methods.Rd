@@ -21,7 +21,7 @@ library(bigmemory)
 
 x <- big.matrix(5, 2, type="integer", init=0, 
   dimnames=list(NULL, c("alpha", "beta")))
-x <- round(rnorm(10))
+x[,] <- round(rnorm(10))
 apply(x, 1, mean)
 }
 \keyword{methods}
