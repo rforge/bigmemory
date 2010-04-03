@@ -647,9 +647,164 @@ void WriteMatrix( BigMatrix *pMat, SEXP fileName, SEXP rowNames,
   fclose(FP);
 }
 
+template<typename T>
+struct NAMaker;
+
+template<>
+struct NAMaker<char>
+{char operator()() const {return NA_CHAR;}};
+
+template<>
+struct NAMaker<short>
+{short operator()() const {return NA_SHORT;}};
+
+template<>
+struct NAMaker<int>
+{int operator()() const {return NA_INTEGER;}};
+
+template<>
+struct NAMaker<double>
+{double operator()() const {return NA_REAL;}};
+// Note: naLast should be passed as an integer.
+
+template<typename PairType>
+typename PairType::first_type& get_first( PairType &p )
+{
+  return p.first;
+}
+
+template<typename PairType>
+typename PairType::second_type& get_second( PairType &p )
+{
+  return p.second;
+}
+
+template<typename RType, typename MatrixAccessorType>
+SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
+  SEXP decreasing )
+{
+  typedef std::vector<std::pair<double, 
+    typename MatrixAccessorType::value_type> > OrderVecs;
+  NAMaker<RType> make_na;
+  RType na = make_na();
+  index_type i, j;
+  index_type col;
+  index_type naCount;
+  OrderVecs ov;
+  typename OrderVecs::iterator first, end, it;
+  col = static_cast<index_type>(NUMERIC_DATA(columns)[i]-1);
+  for (j=0; j < m.nrow(); ++j)
+  {
+    if (isna(m[col][j])) 
+    {
+      ++naCount;
+    }
+  }
+  if (INTEGER_VALUE(naLast) == 0)
+  {
+    ov.reserve(m.nrow());
+    ov.resize(m.nrow());
+    first = ov.begin()+naCount;
+    end = ov.end();
+    for (it = ov.begin(); it < first; ++i) (*it).second = na;
+  }  
+  else if (INTEGER_VALUE(naLast) == 1)
+  {
+    ov.reserve(m.nrow());
+    ov.resize(m.nrow());
+    first = ov.begin();
+    end = ov.end() - naCount;
+    for (it = end; it < end; ++it) (*it).second = na;
+  }
+  else // if (isna(INTEGER_VALUE(naLast)))
+  {
+    ov.reserve(m.nrow()-naCount);
+    ov.resize(m.nrow()-naCount);
+  }
+  
+  for (i=0; i < GET_LENGTH(columns); ++i)
+  {
+    col = static_cast<index_type>(NUMERIC_DATA(columns)[i]-1);
+    OrderVecs ov(0);
+    naCount=0;
+    for (j=0; j < m.nrow(); ++j)
+    {
+      if (isna(m[col][j])) 
+      {
+        ++naCount;
+      }
+    }
+    if (i==0)
+    {
+      if (INTEGER_VALUE(naLast) == 0)
+      {
+        ov.reserve(m.nrow());
+        ov.resize(m.nrow());
+        first = ov.begin()+naCount;
+        end = ov.end();
+      }  
+      else if (INTEGER_VALUE(naLast) == 1)
+      {
+        ov.reserve(m.nrow());
+        ov.resize(m.nrow());
+        first = ov.begin();
+        end = ov.end() - naCount;
+      }
+      else // if (isna(INTEGER_VALUE(naLast)))
+      {
+      
+      }
+    }
+    else
+    {
+    }
+  }
+}
 
 extern "C"
 {
+
+SEXP Order(SEXP address, SEXP columns, SEXP naLast, SEXP decreasing)
+{
+  BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
+  if (pMat->separated_columns())
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return get_order<char>( SepMatrixAccessor<char>(*pMat), 
+          columns, naLast, decreasing );
+      case 2:
+        return get_order<short>( SepMatrixAccessor<short>(*pMat), 
+          columns, naLast, decreasing );
+      case 4:
+        return get_order<int>( SepMatrixAccessor<int>(*pMat),
+          columns, naLast, decreasing );
+      case 8:
+        return get_order<double>( SepMatrixAccessor<double>(*pMat),
+          columns, naLast, decreasing );
+    }
+  }
+  else
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return get_order<char>( MatrixAccessor<char>(*pMat),
+          columns, naLast, decreasing );
+      case 2:
+        return get_order<short>( MatrixAccessor<short>(*pMat),
+          columns, naLast, decreasing );
+      case 4:
+        return get_order<int>( MatrixAccessor<int>(*pMat),
+          columns, naLast, decreasing );
+      case 8:
+        return get_order<double>( MatrixAccessor<double>(*pMat),
+          columns, naLast, decreasing );
+    }
+  }
+  return R_NilValue;
+}
 
 SEXP CCleanIndices(SEXP indices, SEXP rc)
 {
