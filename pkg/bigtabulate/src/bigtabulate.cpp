@@ -494,20 +494,31 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     {
       SEXP dimnames = PROTECT(NEW_LIST(2));
       ++protectCount;
-      SET_VECTOR_ELT(dimnames, 0, StringVec2RChar(colnames) );
-      SET_VECTOR_ELT(dimnames, 1, R_NilValue );
+      SET_VECTOR_ELT(dimnames, 0, R_NilValue );
+      SET_VECTOR_ELT(dimnames, 1, StringVec2RChar(colnames) );
       
-      SEXP retMat = allocMatrix(REALSXP, 5, ts.size());
+      SEXP retMat = allocMatrix(REALSXP, ts.size(), 5);
       setAttrib(retMat, R_DimNamesSymbol, dimnames);
       MatrixAccessor<double> rm( NUMERIC_DATA(retMat), ts.size() );
       for (j=0; j < ts.size(); ++j)
       {
-        rm[0][j] = ts[j][i][0];
-        rm[1][j] = ts[j][i][1];
-        rm[2][j] = ts[j][i][2]/static_cast<double>(tvs[j]);
-        rm[3][j] = ts[j][i][3] / static_cast<double>(tvs[j]) -
-          pow( rm[2][j], 2.0 );
-        rm[4][j] = ts[j][i][6];
+        if (tvs[i] > 0)
+        {
+          rm[0][j] = ts[j][i][0];
+          rm[1][j] = ts[j][i][1];
+          rm[2][j] = ts[j][i][2] / static_cast<double>(tvs[i]);
+          rm[3][j] = ts[j][i][3] / static_cast<double>(tvs[i]) -
+            pow( rm[2][j], 2.0 );
+          rm[4][j] = ts[j][i][6];
+        }
+        else
+        {
+          rm[0][j] = NA_REAL;
+          rm[1][j] = NA_REAL;
+          rm[2][j] = NA_REAL;
+          rm[3][j] = NA_REAL;
+          rm[4][j] = 0;
+        }
       }
       SET_VECTOR_ELT(summaryRet, i, retMat);
     }

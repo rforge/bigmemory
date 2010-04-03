@@ -1,7 +1,7 @@
 bigtabulate <- function(x,
                         ccols, breaks=vector("list", length=length(ccols)),
                         table=TRUE, useNA="no",
-                        summary=TRUE, summary.cols=NA, summary.na.rm=FALSE,
+                        summary.cols=NULL, summary.na.rm=FALSE,
                         splitcol=NULL, splitret="list") {
 
   if (!is.matrix(x) && !is.data.frame(x)) {
@@ -69,11 +69,13 @@ bigtabulate <- function(x,
   if (useNA=="always") table.useNA <- 2
   if (table.useNA==-1) stop("invalid argument to useNA.")
 
-  if (!is.logical(summary)) stop("summary must be logical.")
   if (!is.logical(summary.na.rm)) stop("summary.na.rm must be logical.")
   if (is.logical(summary.cols)) summary.cols <- which(summary.cols)
-  if (!is.numeric(summary.cols) && !is.character(summary.cols))
-    stop("column indices must be numeric or character vectors.")
+  if (!is.numeric(summary.cols) && !is.character(summary.cols) &&
+    !is.null(summary.cols)) {
+    stop(paste("summary column indices must be numeric, logical,",
+       "or character vectors."))
+  }
   if (is.character(summary.cols))
     if (is.null(colnames(x))) stop("column names do not exist.")
     else summary.cols <- bigmemory:::mmap(summary.cols, colnames(x))
@@ -96,26 +98,28 @@ bigtabulate <- function(x,
   # splitcol=a column   Split this single column.
   # splitlist=TRUE by default: the return is a list of either split 1:nrow(x) or col entries
   # splitlist=FALSE: only valid if splitcol==NA, in which case a vector of as.numeric(factor) entries
-
+  summary <- is.numeric(summary.cols)
   if (is.numeric(splitcol) && !splitlist)
     stop("non-list split is not allowed on a column")
 
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                  as.logical(table), as.integer(table.useNA),
-                 as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
+                 summary, as.numeric(summary.cols), as.logical(summary.na.rm),
                  as.numeric(splitcol), as.logical(splitlist))
   } else {
     if (is.integer(x)) {
       ans <- .Call("RIntTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                    as.logical(table), as.integer(table.useNA),
-                   as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
-                   as.numeric(splitcol), as.logical(splitlist))
+                   summary, as.numeric(summary.cols), 
+                   as.logical(summary.na.rm), as.numeric(splitcol), 
+                   as.logical(splitlist))
     } else {
       ans <- .Call("RNumericTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                    as.logical(table), as.integer(table.useNA),
-                   as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
-                   as.numeric(splitcol), as.logical(splitlist))
+                   summary, as.numeric(summary.cols), 
+                   as.logical(summary.na.rm), as.numeric(splitcol), 
+                   as.logical(splitlist))
     }
   }
 
@@ -132,9 +136,10 @@ bigtabulate <- function(x,
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
   if (table) z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
-  if (summary) z$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
+  if (summary){
+     z$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
+  }
   if (!is.null(splitcol)) {
-    print(ans$split)
     z$split <- ans$split
     names(z$split) <- names(dn)
   }
@@ -150,7 +155,6 @@ bigsplit <- function(x, ccols,
 
   return(bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=FALSE, useNA=useNA,
-                     summary=FALSE,
                      splitcol=splitcol, splitret=splitret))
 }
 
@@ -160,26 +164,27 @@ bigtable <- function(x, ccols,
 
   return(bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=TRUE, useNA=useNA,
-                     summary=FALSE,
                      splitcol=NULL))
 }
 
 bigtsummary <- function(x, ccols,
-                        breaks=vector("list", length=length(ccols)), useNA="no", 
+                        breaks=vector("list", length=length(ccols)), useNA="no",
                         cols, na.rm=FALSE) {
 
   return(bigtabulate(x, ccols=cols, breaks=breaks,
                      table=FALSE, useNA=useNA,
-                     summary=TRUE, summary.cols=cols, summary.na.rm=na.rm,
+                     summary.cols=cols, summary.na.rm=na.rm,
                      splitcol=NULL))
 }
 
 bigaggregate <- function(x, stats, usesplit=NULL,
-                         ccols=NA, breaks=vector("list", length=length(ccols)), useNA="no",
-                         distributed=FALSE, rettype="celllist", simplify=TRUE) {
-
-  if (is.null(usesplit))
-    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, splitcol=NA, splitlist="list")
+                         ccols=NA, breaks=vector("list", length=length(ccols)), 
+                         useNA="no", distributed=FALSE, rettype="celllist", 
+                         simplify=TRUE) {
+  if (is.null(usesplit)) {
+    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, 
+      splitcol=NA, splitlist="list")
+  }
 
   # At this point I have usesplit, which is the map.  Everything else is much like I had
   # previously in commented code, below.
@@ -211,11 +216,13 @@ bigaggregate <- function(x, stats, usesplit=NULL,
     args <- stats[[i]]
     if (!is.list(args))
       stop(paste("stats element", thisname, "needs to be list."))
-    if (!is.function(args[[1]]) && !is.character(args[[1]]))
-      stop(paste("first argument of stats element", thisname, "needs to be a function."))
+    if (!is.function(args[[1]]) && !is.character(args[[1]])) {
+      stop(paste("first argument of stats element", thisname, 
+        "needs to be a function."))
+    }
     if (if.character(args[[2]])) {
       if (is.null(colnames(x))) stop("column names do not exist.")
-      else args[[2]] <- mmap(args[[2]], colnames(x))
+      else args[[2]] <- bigmemory:::mmap(args[[2]], colnames(x))
     }
     if (!is.numeric(args[[2]])) args[[2]] <- as.numeric(args[[2]])
     stats[[i]] <- args
@@ -282,7 +289,4 @@ bigaggregate <- function(x, stats, usesplit=NULL,
   return(temp)
 
 }
-
-
-
 
