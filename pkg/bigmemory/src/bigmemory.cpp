@@ -668,97 +668,138 @@ struct NAMaker<double>
 // Note: naLast should be passed as an integer.
 
 template<typename PairType>
-typename PairType::first_type& get_first( PairType &p )
+struct SecondLess : public std::binary_function<PairType, PairType, bool>
 {
-  return p.first;
-}
+  bool operator()(const PairType &lhs, const PairType &rhs) const
+  {
+    return lhs.second < rhs.second;
+  }
+};
 
 template<typename PairType>
-typename PairType::second_type& get_second( PairType &p )
+struct SecondGreater : public std::binary_function<PairType, PairType, bool>
 {
-  return p.second;
-}
+  bool operator()(const PairType &lhs, const PairType &rhs) const
+  {
+    return lhs.second > rhs.second;
+  }
+};
+
+template<typename PairType>
+struct SecondIsNA : public std::unary_function<PairType, bool>
+{
+  bool operator()( const PairType &val ) const 
+  {
+    return isna(val.second);
+  }
+};
 
 template<typename RType, typename MatrixAccessorType>
 SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
   SEXP decreasing )
 {
-  typedef std::vector<std::pair<double, 
-    typename MatrixAccessorType::value_type> > OrderVecs;
+  typedef typename MatrixAccessorType::value_type ValueType;
+  typedef typename std::pair<double, ValueType> PairType;
+  typedef std::vector<PairType> OrderVecs;
   NAMaker<RType> make_na;
   RType na = make_na();
-  index_type i, j;
+  index_type i, j, k;
   index_type col;
   index_type naCount;
   OrderVecs ov;
-  typename OrderVecs::iterator first, end, it;
-  col = static_cast<index_type>(NUMERIC_DATA(columns)[i]-1);
-  for (j=0; j < m.nrow(); ++j)
+  ov.reserve(m.nrow());
+  typename OrderVecs::iterator begin, end, it, naIt;
+  ValueType val;
+  for (k=0; k < GET_LENGTH(columns); ++k)
   {
-    if (isna(m[col][j])) 
+    col = static_cast<index_type>(NUMERIC_DATA(columns)[k]-1);
+    if (k==0)
     {
-      ++naCount;
-    }
-  }
-  if (INTEGER_VALUE(naLast) == 0)
-  {
-    ov.reserve(m.nrow());
-    ov.resize(m.nrow());
-    first = ov.begin()+naCount;
-    end = ov.end();
-    for (it = ov.begin(); it < first; ++i) (*it).second = na;
-  }  
-  else if (INTEGER_VALUE(naLast) == 1)
-  {
-    ov.reserve(m.nrow());
-    ov.resize(m.nrow());
-    first = ov.begin();
-    end = ov.end() - naCount;
-    for (it = end; it < end; ++it) (*it).second = na;
-  }
-  else // if (isna(INTEGER_VALUE(naLast)))
-  {
-    ov.reserve(m.nrow()-naCount);
-    ov.resize(m.nrow()-naCount);
-  }
-  
-  for (i=0; i < GET_LENGTH(columns); ++i)
-  {
-    col = static_cast<index_type>(NUMERIC_DATA(columns)[i]-1);
-    OrderVecs ov(0);
-    naCount=0;
-    for (j=0; j < m.nrow(); ++j)
-    {
-      if (isna(m[col][j])) 
+      if (isna(INTEGER_VALUE(naLast)))
       {
-        ++naCount;
+        for (i=0; i < m.nrow(); ++i)
+        {
+          val = m[col][i];
+          if (!isna(val)) 
+          {
+            ov.push_back( std::make_pair( static_cast<double>(i), val) );
+          }
+        }
+      }
+      else
+      {
+        ov.resize(m.nrow());
+        for (i=0; i < m.nrow(); ++i)
+        {
+          val = m[col][i];
+          ov[i].first = i;
+          ov[i].second = val;
+          if (isna(val)) ++naCount;
+        }
       }
     }
-    if (i==0)
+    else // not the first column we've looked at
     {
-      if (INTEGER_VALUE(naLast) == 0)
+      if (isna(INTEGER_VALUE(naLast)))
       {
-        ov.reserve(m.nrow());
-        ov.resize(m.nrow());
-        first = ov.begin()+naCount;
-        end = ov.end();
-      }  
-      else if (INTEGER_VALUE(naLast) == 1)
-      {
-        ov.reserve(m.nrow());
-        ov.resize(m.nrow());
-        first = ov.begin();
-        end = ov.end() - naCount;
+        for (i=0; i < ov.size(); ++i)
+        i=0;
+        while (i < ov.size())
+        {
+          val = m[col][static_cast<index_type>(ov[i].first)];
+          if (!isna(val)) 
+          {
+            ov[i++].second = val;
+          }
+          else
+          {
+            ov.erase(ov.begin()+i);
+          }
+        }
       }
-      else // if (isna(INTEGER_VALUE(naLast)))
+      else
       {
-      
+        for (i=0; i < m.nrow(); ++i)
+        {
+          ov[i].second = m[col][static_cast<index_type>(ov[i].first)];
+        }
       }
+    }
+    if (isna(INTEGER_VALUE(naLast)))
+    {
+      begin = ov.begin();
+      end = ov.end();
     }
     else
     {
+      // Note: remove_if is stable and will put the NAs at the end.
+      end = std::remove_if( ov.begin(), ov.end(), SecondIsNA<PairType>() );
+      begin = ov.begin();
+    }
+    if (LOGICAL_VALUE(decreasing) == 0)
+    {
+      std::stable_sort(begin, end, SecondLess<PairType>() );
+    }
+    else
+    {
+      std::stable_sort(begin, end, SecondGreater<PairType>());
+    }
+    // remove_if is not supported for reverse iterators.  So, we need to put 
+    // the NA's from naLast==0 in the front of the vector;
+    if (INTEGER_VALUE(naLast) == 0)
+    {
+      std::rotate(begin, end, ov.end());
     }
   }
+
+  SEXP ret = PROTECT(NEW_NUMERIC(ov.size()));
+  double *pret = NUMERIC_DATA(ret);
+  for (it=ov.begin(); it < ov.end(); ++it)
+  {
+    pret[i] = it->first;
+  }
+  UNPROTECT(1);
+  return ret;
 }
 
 extern "C"
