@@ -171,7 +171,7 @@ bigtsummary <- function(x, ccols,
                         breaks=vector("list", length=length(ccols)), useNA="no",
                         cols, na.rm=FALSE) {
 
-  return(bigtabulate(x, ccols=cols, breaks=breaks,
+  return(bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=FALSE, useNA=useNA,
                      summary.cols=cols, summary.na.rm=na.rm,
                      splitcol=NULL))
@@ -183,7 +183,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
                          simplify=TRUE) {
   if (is.null(usesplit)) {
     usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, 
-      splitcol=NA, splitlist="list")
+      splitcol=NA, splitret="list")
   }
 
   # At this point I have usesplit, which is the map.  Everything else is much like I had
@@ -220,7 +220,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
       stop(paste("first argument of stats element", thisname, 
         "needs to be a function."))
     }
-    if (if.character(args[[2]])) {
+    if (is.character(args[[2]])) {
       if (is.null(colnames(x))) stop("column names do not exist.")
       else args[[2]] <- bigmemory:::mmap(args[[2]], colnames(x))
     }
@@ -257,7 +257,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
     return(temp)
   }
 
-  temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
+  #temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
 
 #  if (rettype=="statlist") {
 #    # Provide list of length(stats) of arrayed answers.
@@ -286,7 +286,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
 
 #  z[is.null(z)] <- NULL
 
-  return(temp)
+  return(fans)
 
 }
 

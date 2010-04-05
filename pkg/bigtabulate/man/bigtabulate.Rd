@@ -1,5 +1,9 @@
 \name{bigtabulate}
 \alias{bigtabulate}
+\alias{bigsplit}
+\alias{bigtable}
+\alias{bigtsummary}
+\alias{bigaggregate}
 \title{
 bigtabulate: a tapply()-like function for both matrices, data.frames, and 
 big.matrix objects.
@@ -91,7 +95,17 @@ a list of array-like objects, each similar to what is returned by
 data(iris)
 iris[,2] <- round(iris[,2]) # So columns 2 and 5 will be factor-like.
 
-ans1 <- bigtabulate(iris, c(2, 5), table=TRUE)
-ans2 <- bigtabulate(iris, c(2, 5), table=FALSE, summary.cols=1, splitcol=NA)
+ans1 <- bigtable(iris, c(2, 5))
+ans1
+table(iris[,2], iris[,5])
+
+#ans2 <- bigsplit(iris, c(2, 5), splitcol=1)
+#ans2
+#by(iris, list(factor(iris[,2]), factor(iris[,5])), function(x) return(x[,1]))
+
+ans3 <- bigtsummary(iris, c(2, 5), cols=1)
+ans3[1:9]
+by(iris[,1], list(factor(iris[,2]), factor(iris[,5])), summary)
+
 }
 \keyword{methods}

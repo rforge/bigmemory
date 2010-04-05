@@ -1,6 +1,6 @@
 Package: bigtabulate
-Version: 1.0.2
-Date: 2010-03-31
+Version: 1.0.3
+Date: 2010-04-05
 Title: tapply() juiced up for matrix and big.matrix objects.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
