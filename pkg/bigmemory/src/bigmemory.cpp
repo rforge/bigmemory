@@ -737,7 +737,7 @@ void reorder_matrix( MatrixAccessorType m, SEXP orderVec,
   {
     for (j=0; j < m.nrow(); ++j)
     {
-      vs[j] = m[i][static_cast<index_type>(pov[j])];
+      vs[j] = m[i][static_cast<index_type>(pov[j]-1)];
     }
     std::copy( vs.begin(), vs.end(), m[i] );
   }
@@ -839,6 +839,23 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
 extern "C"
 {
 
+void ReorderRIntMatrix( SEXP matrixVector, SEXP nrow, SEXP ncol, SEXP orderVec )
+{
+  return reorder_matrix( 
+    MatrixAccessor<int>(INTEGER_DATA(matrixVector), 
+      static_cast<index_type>(INTEGER_VALUE(nrow))), orderVec,
+      static_cast<index_type>(INTEGER_VALUE(ncol)) );
+}
+
+void ReorderRNumericMatrix( SEXP matrixVector, SEXP nrow, SEXP ncol, 
+  SEXP orderVec )
+{
+  return reorder_matrix( 
+    MatrixAccessor<double>(NUMERIC_DATA(matrixVector), 
+      static_cast<index_type>(INTEGER_VALUE(nrow))), orderVec,
+      static_cast<index_type>(INTEGER_VALUE(ncol)) );
+}
+
 void ReorderBigMatrix( SEXP address, SEXP orderVec )
 {
   BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
@@ -880,7 +897,25 @@ void ReorderBigMatrix( SEXP address, SEXP orderVec )
   }
 }
 
-SEXP BigMatrixOrder(SEXP address, SEXP columns, SEXP naLast, SEXP decreasing)
+SEXP OrderIntMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
+  SEXP naLast, SEXP decreasing )
+{
+  return get_order<int>( 
+    MatrixAccessor<int>(INTEGER_DATA(matrixVector), 
+      static_cast<index_type>(INTEGER_VALUE(nrow))), 
+    columns, naLast, decreasing );
+}
+
+SEXP OrderNumericMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
+  SEXP naLast, SEXP decreasing )
+{
+  return get_order<double>( 
+    MatrixAccessor<double>(NUMERIC_DATA(matrixVector), 
+      static_cast<index_type>(INTEGER_VALUE(nrow))), 
+    columns, naLast, decreasing );
+}
+
+SEXP OrderBigMatrix(SEXP address, SEXP columns, SEXP naLast, SEXP decreasing)
 {
   BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
   if (pMat->separated_columns())

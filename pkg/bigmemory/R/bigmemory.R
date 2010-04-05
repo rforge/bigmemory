@@ -1302,6 +1302,58 @@ setGeneric('is.shared', function(x) standardGeneric('is.shared'))
 setMethod('is.shared', signature(x='big.matrix'),
   function(x) return(.Call("IsShared", x@address)))
 
+morder = function(x, cols, na.last=TRUE, decreasing = FALSE)
+{
+  if (sum(cols > ncol(x)) > 0 | sum(cols < ncol(x)) > 0 | sum(is.na(cols) > 0))
+  {
+    stop("Bad column indices.")
+  }
 
+  if (class(x) == 'big.matrix')
+  {
+    return(.Call('OrderBigMatrix', x@address, as.double(cols), 
+      as.integer(na.last), as.logical(decreasing) ))
+  }
+  else if (class(x) == 'matrix')
+  {
+    if (typeof(x) == 'integer')
+    {
+      return(.Call('OrderRIntMatrix', x, nrow(x), as.double(cols), 
+        as.integer(na.last), as.logical(decreasing) ))
+    }
+    else if (typeof(x) == 'double')
+    {
+      return(.Call('OrderRNumericMatrix', x, nrow(x), as.double(cols), 
+        as.integer(na.last), as.logical(decreasing) ))
+    }
+    else
+      stop("Unsupported matrix value type.")
+  }
+  else
+    stop("Unsupported matrix type.")
+}
 
+matrix.reorder=function(x, orderVec)
+{
+  if (length(orderVec) != nrow(x))
+    stop("orderVec must have the same length as nrow(x)")
 
+  if (class(x) == 'big.matrix')
+  {
+    return(.Call('ReorderBigMatrix', x@address, orderVec))
+  }
+  else if (class(x) == 'matrix')
+  {
+    if (typeof(x) == 'integer')
+    {
+      return(.Call('OrderRIntMatrix', x, nrow(x), ncol(x), orderVec))
+    }
+    else if (typeof(x) == 'double')
+    {
+      return(.Call('OrderRNumericMatrix', x, nrow(x), ncol(x), orderVec))
+    }
+    else
+      stop("Unsupported matrix value type.")
+  }
+  
+}
