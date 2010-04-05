@@ -670,19 +670,49 @@ struct NAMaker<double>
 template<typename PairType>
 struct SecondLess : public std::binary_function<PairType, PairType, bool>
 {
+  SecondLess( const bool naLast ) : _naLast(naLast) {}
+
   bool operator()(const PairType &lhs, const PairType &rhs) const
   {
-    return lhs.second < rhs.second;
+    if (_naLast)
+    {
+      if (isna(lhs.second) || isna(rhs.second)) return false;
+      return lhs.second < rhs.second;
+    }
+    else
+    {
+      if (isna(lhs.second)) return true;
+      if (isna(rhs.second)) return false;
+      return lhs.second < rhs.second;
+    }
   }
+  
+  bool _naLast;
+
 };
 
 template<typename PairType>
 struct SecondGreater : public std::binary_function<PairType, PairType, bool>
 {
+  SecondGreater(const bool naLast ) : _naLast(naLast) {}
+
   bool operator()(const PairType &lhs, const PairType &rhs) const
   {
-    return lhs.second > rhs.second;
+    if (_naLast)
+    {
+      if (isna(lhs.second) || isna(rhs.second)) return false;
+      return lhs.second > rhs.second;
+    }
+    else
+    {
+      if (isna(lhs.second)) return true;
+      if (isna(rhs.second)) return false;
+      return lhs.second > rhs.second;
+    }
   }
+
+  bool _naLast;
+
 };
 
 template<typename PairType>
@@ -693,6 +723,25 @@ struct SecondIsNA : public std::unary_function<PairType, bool>
     return isna(val.second);
   }
 };
+
+template<typename MatrixAccessorType>
+void reorder_matrix( MatrixAccessorType m, SEXP orderVec, 
+  index_type numColumns )
+{
+  double *pov = NUMERIC_DATA(orderVec);
+  typedef typename MatrixAccessorType::value_type ValueType;
+  typedef std::vector<ValueType> Values;
+  Values vs(m.nrow());
+  index_type i,j;
+  for (i=0; i < numColumns; ++i)
+  {
+    for (j=0; j < m.nrow(); ++j)
+    {
+      vs[j] = m[i][static_cast<index_type>(pov[j])];
+    }
+    std::copy( vs.begin(), vs.end(), m[i] );
+  }
+}
 
 template<typename RType, typename MatrixAccessorType>
 SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
@@ -710,10 +759,10 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
   ov.reserve(m.nrow());
   typename OrderVecs::iterator begin, end, it, naIt;
   ValueType val;
-  for (k=0; k < GET_LENGTH(columns); ++k)
+  for (k=GET_LENGTH(columns)-1; k >= 0; --k)
   {
     col = static_cast<index_type>(NUMERIC_DATA(columns)[k]-1);
-    if (k==0)
+    if (k==GET_LENGTH(columns)-1)
     {
       if (isna(INTEGER_VALUE(naLast)))
       {
@@ -734,7 +783,6 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
           val = m[col][i];
           ov[i].first = i;
           ov[i].second = val;
-          if (isna(val)) ++naCount;
         }
       }
     }
@@ -765,47 +813,74 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
         }
       }
     }
-    if (isna(INTEGER_VALUE(naLast)))
-    {
-      begin = ov.begin();
-      end = ov.end();
-    }
-    else
-    {
-      // Note: remove_if is stable and will put the NAs at the end.
-      end = std::remove_if( ov.begin(), ov.end(), SecondIsNA<PairType>() );
-      begin = ov.begin();
-    }
     if (LOGICAL_VALUE(decreasing) == 0)
     {
-      std::stable_sort(begin, end, SecondLess<PairType>() );
+      std::stable_sort(ov.begin(), ov.end(), 
+        SecondLess<PairType>(INTEGER_VALUE(naLast)) );
     }
     else
     {
-      std::stable_sort(begin, end, SecondGreater<PairType>());
-    }
-    // remove_if is not supported for reverse iterators.  So, we need to put 
-    // the NA's from naLast==0 in the front of the vector;
-    if (INTEGER_VALUE(naLast) == 0)
-    {
-      std::rotate(begin, end, ov.end());
+      std::stable_sort(ov.begin(), ov.end(), 
+        SecondGreater<PairType>(INTEGER_VALUE(naLast)));
     }
   }
 
   SEXP ret = PROTECT(NEW_NUMERIC(ov.size()));
   double *pret = NUMERIC_DATA(ret);
-  for (it=ov.begin(); it < ov.end(); ++it)
+  for (i=0, it=ov.begin(); it < ov.end(); ++it, ++i)
   {
-    pret[i] = it->first;
+    pret[i] = it->first+1;
   }
   UNPROTECT(1);
   return ret;
 }
 
+
 extern "C"
 {
 
-SEXP Order(SEXP address, SEXP columns, SEXP naLast, SEXP decreasing)
+void ReorderBigMatrix( SEXP address, SEXP orderVec )
+{
+  BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
+  if (pMat->separated_columns())
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return reorder_matrix( SepMatrixAccessor<char>(*pMat), orderVec,
+          pMat->ncol() );
+      case 2:
+        return reorder_matrix( SepMatrixAccessor<short>(*pMat), orderVec,
+          pMat->ncol() );
+      case 4:
+        return reorder_matrix( SepMatrixAccessor<int>(*pMat),orderVec,
+          pMat->ncol() );
+      case 8:
+        return reorder_matrix( SepMatrixAccessor<double>(*pMat),orderVec,
+          pMat->ncol() );
+    }
+  }
+  else
+  {
+    switch (pMat->matrix_type())
+    {
+      case 1:
+        return reorder_matrix( MatrixAccessor<char>(*pMat),orderVec,
+          pMat->ncol() );
+      case 2:
+        return reorder_matrix( MatrixAccessor<short>(*pMat),orderVec,
+          pMat->ncol() );
+      case 4:
+        return reorder_matrix( MatrixAccessor<int>(*pMat),orderVec,
+          pMat->ncol() );
+      case 8:
+        return reorder_matrix( MatrixAccessor<double>(*pMat),orderVec,
+          pMat->ncol() );
+    }
+  }
+}
+
+SEXP BigMatrixOrder(SEXP address, SEXP columns, SEXP naLast, SEXP decreasing)
 {
   BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
   if (pMat->separated_columns())
