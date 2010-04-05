@@ -88,12 +88,13 @@ bigtabulate <- function(x,
         if (is.null(colnames(x))) stop("column names do not exist.")
         else splitcol <- bigmemory:::mmap(splitcol, colnames(x))
       if (length(splitcol)!=1) stop("splitcol must identify a single column or be NA or NULL.")
+      splitcol <- as.numeric(splitcol)
     }
   }
   splitlist <- FALSE
   if (splitret=="list") splitlist <- TRUE
 
-  # splitcol=NULL	Don't return any map type of anything.
+  # splitcol=NULL	Don't return any map type of anything.         #### Make this -1?
   # splitcol=NA		Essentially split 1:nrow(x)
   # splitcol=a column   Split this single column.
   # splitlist=TRUE by default: the return is a list of either split 1:nrow(x) or col entries
@@ -102,23 +103,35 @@ bigtabulate <- function(x,
   if (is.numeric(splitcol) && !splitlist)
     stop("non-list split is not allowed on a column")
 
+cat("------------ args\n")
+print(ccols)
+print(breakm)
+print(table)
+print(table.useNA)
+print(summary)
+print(summary.cols)
+print(summary.na.rm)
+print(splitcol)
+print(splitlist)
+cat("------------\n")
+
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                  as.logical(table), as.integer(table.useNA),
-                 summary, as.numeric(summary.cols), as.logical(summary.na.rm),
-                 as.numeric(splitcol), as.logical(splitlist))
+                 as.logical(summary), as.numeric(summary.cols), as.logical(summary.na.rm),
+                 splitcol, as.logical(splitlist))
   } else {
     if (is.integer(x)) {
       ans <- .Call("RIntTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                    as.logical(table), as.integer(table.useNA),
                    summary, as.numeric(summary.cols), 
-                   as.logical(summary.na.rm), as.numeric(splitcol), 
+                   as.logical(summary.na.rm), splitcol, 
                    as.logical(splitlist))
     } else {
       ans <- .Call("RNumericTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                    as.logical(table), as.integer(table.useNA),
                    summary, as.numeric(summary.cols), 
-                   as.logical(summary.na.rm), as.numeric(splitcol), 
+                   as.logical(summary.na.rm), splitcol, 
                    as.logical(splitlist))
     }
   }
@@ -132,6 +145,8 @@ bigtabulate <- function(x,
   # - ans$split:	list of length prod(dim()) containing the split or map result;
   #                     nothing returned if is.null(splitcol), so don't return anything from C++
   #                     in that case.  Or a vector of the factor levels.
+
+print(ans)
 
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
