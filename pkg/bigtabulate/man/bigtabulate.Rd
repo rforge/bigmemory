@@ -101,9 +101,8 @@ ans1
 # handles factors.  bigtable() uses the numeric factor levels only.
 table(iris[,2], iris[,5])
 
-# The following segfaults:
-#ans2 <- bigsplit(iris, c(2, 5), splitcol=1)
-#ans2[1:2]
+ans2 <- bigsplit(iris, c(2, 5), splitcol=1)
+ans2[1:2]
 tapply(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]), function(x) return(x))[1:2]
 
 ans3 <- bigtsummary(iris, c(2, 5), cols=1)
@@ -111,8 +110,8 @@ ans3[1:2]
 by(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]), summary)[1:2]
 
 # For testing:
-#ans <- bigtabulate(iris, c(2, 5), summary.cols=1, splitcol=NULL)
-#ans
+ans <- bigtabulate(iris, c(2, 5), summary.cols=1, splitcol=NULL)
+ans
 
 }
 \keyword{methods}

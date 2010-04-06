@@ -331,7 +331,10 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   if ( splitcol != NULL_USER_OBJECT )
   {
     if ( isna(NUMERIC_VALUE(splitcol)) )
+    {
       tis.resize(totalListSize);
+      std::cout << "tis resized to " << tis.size() << std::endl;
+    }
     else
       tiv.resize(totalListSize);
   }
@@ -434,6 +437,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       // Copy to a list of vectors that R can read.
       if ( isna(NUMERIC_VALUE(splitcol)) )
       {
+        mapRet = PROTECT(NEW_LIST( tis.size() ));
         for (i=0; i < tis.size(); ++i)
         {
           Indices &ind = tis[i];
@@ -445,11 +449,12 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       }
       else
       {
+        mapRet = PROTECT(NEW_LIST( tiv.size() ));
         index_type outCol = static_cast<index_type>(NUMERIC_VALUE(splitcol));
         for (i=0; i < tiv.size(); ++i)
         {
           Values &ind = tiv[i];
-          vec = PROTECT(NEW_NUMERIC(tiv[i].size()));
+          vec = PROTECT(RNew(tiv[i].size()));
           ++protectCount;
           std::copy( ind.begin(), ind.end(), RData(vec) );
           SET_VECTOR_ELT( mapRet, i, vec );
