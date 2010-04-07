@@ -8,19 +8,20 @@ suitably-formatted ASCII file, or
 write the contents of a \code{\link{big.matrix}} to a file.
 }
 \usage{
-write.big.matrix(x, fileName, row.names = FALSE,
+write.big.matrix(x, filename, row.names = FALSE,
                  col.names = FALSE, sep=',')
-read.big.matrix(fileName, sep = ',', header = FALSE,
-                col.names = NULL, row.names = NULL, has.row.names=FALSE,
-                ignore.row.names=FALSE, type = NA,
-                skip = 0, separated = FALSE, backingfile = NULL, 
-                backingpath = NULL, descriptorfile = NULL, extraCols = NULL,
+read.big.matrix(filename, sep = ',', header = FALSE,
+                col.names = NULL, row.names = NULL,
+                has.row.names=FALSE, ignore.row.names=FALSE,
+                type = NA, skip = 0, separated = FALSE,
+                backingfile = NULL, backingpath = NULL,
+                descriptorfile = NULL, extraCols = NULL,
                 shared=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{a \code{\link{big.matrix}}.}
-  \item{fileName}{the name of an input/output file.}
+  \item{filename}{the name of an input/output file.}
   \item{sep}{a field delimiter.}
   \item{header}{if \code{TRUE}, the first line (after a possible skip) should contain column names.}
   \item{col.names}{a vector of names, use them even if column names exist in the file.}
@@ -46,14 +47,14 @@ should be helpful in obtaining the desired behavior.
 When reading from a file, if \code{type} is not specified we try to
 make a reasonable guess for you without
 making any guarantees at this point. 
-Unless you have really large integer values, we strongly recommend
+Unless you have really large integer values, we recommend
 you consider \code{"short"}.  If you have something that is essentially
 categorical, you might even be able use \code{"char"}, with huge memory
-savings in large data sets.
+savings for large data sets.
 }
 \value{
 a \code{\link{big.matrix}} object is returned by \code{read.big.matrix}, while
-\code{write.big.matrix} creates an output file in the present working directory.
+\code{write.big.matrix} creates an output file (a path could be part of \code{filename}).
 }
 \author{John W. Emerson and Michael J. Kane }
 \seealso{\code{\link{big.matrix}}}

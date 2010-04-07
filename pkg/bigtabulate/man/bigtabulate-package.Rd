@@ -18,8 +18,8 @@ may be applied, as well.
 \tabular{ll}{
 Package: \tab bigtabulate\cr
 Type: \tab Package\cr
-Version: \tab 1.0.3\cr
-Date: \tab 2010-04-05\cr
+Version: \tab 1.0.4\cr
+Date: \tab 2010-04-07\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr

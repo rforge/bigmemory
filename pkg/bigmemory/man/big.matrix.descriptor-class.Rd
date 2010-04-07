@@ -12,7 +12,7 @@
 to ``attach'' a shared or filebacked \code{\link{big.matrix}}.}
 \section{Objects from the Class}{
 Objects should not be created by calls of the form \code{new("big.matrix.descriptor", ...)},
-but should use the \code{link{describe}} function.
+but should use the \code{\link{describe}} function.
 }
 \section{Slots}{
   \describe{

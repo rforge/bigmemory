@@ -7,7 +7,7 @@ export(big.matrix,
        filebacked.big.matrix,
        attach.big.matrix,
        sub.big.matrix,
-       deepcopy, morder, mreorder)
+       deepcopy, morder, mpermute)
 
 exportMethods("[", "[<-",
               dimnames,

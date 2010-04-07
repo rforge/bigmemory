@@ -8,7 +8,7 @@
 \title{Expanded ``which''-like functionality.}
 \description{
 Implements \code{\link{which}}-like functionality for a \code{\link{big.matrix}},
-with additional options for efficient comparisons executed in \acronym{C++} rather than \R;
+with additional options for efficient comparisons (executed in \acronym{C++});
 also works for regular numeric matrices without the memory overhead.
 }
 \section{Methods}{

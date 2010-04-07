@@ -2,7 +2,7 @@
 \alias{flush}
 \title{Updating a big.matrix filebacking.}
 \description{
-For a filebacked \code{big.matrix} object, \code{flush()} forces
+For a file-backed \code{big.matrix} object, \code{flush()} forces
 any modified information to be written to the filebacking.
 }
 \usage{
@@ -13,13 +13,13 @@ flush(con)
   \item{con}{a filebacked \code{\link{big.matrix}}.}
 }
 \details{
-This function flushes any modified data (in RAM) of a filebacked
-\code{big.matrix} to its filebacking.  This may be a useful tool for
-improving performance, in cases where allowing the OS to decide
-on flushing creates a bottleneck near the threshold of available RAM.
+This function flushes any modified data (in \acronym{RAM}) of a filebacked
+\code{big.matrix} to disk.  This may be useful for
+improving performance in cases where allowing the OS to decide
+on flushing creates a bottleneck (likely near the threshold of available \acronym{RAM}).
 }
 \value{
-\code{TRUE} or \code{FALSE} indicating whether or not the flush was successful.
+\code{TRUE} or \code{FALSE} (invisible), indicating whether or not the flush was successful.
 }
 \author{John W. Emerson and Michael J. Kane }
 \examples{

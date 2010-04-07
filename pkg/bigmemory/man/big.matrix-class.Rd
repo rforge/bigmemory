@@ -42,7 +42,7 @@ elements of type \code{double}, \code{integer}, \code{short}, or \code{char}.
 A \code{big.matrix} acts much like a traditional \R matrix, but helps protect 
 the user from many inadvertant memory-consuming pitfalls of traditional \R 
 matrices and data frames.  The objects are allocated to shared memory,
-and if filebacking is used they may exceed virtual memory in size.  Sadly,
+and if file-backing is used they may exceed virtual memory in size.  Sadly,
 32-bit operating system contraints -- largely Windows and some MacOS versions --
 will be a limiting factor with file-backed matrices; 64-bit operating systems
 are recommended.}
@@ -74,7 +74,7 @@ As you would expect:
     \item{[}{\code{signature(x = "big.matrix", i = "missing", j = "missing", drop = "logical")}: ... }
 
 The following are probably more interesting:
-    \item{describe}{\code{signature(x = "big.matrix")}: provide necessary and sufficient information for the sharing of the object. }
+    \item{describe}{\code{signature(x = "big.matrix")}: provide necessary and sufficient information for the sharing or re-attaching of the object. }
     \item{dim}{\code{signature(x = "big.matrix")}: returns the dimension of the \code{big.matrix}. }
     \item{length}{\code{signature(x = "big.matrix")}: returns the product of the dimensions of the \code{big.matrix}. }
     \item{dimnames<-}{\code{signature(x = "big.matrix", value = "list")}: set the row and column names, prohibited by default (see \code{\link{bigmemory}} to override). }

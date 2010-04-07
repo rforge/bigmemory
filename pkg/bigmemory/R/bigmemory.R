@@ -24,9 +24,10 @@ setGeneric('describe', function(x) standardGeneric('describe'))
 # the relevant data needed for the attach.
 setGeneric('description', function(x) standardGeneric('description'))
 
-big.matrix <- function(nrow, ncol, type='integer', init=NULL,
-                       dimnames=NULL, separated=FALSE, backingfile=NULL,
-                       backingpath=NULL, descriptorfile=NULL, shared=TRUE)
+big.matrix <- function(nrow, ncol, type=options()$bigmemory.default.type,
+                       init=NULL, dimnames=NULL, separated=FALSE,
+                       backingfile=NULL, backingpath=NULL, descriptorfile=NULL,
+                       shared=TRUE)
 {
   if (!is.null(backingfile))
   {
@@ -107,10 +108,40 @@ setMethod('as.big.matrix', signature(x='matrix'),
     return(y)
   })
 
+setMethod('as.big.matrix', signature(x='data.frame'),
+  function(x, type, separated, backingfile, backingpath, descriptorfile,
+    shared)
+  {
+    warning("Coercing data.frame to matrix via factor level numberings.")
+    if (is.null(type)) type <- options()$bigmemory.default.type
+    if (type=="integer" | type=="double" | type=="short" | type=="char") 
+    {
+      y <- big.matrix(nrow=nrow(x), ncol=ncol(x), type=type, 
+        init=NULL, dimnames=dimnames(x), separated=separated,
+        backingfile=backingfile, backingpath=backingpath,
+        descriptorfile=descriptorfile, shared=shared)
+      oldbtw <- options()$bigmemory.typecast.warning
+      options(bigmemory.typecast.warning=FALSE)
+      for (i in 1:ncol(x)) {
+        if (is.character(x[,i])) x[,i] <- factor(x[,i])
+        if (is.factor(x[,i])) x[,i] <- as.numeric(x[,i])
+        y[,i] <- x[,i]
+      }
+      options(bigmemory.typecast.warning=oldbtw)
+      junk <- gc() 
+    } else stop('bigmemory: that type is not implemented.')
+    return(y)
+
+  })
+
 setMethod('as.big.matrix', signature(x='vector'),
   function(x, type, separated, backingfile, backingpath, descriptorfile,
     shared)
   {
+    if (!is.numeric(x)) {
+      warning("Casting to numeric type")
+      x <- as.numeric(x)
+    }
     x <- matrix(x, length(x), 1)
     warning("Coercing vector to a single-column matrix.")
     return(as.big.matrix(x, type, separated, backingfile, 
@@ -835,14 +866,14 @@ setMethod('dimnames<-', signature(x = "big.matrix", value='list'),
 
 
 setGeneric('read.big.matrix', 
-  function(fileName, sep=',', header=FALSE, col.names=NULL, row.names=NULL, 
+  function(filename, sep=',', header=FALSE, col.names=NULL, row.names=NULL, 
            has.row.names=FALSE, ignore.row.names=FALSE, type=NA, skip=0, 
            separated=FALSE, backingfile=NULL, backingpath=NULL, 
            descriptorfile=NULL, extraCols=NULL, shared=TRUE) 
   standardGeneric('read.big.matrix'))
 
-setMethod('read.big.matrix', signature(fileName='character'),
-  function(fileName, sep, header, col.names, row.names, has.row.names, 
+setMethod('read.big.matrix', signature(filename='character'),
+  function(filename, sep, header, col.names, row.names, has.row.names, 
            ignore.row.names, type, skip, separated, backingfile, backingpath, 
            descriptorfile, extraCols, shared=TRUE)
   {
@@ -858,7 +889,7 @@ setMethod('read.big.matrix', signature(fileName='character'),
     colNames <- NULL
     if (header) {
       colNames <- unlist(strsplit(
-        scan(fileName, what='character', skip=skip, nlines=1, sep="\n", 
+        scan(filename, what='character', skip=skip, nlines=1, sep="\n", 
              quiet=TRUE), split=sep))
       colNames <- gsub("\"", "", colNames, perl=TRUE)
       colNames <- gsub("\'", "", colNames, perl=TRUE)
@@ -876,7 +907,7 @@ setMethod('read.big.matrix', signature(fileName='character'),
 
     # Get the first line of data
     firstLineVals <- unlist(strsplit(
-      scan(fileName, what='character', skip=(skip+headerOffset), 
+      scan(filename, what='character', skip=(skip+headerOffset), 
            nlines=1, sep="\n", quiet=TRUE), split=sep))
     firstLineVals[firstLineVals=="NA"] <- NA
 
@@ -909,7 +940,7 @@ setMethod('read.big.matrix', signature(fileName='character'),
                     "based on the first line of data."))
     }
 
-    lineCount <- .Call("CCountLines", fileName) - skip - headerOffset
+    lineCount <- .Call("CCountLines", filename) - skip - headerOffset
     numRows <- lineCount
     createCols <- numCols
     if (is.numeric(extraCols)) createCols <- createCols + extraCols
@@ -927,7 +958,7 @@ setMethod('read.big.matrix', signature(fileName='character'),
     # has.row.names indicates whether or not there are row names;
     # we take ignore.row.names from the user, but pass (essentially)
     # use.row.names (which is !ignore.row.names) to C:
-    .Call('ReadMatrix', fileName, bigMat@address, 
+    .Call('ReadMatrix', filename, bigMat@address, 
           as.integer(skip+headerOffset), as.double(numRows), 
           as.double(numCols), as.character(sep), as.logical(has.row.names),
           as.logical(!ignore.row.names))
@@ -936,11 +967,11 @@ setMethod('read.big.matrix', signature(fileName='character'),
   })
 
 setGeneric('write.big.matrix', 
-  function(x, fileName, row.names=FALSE, col.names=FALSE, sep=",") 
+  function(x, filename, row.names=FALSE, col.names=FALSE, sep=",") 
     standardGeneric('write.big.matrix'))
 
-setMethod('write.big.matrix', signature(x='big.matrix',fileName='character'),
-  function(x, fileName, row.names, col.names, sep)
+setMethod('write.big.matrix', signature(x='big.matrix',filename='character'),
+  function(x, filename, row.names, col.names, sep)
   {
     if (is.character(row.names))
       stop("You must set the row names before writing.\n")
@@ -954,7 +985,7 @@ setMethod('write.big.matrix', signature(x='big.matrix',fileName='character'),
       col.names <- FALSE
       warning("No column names exist, overriding your col.names option.\n")
     }
-    .Call('WriteMatrix', x@address, fileName, as.logical(row.names), 
+    .Call('WriteMatrix', x@address, filename, as.logical(row.names), 
       as.logical(col.names), sep)
     invisible(NULL)
   })
@@ -1052,9 +1083,11 @@ setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
     return(rbm)
   })
 
-filebacked.big.matrix <- function(nrow, ncol, type='integer', init=NULL,
-  dimnames=NULL, separated=FALSE, backingfile=NULL, backingpath=NULL, 
-  descriptorfile=NULL)
+filebacked.big.matrix <- function(nrow, ncol,
+                                  type=options()$bigmemory.default.type,
+                                  init=NULL, dimnames=NULL, separated=FALSE,
+                                  backingfile=NULL, backingpath=NULL, 
+                                  descriptorfile=NULL)
 {
   if (nrow < 1 | ncol < 1)
     stop('A big.matrix must have at least one row and one column')
@@ -1148,7 +1181,7 @@ DescribeBigMatrix = function(x)
   else
   {
     ret = list(sharedType='FileBacked',
-               sharedName=shared.name(x), fileName=file.name(x),
+               sharedName=shared.name(x), filename=file.name(x),
                totalRows = .Call("GetTotalRows", x@address),
                totalCols = .Call("GetTotalColumns", x@address),
                rowOffset = .Call("GetRowOffset", x@address),
@@ -1230,7 +1263,7 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     else
     {
       address <- .Call('CAttachFileBackedBigMatrix', info$sharedName, 
-        info$fileName, path, info$totalRows, info$totalCols, 
+        info$filename, path, info$totalRows, info$totalCols, 
         as.character(info$rowNames), as.character(info$colNames), 
         as.integer(typeLength), info$separated)
     }
@@ -1302,7 +1335,7 @@ setGeneric('is.shared', function(x) standardGeneric('is.shared'))
 setMethod('is.shared', signature(x='big.matrix'),
   function(x) return(.Call("IsShared", x@address)))
 
-morder = function(x, cols, na.last=TRUE, decreasing = FALSE)
+morder <- function(x, cols, na.last=TRUE, decreasing = FALSE)
 {
   if (sum(cols > ncol(x)) > 0 | sum(cols < 1) > 0 | sum(is.na(cols) > 0))
   {
@@ -1333,7 +1366,7 @@ morder = function(x, cols, na.last=TRUE, decreasing = FALSE)
     stop("Unsupported matrix type.")
 }
 
-mreorder=function(x, order=NULL, cols=NULL, allow.duplicates=FALSE, ...)
+mpermute <- function(x, order=NULL, cols=NULL, allow.duplicates=FALSE, ...)
 {
   if (is.null(order) && is.null(cols))
     stop("You must specify either order or cols.")
@@ -1378,3 +1411,4 @@ mreorder=function(x, order=NULL, cols=NULL, allow.duplicates=FALSE, ...)
   return(invisible(TRUE))
   
 }
+

@@ -1,10 +1,11 @@
 \name{sub.big.matrix, is.sub.big.matrix}
 \alias{sub.big.matrix}
 \alias{is.sub.big.matrix}
-\title{Create a submatrix of a big.matrix.}
+\title{Submatrix support.}
 \description{
 This doesn't create a copy, it just provides a new version of the class
 which provides behavior for a contiguous submatrix of the big.matrix.
+Non-contiguous submatrices are not supported.
 }
 \usage{
 sub.big.matrix(x, firstRow = 1, lastRow = NULL,

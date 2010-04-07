@@ -17,8 +17,8 @@ to the more obvious summary statistics (see \code{\link{colmean}}, etc...),
 \tabular{ll}{
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
-Version: \tab 1.0.5\cr
-Date: \tab 2010-03-31\cr
+Version: \tab 1.0.6\cr
+Date: \tab 2010-04-07\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr

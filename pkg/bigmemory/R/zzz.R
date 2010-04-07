@@ -14,6 +14,7 @@
     options(bigmemory.print.warning=TRUE)
     options(bigmemory.typecast.warning=TRUE)
     options(bigmemory.allow.dimnames=FALSE)
+    options(bigmemory.default.type="double")
     cat("\nLoading bigmemory version >= 4.0, a major revision since 3.12.\n")
     cat("If you experience problems moving from 3.12 up to 4.X.Y, please email\n")
     cat("bigmemoryauthors@gmail.com.\n\n")
@@ -21,7 +22,7 @@
     cat("kmeans, and linear regression functionality.  The new packages\n")
     cat("biganalytics, synchronicity, bigalgebra, and bigtabulate provide extended\n")
     cat("functionality.  Further information is available at\n")
-    cat("http://www.bigmemory.org.\n\n")
+    cat("http://www.bigmemory.org/.\n\n")
 }
 
 #.noGenerics <- TRUE           # This was a problem, not used.
@@ -31,4 +32,5 @@
     options(bigmemory.print.warning=NULL)
     options(bigmemory.typecast.warning=NULL)
     options(bigmemory.allow.dimnames=NULL)
+    options(bigmemory.default.type=NULL)
 }
