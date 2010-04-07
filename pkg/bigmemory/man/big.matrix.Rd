@@ -42,7 +42,7 @@ is.nil(address)
   \item{backingpath}{the path to the directory containing the file backing cache.}
   \item{descriptorfile}{the name of the file to hold the backingfile description, for subsequent use with \code{\link{attach.big.matrix}}; if \code{NULL}, the \code{backingfile} is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.}
   \item{shared}{\code{TRUE} by default, and always \code{TRUE} if the \code{big.matrix} is filebacked.  For a non-filebacked \code{big.matrix}, \code{shared=FALSE} uses non-shared memory, which can be more stable for large (say, >50\% of RAM) objects.  Shared memory allocation can sometimes fail in such cases due to exhausted shared-memory resources in the system.}
-  \item{address}{so \code{is.nil(x@address)} might be a sensible thing to want to check.}
+  \item{address}{an \code{externalptr}, so \code{is.nil(x@address)} might be a sensible thing to want to check, but it's pretty obscure.}
 }
 \details{
 A \code{big.matrix} consists of an object in \R that does nothing more than point to
