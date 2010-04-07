@@ -1304,7 +1304,7 @@ setMethod('is.shared', signature(x='big.matrix'),
 
 morder = function(x, cols, na.last=TRUE, decreasing = FALSE)
 {
-  if (sum(cols > ncol(x)) > 0 | sum(cols < ncol(x)) > 0 | sum(is.na(cols) > 0))
+  if (sum(cols > ncol(x)) > 0 | sum(cols < 1) > 0 | sum(is.na(cols) > 0))
   {
     stop("Bad column indices.")
   }
@@ -1333,27 +1333,48 @@ morder = function(x, cols, na.last=TRUE, decreasing = FALSE)
     stop("Unsupported matrix type.")
 }
 
-matrix.reorder=function(x, orderVec)
+mreorder=function(x, order=NULL, cols=NULL, allow.duplicates=FALSE, ...)
 {
-  if (length(orderVec) != nrow(x))
-    stop("orderVec must have the same length as nrow(x)")
+  if (is.null(order) && is.null(cols))
+    stop("You must specify either order or cols.")
+
+  if (!is.null(order) && !is.null(cols))
+    stop("You must specify either order or cols.")
+
+  if (!is.null(order))
+  {
+    if (length(order) != nrow(x))
+      stop("order parameter must have the same length as nrow(x)")
+
+    if (!allow.duplicates && sum(duplicated(order)) > 0)
+      stop("order parameter contains duplicated entries.")
+
+    r = range(order)
+    if (is.na(r[1]))
+      stop("order parameter contains NAs")
+    if (r[1] < 1 || r[2] > nrow(x))
+      stop("order parameter contains values that are out-of-range.")
+  }
+  else 
+    order = morder(x, cols, ...)
 
   if (class(x) == 'big.matrix')
   {
-    return(.Call('ReorderBigMatrix', x@address, orderVec))
+    .Call('ReorderBigMatrix', x@address, order)
   }
   else if (class(x) == 'matrix')
   {
     if (typeof(x) == 'integer')
     {
-      return(.Call('OrderRIntMatrix', x, nrow(x), ncol(x), orderVec))
+      .Call('OrderRIntMatrix', x, nrow(x), ncol(x), order)
     }
     else if (typeof(x) == 'double')
     {
-      return(.Call('OrderRNumericMatrix', x, nrow(x), ncol(x), orderVec))
+      .Call('ReorderRNumericMatrix', x, nrow(x), ncol(x), order)
     }
     else
       stop("Unsupported matrix value type.")
   }
+  return(invisible(TRUE))
   
 }

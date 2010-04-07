@@ -737,7 +737,7 @@ void reorder_matrix( MatrixAccessorType m, SEXP orderVec,
   {
     for (j=0; j < m.nrow(); ++j)
     {
-      vs[j] = m[i][static_cast<index_type>(pov[j]-1)];
+      vs[j] = m[i][static_cast<index_type>(pov[j])-1];
     }
     std::copy( vs.begin(), vs.end(), m[i] );
   }
@@ -897,7 +897,7 @@ void ReorderBigMatrix( SEXP address, SEXP orderVec )
   }
 }
 
-SEXP OrderIntMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
+SEXP OrderRIntMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
   SEXP naLast, SEXP decreasing )
 {
   return get_order<int>( 
@@ -906,7 +906,7 @@ SEXP OrderIntMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
     columns, naLast, decreasing );
 }
 
-SEXP OrderNumericMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
+SEXP OrderRNumericMatrix( SEXP matrixVector, SEXP nrow, SEXP columns,
   SEXP naLast, SEXP decreasing )
 {
   return get_order<double>( 
