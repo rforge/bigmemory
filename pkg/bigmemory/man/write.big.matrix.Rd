@@ -51,6 +51,11 @@ Unless you have really large integer values, we recommend
 you consider \code{"short"}.  If you have something that is essentially
 categorical, you might even be able use \code{"char"}, with huge memory
 savings for large data sets.
+
+Wishlist: we'd like to provide an option to ignore specified columns while
+doing reads.
+Or perhaps to specify columns targeted for factor or character conversion
+to numeric values.  Would you use such features?  Email us and let us know!
 }
 \value{
 a \code{\link{big.matrix}} object is returned by \code{read.big.matrix}, while
