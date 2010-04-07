@@ -533,7 +533,7 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
           rn.reserve(nl);
           rowSizeReserved = true;
         }
-        size_t pos;
+        std::size_t pos;
         while ( (pos = element.find("\"", 0)) != string::npos )
         {
           element = element.replace(pos, 1, "");
@@ -750,11 +750,9 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
   typedef typename MatrixAccessorType::value_type ValueType;
   typedef typename std::pair<double, ValueType> PairType;
   typedef std::vector<PairType> OrderVecs;
-  NAMaker<RType> make_na;
-  RType na = make_na();
-  index_type i, j, k;
+  std::size_t i;
+  index_type k;
   index_type col;
-  index_type naCount;
   OrderVecs ov;
   ov.reserve(m.nrow());
   typename OrderVecs::iterator begin, end, it, naIt;
@@ -766,7 +764,7 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
     {
       if (isna(INTEGER_VALUE(naLast)))
       {
-        for (i=0; i < m.nrow(); ++i)
+        for (i=0; i < static_cast<size_t>(m.nrow()); ++i)
         {
           val = m[col][i];
           if (!isna(val)) 
@@ -778,7 +776,7 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
       else
       {
         ov.resize(m.nrow());
-        for (i=0; i < m.nrow(); ++i)
+        for (i=0; i < static_cast<size_t>(m.nrow()); ++i)
         {
           val = m[col][i];
           ov[i].first = i;
@@ -790,7 +788,6 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
     {
       if (isna(INTEGER_VALUE(naLast)))
       {
-        for (i=0; i < ov.size(); ++i)
         i=0;
         while (i < ov.size())
         {
@@ -807,7 +804,7 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
       }
       else
       {
-        for (i=0; i < m.nrow(); ++i)
+        for (i=0; i < static_cast<size_t>(m.nrow()); ++i)
         {
           ov[i].second = m[col][static_cast<index_type>(ov[i].first)];
         }
@@ -1366,7 +1363,7 @@ template<typename T>
 SEXP CreateRAMMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   SEXP typeLength, SEXP ini, SEXP separated)
 {
-  T *pMat;
+  T *pMat=NULL;
   try
   {
     pMat = new T();

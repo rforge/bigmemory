@@ -847,7 +847,7 @@ bool FileBackedBigMatrix::destroy()
 
 bool FileBackedBigMatrix::flush()
 {
-  index_type i;
+  std::size_t i;
   try
   {
     for (i=0; i < _dataRegionPtrs.size(); ++i)

@@ -1118,15 +1118,22 @@ filebacked.big.matrix <- function(nrow, ncol,
     backingpath <- dirname(backingfile)
     backingfile <- basename(backingfile)
   }
-  if ( !anon.backing && ((basename(backingfile) != backingfile) | 
+  if (is.null(descriptorfile)) 
+  {
+    warning(paste("No descriptor file given, it will be named",
+      paste(backingfile, '.desc', sep='')))
+    descriptorfile <- paste(backingfile, '.desc', sep='')
+  }
+  if ( !anon.backing && ((basename(backingfile) != backingfile) ||
     (basename(descriptorfile) != descriptorfile)) )
   {
     stop(paste("The path to the descriptor and backing file are",
       , "specified with the backingpath option"))
   }
-  backingpath <- ifelse( is.null(backingpath), '.', path.expand(backingpath) )
-  backingpath = file.path(backingpath, '.')
-  backingpath = substr( backingpath, 1, nchar(backingpath)-1 )
+  if (is.null(backingpath)) backingpath <- '.'
+  backingpath <- path.expand(backingpath)
+  backingpath <- file.path(backingpath, '.')
+  backingpath <- substr( backingpath, 1, nchar(backingpath)-1 )
 	address <- .Call('CreateFileBackedBigMatrix', as.character(backingfile), 
     as.character(backingpath), as.double(nrow), as.double(ncol), 
     as.character(colnames), as.character(rownames), as.integer(typeVal), 

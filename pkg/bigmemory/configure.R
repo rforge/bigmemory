@@ -1,4 +1,4 @@
-cppFlags <- 'PKG_CPPFLAGS=-I../inst/include'
+cppFlags <- 'PKG_CPPFLAGS=-I../inst/include -Wall'
 pkgLibs <- ''
 
 if (Sys.info()[['sysname']] == 'Linux')
