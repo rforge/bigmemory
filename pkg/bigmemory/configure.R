@@ -12,6 +12,10 @@ if (Sys.info()[['sysname']] == "Windows" & version$os == 'intel64')
 {
   cppFlags <- paste(cppFlags, '-GX')
 }
+if (Sys.info()[['sysname']] == "Windows" & version$system == 'x86_64, mingw32')
+{
+  cppFlags <- paste(cppFlags, '-DINTERLOCKED_EXCHANGE_HACK')
+}
 
 configText <- cppFlags
 if (pkgLibs != '')

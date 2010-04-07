@@ -12,7 +12,9 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/uuid.hpp>
 #include <boost/exception/exception.hpp>
-#include <boost/interprocess/sync/named_mutex.hpp>
+#ifndef INTERLOCKED_EXCHANGE_HACK
+  #include <boost/interprocess/sync/named_mutex.hpp>
+#endif
 
 #include "bigmemory/BigMatrix.h"
 
@@ -223,6 +225,7 @@ void* CreateSharedMatrix( const std::string &sharedName,
   return dataRegionPtrs[0]->get_address();
 }
 
+#ifndef INTERLOCKED_EXCHANGE_HACK
 bool SharedMemoryBigMatrix::create( const index_type numRow, 
   const index_type numCol, const int matrixType, 
   const bool sepCols )
@@ -301,6 +304,7 @@ bool SharedMemoryBigMatrix::create( const index_type numRow,
     return false;
   }
 }
+#endif 
 
 template<typename T>
 void* ConnectSharedSepMatrix( const std::string &uuid, 
@@ -352,6 +356,7 @@ void* ConnectSharedMatrix( const std::string &sharedName,
   return reinterpret_cast<void*>(dataRegionPtrs[0]->get_address());
 }
 
+#ifndef INTERLOCKED_EXCHANGE_HACK
 bool SharedMemoryBigMatrix::connect( const std::string &uuid, 
   const index_type numRow, const index_type numCol, const int matrixType, 
   const bool sepCols )
@@ -427,6 +432,7 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
     return false;
   }
 }
+#endif //INTERLOCKED_EXCHANGE_HACK
 
 void DestroySharedSepMatrix( const std::string &uuid, const index_type ncol )
 {
@@ -445,6 +451,7 @@ void DestroySharedSepMatrix( const std::string &uuid, const index_type ncol )
   }
 }
 
+#ifndef INTERLOCKED_EXCHANGE_HACK
 bool SharedMemoryBigMatrix::destroy()
 {
   using namespace boost::interprocess;
@@ -494,6 +501,7 @@ bool SharedMemoryBigMatrix::destroy()
     return false;
   }
 }
+#endif //INTERLOCKED_EXCHANGE_HACK
 
 template<typename T>
 void* ConnectFileBackedSepMatrix( const std::string &sharedName,

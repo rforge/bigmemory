@@ -1202,6 +1202,7 @@ SEXP CGetType(SEXP bigMatAddr)
 
 SEXP IsSharedMemoryBigMatrix(SEXP bigMatAddr)
 {
+#ifndef INTERLOCKED_EXCHANGE_HACKE
   BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(bigMatAddr);
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   LOGICAL_DATA(ret)[0] = 
@@ -1210,6 +1211,10 @@ SEXP IsSharedMemoryBigMatrix(SEXP bigMatAddr)
       static_cast<Rboolean>(1);
   UNPROTECT(1);
   return ret;
+#else
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = static_cast<Rboolean>(0);
+#endif
 }
 
 SEXP IsFileBackedBigMatrix(SEXP bigMatAddr)
@@ -2146,8 +2151,13 @@ void SetAllMatrixElements(SEXP bigMatAddr, SEXP value)
 SEXP CreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   SEXP typeLength, SEXP ini, SEXP separated)
 {
+#ifndef INTERLOCKED_EXCHANGE_HACK
   return CreateRAMMatrix<SharedMemoryBigMatrix>(row, col, colnames,
     rownames, typeLength, ini, separated);
+#else
+  stop("In-memory shared matrices are not supported on this platform")
+  return R_NilValue;
+#endif
 }
 
 SEXP CreateLocalMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
@@ -2252,6 +2262,7 @@ SEXP CreateFileBackedBigMatrix(SEXP fileName, SEXP filePath, SEXP row,
 SEXP CAttachSharedBigMatrix(SEXP sharedName, SEXP rows, SEXP cols, 
   SEXP rowNames, SEXP colNames, SEXP typeLength, SEXP separated)
 {
+#ifndef INTERLOCKED_EXHANGE_HACK
   SharedMemoryBigMatrix *pMat = new SharedMemoryBigMatrix();
   bool connected = pMat->connect( 
     string(CHAR(STRING_ELT(sharedName,0))),
@@ -2277,6 +2288,10 @@ SEXP CAttachSharedBigMatrix(SEXP sharedName, SEXP rows, SEXP cols,
   R_RegisterCFinalizerEx(address, (R_CFinalizer_t) CDestroyBigMatrix, 
       (Rboolean) TRUE);
   return address;
+#else
+  stop("In-memory shared matrices are not supported on this platform")
+  return R_NilValue;
+#endif
 }
 
 SEXP CAttachFileBackedBigMatrix(SEXP sharedName, SEXP fileName, 

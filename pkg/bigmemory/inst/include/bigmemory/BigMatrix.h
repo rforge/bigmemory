@@ -9,7 +9,9 @@
 #include <vector>
 
 #include "bigmemoryDefines.h"
-#include "SharedCounter.h"
+#ifndef INTERLOCKED_EXCHANGE_HACK
+  #include "SharedCounter.h"
+#endif
 
 using namespace std;
 
@@ -199,6 +201,7 @@ class SharedBigMatrix : public BigMatrix
     MappedRegionPtrs _dataRegionPtrs;
 };
 
+#ifndef INTERLOCKED_EXCHANGE_HACK
 class SharedMemoryBigMatrix : public SharedBigMatrix
 {
   public:
@@ -216,6 +219,7 @@ class SharedMemoryBigMatrix : public SharedBigMatrix
   protected:
     SharedCounter _counter;
 }; 
+#endif
 
 class FileBackedBigMatrix : public SharedBigMatrix
 {
