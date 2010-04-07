@@ -7,6 +7,7 @@
 \alias{is.filebacked}
 \alias{is.shared}
 \alias{[.big.matrix}
+\alias{is.nil}
 \title{The core ``big.matrix'' operations.}
 \description{
 Create a \code{big.matrix} (or check to see if an object is a \code{big.matrix},
@@ -27,6 +28,7 @@ is.big.matrix(x)
 is.separated(x)
 is.filebacked(x)
 is.shared(x)
+is.nil(address)
 }
 \arguments{
   \item{x}{a \code{matrix}, \code{vector}, or \code{data.frame} for \code{as.big.matrix}; if a vector, a one-column\cr \code{big.matrix} is created by \code{as.big.matrix}; if a \code{data.frame}, see details.  For the \code{is.*} functions, \code{x} is likely a \code{big.matrix}.}
@@ -40,6 +42,7 @@ is.shared(x)
   \item{backingpath}{the path to the directory containing the file backing cache.}
   \item{descriptorfile}{the name of the file to hold the backingfile description, for subsequent use with \code{\link{attach.big.matrix}}; if \code{NULL}, the \code{backingfile} is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.}
   \item{shared}{\code{TRUE} by default, and always \code{TRUE} if the \code{big.matrix} is filebacked.  For a non-filebacked \code{big.matrix}, \code{shared=FALSE} uses non-shared memory, which can be more stable for large (say, >50\% of RAM) objects.  Shared memory allocation can sometimes fail in such cases due to exhausted shared-memory resources in the system.}
+  \item{address}{so \code{is.nil(x@address)} might be a sensible thing to want to check.}
 }
 \details{
 A \code{big.matrix} consists of an object in \R that does nothing more than point to
@@ -173,6 +176,8 @@ zz[,]
 zz[1,1] <- 0
 zzz <- attach.big.matrix(describe(z))
 zzz[,]
+
+is.nil(z@address)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

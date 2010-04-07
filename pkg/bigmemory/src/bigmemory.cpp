@@ -2361,5 +2361,14 @@ SEXP IsShared( SEXP address )
   return ret;
 }
 
+SEXP isnil(SEXP address)
+{
+  void *ptr = R_ExternalPtrAddr(address);
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = (ptr==NULL) ? (Rboolean)TRUE : Rboolean(FALSE);
+  UNPROTECT(1);
+  return(ret);
+}
+
 } // extern "C"
 

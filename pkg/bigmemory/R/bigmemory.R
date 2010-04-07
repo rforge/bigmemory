@@ -1412,3 +1412,9 @@ mpermute <- function(x, order=NULL, cols=NULL, allow.duplicates=FALSE, ...)
   
 }
 
+is.nil <- function(address) {
+  if (class(address)!="externalptr") stop("address is not an externalptr.")
+  ans <- .Call("isnil", address)
+  return(ans)
+}
+
