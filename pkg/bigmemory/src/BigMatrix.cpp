@@ -10,8 +10,8 @@
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
-#include <boost/uuid.hpp>
 #include <boost/exception/exception.hpp>
+#include <boost/uuid.hpp>
 #ifndef INTERLOCKED_EXCHANGE_HACK
   #include <boost/interprocess/sync/named_mutex.hpp>
 #endif
@@ -335,6 +335,7 @@ void* ConnectSharedSepMatrix( const std::string &uuid,
   return reinterpret_cast<void*>(pMat);
 }
 
+#ifndef INTERLOCKED_EXCHANGE_HACK
 template<typename T>
 void* ConnectSharedMatrix( const std::string &sharedName, 
   MappedRegionPtrs &dataRegionPtrs, SharedCounter &counter)
@@ -356,7 +357,6 @@ void* ConnectSharedMatrix( const std::string &sharedName,
   return reinterpret_cast<void*>(dataRegionPtrs[0]->get_address());
 }
 
-#ifndef INTERLOCKED_EXCHANGE_HACK
 bool SharedMemoryBigMatrix::connect( const std::string &uuid, 
   const index_type numRow, const index_type numCol, const int matrixType, 
   const bool sepCols )
@@ -647,7 +647,6 @@ bool FileBackedBigMatrix::create( const std::string &fileName,
   try
   {
     _fileName = fileName;
-    _sharedName=fileName+uuid();
     _nrow = numRow;
     _totalRows = _nrow;
     _ncol = numCol;
@@ -710,15 +709,14 @@ bool FileBackedBigMatrix::create( const std::string &fileName,
   }
 }
 
-bool FileBackedBigMatrix::connect( const std::string &sharedName, 
-  const std::string &fileName, const std::string &filePath, const index_type numRow, 
+bool FileBackedBigMatrix::connect( const std::string &fileName, 
+  const std::string &filePath, const index_type numRow, 
   const index_type numCol, const int matrixType, 
   const bool sepCols)
 {
   try
   {
     _fileName = fileName;
-    _sharedName = sharedName;
     _nrow = numRow;
     _totalRows = _nrow;
     _ncol = numCol;
@@ -802,7 +800,7 @@ bool FileBackedBigMatrix::destroy()
     _dataRegionPtrs.resize(0);
     if (_sepCols) 
     {
-      DestroyFileBackedSepMatrix(_sharedName, _totalCols);
+      DestroyFileBackedSepMatrix(_fileName, _totalCols);
       if (_pdata) 
       {
         switch(_matType)
@@ -825,7 +823,7 @@ bool FileBackedBigMatrix::destroy()
     { 
       try
       {            
-        shared_memory_object::remove(_sharedName.c_str());
+        shared_memory_object::remove(_fileName.c_str());
       }
       catch(std::exception &e)
       {

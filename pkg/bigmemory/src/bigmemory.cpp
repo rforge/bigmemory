@@ -1202,7 +1202,7 @@ SEXP CGetType(SEXP bigMatAddr)
 
 SEXP IsSharedMemoryBigMatrix(SEXP bigMatAddr)
 {
-#ifndef INTERLOCKED_EXCHANGE_HACKE
+#ifndef INTERLOCKED_EXCHANGE_HACK
   BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(bigMatAddr);
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   LOGICAL_DATA(ret)[0] = 
@@ -1214,6 +1214,7 @@ SEXP IsSharedMemoryBigMatrix(SEXP bigMatAddr)
 #else
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   LOGICAL_DATA(ret)[0] = static_cast<Rboolean>(0);
+  return ret;
 #endif
 }
 
@@ -2155,7 +2156,7 @@ SEXP CreateSharedMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   return CreateRAMMatrix<SharedMemoryBigMatrix>(row, col, colnames,
     rownames, typeLength, ini, separated);
 #else
-  stop("In-memory shared matrices are not supported on this platform")
+  error("In-memory shared matrices are not supported on this platform");
   return R_NilValue;
 #endif
 }
@@ -2262,7 +2263,7 @@ SEXP CreateFileBackedBigMatrix(SEXP fileName, SEXP filePath, SEXP row,
 SEXP CAttachSharedBigMatrix(SEXP sharedName, SEXP rows, SEXP cols, 
   SEXP rowNames, SEXP colNames, SEXP typeLength, SEXP separated)
 {
-#ifndef INTERLOCKED_EXHANGE_HACK
+#ifndef INTERLOCKED_EXCHANGE_HACK
   SharedMemoryBigMatrix *pMat = new SharedMemoryBigMatrix();
   bool connected = pMat->connect( 
     string(CHAR(STRING_ELT(sharedName,0))),
@@ -2289,18 +2290,17 @@ SEXP CAttachSharedBigMatrix(SEXP sharedName, SEXP rows, SEXP cols,
       (Rboolean) TRUE);
   return address;
 #else
-  stop("In-memory shared matrices are not supported on this platform")
+  error("In-memory shared matrices are not supported on this platform");
   return R_NilValue;
 #endif
 }
 
-SEXP CAttachFileBackedBigMatrix(SEXP sharedName, SEXP fileName, 
+SEXP CAttachFileBackedBigMatrix(SEXP fileName, 
   SEXP filePath, SEXP rows, SEXP cols, SEXP rowNames, SEXP colNames, 
   SEXP typeLength, SEXP separated)
 {
   FileBackedBigMatrix *pMat = new FileBackedBigMatrix();
   bool connected = pMat->connect( 
-    string(CHAR(STRING_ELT(sharedName,0))),
     string(CHAR(STRING_ELT(fileName,0))),
     string(CHAR(STRING_ELT(filePath,0))),
     static_cast<index_type>(NUMERIC_VALUE(rows)),

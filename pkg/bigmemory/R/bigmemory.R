@@ -1262,7 +1262,7 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     }
     else
     {
-      address <- .Call('CAttachFileBackedBigMatrix', info$sharedName, 
+      address <- .Call('CAttachFileBackedBigMatrix', 
         info$filename, path, info$totalRows, info$totalCols, 
         as.character(info$rowNames), as.character(info$colNames), 
         as.integer(typeLength), info$separated)

@@ -230,10 +230,9 @@ class FileBackedBigMatrix : public SharedBigMatrix
     virtual bool create( const std::string &fileName, 
       const std::string &filePath,const index_type numRow, 
       const index_type numCol, const int matrixType, const bool sepCols);
-    virtual bool connect( const std::string &sharedName, 
-      const std::string &fileName, const std::string &filePath,
-      const index_type numRow, const index_type numCol, const int matrixType, 
-      const bool sepCols);
+    virtual bool connect( const std::string &fileName, 
+      const std::string &filePath, const index_type numRow, 
+      const index_type numCol, const int matrixType, const bool sepCols);
     std::string file_name() const {return _fileName;}
     bool flush();
   protected:
