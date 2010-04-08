@@ -1,7 +1,16 @@
-pkgLibs = paste('PKG_LIBS=-lblas -llapack ', sep='')
+
 
 # Find the bigmemory directory
-bigmemoryDirNames = paste(.libPaths(), "/bigmemory/include", sep='')
+bigmemoryDirNames = file.path(.libPaths(), "bigmemory", "include")
+# We need to make the path to the bigmemory include files readable
+# to mingw.
+if (Sys.info()[['sysname']] == "Windows" )
+{
+  bigmemoryDirNames = gsub('\\\\', "/", path.expand(bigmemoryDirNames))
+  pkgLibs="PKG_LIBS=-lRblas -lRlapack "
+}else{
+  pkgLibs="PKG_LIBS=-lblas -llapack " 
+}
 isDir = file.info(bigmemoryDirNames)$isdir
 isDir[is.na(isDir)] = FALSE
 # use the first one 
@@ -10,6 +19,8 @@ if (length(isDir) == 0)
 {
   stop("Could not find bigmemory install directory")
 }
-cppFlags = paste('PKG_CPPFLAGS=-I../include -I', bigmemoryDirNames[isDir], 
-  sep="")
+print(bigmemoryDirNames)
+cppFlags = paste('PKG_CPPFLAGS=-I', bigmemoryDirNames[isDir], '/', sep="")
+
 write( paste(pkgLibs, "\n", cppFlags, sep=''), 'src/Makevars' )
+
