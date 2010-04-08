@@ -32,7 +32,7 @@ John W. Emerson and Michael J. Kane
 Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
-\references{See \url{http://www.bigmemory.org}.}
+\references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}
 \seealso{For example, see
 \code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}},
 \code{\link[biganalytics]{bigkmeans}}, \code{\link[biganalytics]{binit}}, \code{\link[biganalytics]{colmean}}, \code{\link{tapply}}.

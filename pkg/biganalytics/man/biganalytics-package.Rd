@@ -11,30 +11,31 @@ This package extends the bigmemory package with various analytics.  In addition
 to the more obvious summary statistics (see \code{\link{colmean}}, etc...),
 \pkg{biganalytics} offers \code{\link{biglm.big.matrix}},
 \code{\link{bigglm.big.matrix}}, \code{\link{bigkmeans}},
-\code{\link{binit}}, and \code{"\link[=apply-method]{apply}"}.
+\code{\link{binit}}, and \code{\link[=apply-method]{apply}} for \code{big.matrix}
+objects.
 }
 \details{
 \tabular{ll}{
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
-Version: \tab 1.0.6\cr
-Date: \tab 2010-04-07\cr
+Version: \tab 1.0.7\cr
+Date: \tab 2010-04-08\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
 
-The \pkg{bigmemory} package contains the core support and basic summary
-functions; \pkg{biganalytics} contains more advanced analytics on
-\code{big.matrix} objects.  Sister packages \pkg{synchronicity},
+The \pkg{bigmemory} package contains the core \code{\link[bigmemory]{big.matrix}}
+support; \pkg{biganalytics} contains tools for exploratory data analysis as well as
+more advanced analytics on \code{big.matrix} objects.  Sister packages \pkg{synchronicity},
 \pkg{bigtabulate}, and \pkg{bigalgebra} provide additional functionality.
 
 }
 \author{
 John W. Emerson and Michael J. Kane
 
-Maintainers: Jay Emerson <john.emerson@yale.edu>
+Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}

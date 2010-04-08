@@ -2,11 +2,12 @@ Package: bigalgebra
 Type: Package
 Title: This package provides linear algebra routines for R matrix and big.matrix objects.
 Version: 0.3
-Date: 2009-06-09
+Date: 2010-04-08
 Author: Michael Kane
-Maintainer: Who to complain to <kaneplusplus@gmail.com>
+Maintainer: Mike <kaneplusplus@gmail.com>
 Imports: bigmemory (>= 4.0.0)
-Description: This package provides linear algebra routines for R matrix and big.matrix objects with side-effects using BLAS and LAPACK libraries.
+Description: This package provides linear algebra routines for R matrix and big.matrix objects
+  with side-effects using BLAS and LAPACK libraries.
 License: LGPL
 LazyLoad: yes
-Packaged: 2009-06-20 18:03:30 UTC; mike
+

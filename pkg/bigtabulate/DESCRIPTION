@@ -5,7 +5,7 @@ Title: table-, tapply-, and aggregate-like functionality for matrix and big.matr
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
 Depends: methods, foreach
-Suggests: bigmemory, biganalytics
+Suggests: bigmemory (>= 4.0.0), biganalytics
 Description: This package extends the bigmemory package with table-, tapply-, split-,
   and aggregate-like support for big.matrix objects.  The functions may also be
   used with regular R matrices for improving speed and memory-efficiency.

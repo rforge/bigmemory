@@ -124,7 +124,7 @@ subsets of the matrix.
 \author{
 Michael J. Kane and John W. Emerson
 
-Maintainers: Jay Emerson and Mike Kane <bigmemoryauthors@gmail.com>
+Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}

@@ -36,6 +36,8 @@ Unless you have a really big data set (where a single run of \code{\link{kmeans}
 not only burns memory but takes more than a few seconds), use of parallel
 computing for multiple random starts is unlikely to be much 
 faster than running iteratively.
+
+Only the algorithm by MacQueen is used here.
 }
 \note{
 A comment should be made about the excellent package \pkg{foreach}.  By
@@ -54,6 +56,17 @@ as an alternative to the current behavior.
 }
 \value{
 An object of class \code{kmeans}, just as produced by \code{\link{kmeans}}.
+}
+\references{
+  Hartigan, J. A. and Wong, M. A. (1979).
+  A K-means clustering algorithm.
+  \emph{Applied Statistics} \bold{28}, 100--108.
+
+  MacQueen, J. (1967)  Some methods for classification and analysis of
+  multivariate observations. In \emph{Proceedings of the Fifth Berkeley
+    Symposium on  Mathematical Statistics and  Probability},
+  eds L. M. Le Cam & J. Neyman,
+  \bold{1}, pp. 281--297. Berkeley, CA: University of California Press.
 }
 \author{John W. Emerson and Michael J. Kane }
 \seealso{\code{\link[bigmemory]{big.matrix}}, \code{\link[foreach]{foreach}}}

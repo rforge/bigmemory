@@ -4,7 +4,7 @@
 \title{Use Thomas Lumley's ``biglm'' package with a ``big.matrix''}
 \description{
 This is a wrapper to Thomas Lumley's \code{\link[biglm]{biglm}}
-package, allowing to be used with massive data stored in
+package, allowing it to be used with massive data stored in
 \code{\link[bigmemory]{big.matrix}} objects.
 }
 \usage{

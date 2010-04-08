@@ -15,7 +15,7 @@ See title
 Package: \tab bigalgebra\cr
 Type: \tab Package\cr
 Version: \tab 0.3\cr
-Date: \tab 2009-06-09\cr
+Date: \tab 2010-04-08\cr
 License: \tab What license is it under?\cr
 LazyLoad: \tab yes\cr
 }
@@ -24,7 +24,7 @@ Use this package for multiplying matrices using a BLAS library.
 \author{
 Michael Kane
 
-Maintainer: <michael@revolution-computing.com>
+Maintainer: Mike <kaneplusplus@gmail.com>
 }
 \references{
 http://www.netlib.org/blas/dgemm.f
