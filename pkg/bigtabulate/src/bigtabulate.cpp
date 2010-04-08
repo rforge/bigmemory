@@ -431,13 +431,12 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     SEXP mapRet;
     if ( LOGICAL_VALUE(splitlist) )
     {
-      mapRet = PROTECT(NEW_LIST( tis.size() ));
-      ++protectCount;
       SEXP vec;
       // Copy to a list of vectors that R can read.
       if ( isna(NUMERIC_VALUE(splitcol)) )
       {
         mapRet = PROTECT(NEW_LIST( tis.size() ));
+        ++protectCount;
         for (i=0; i < tis.size(); ++i)
         {
           Indices &ind = tis[i];
@@ -450,6 +449,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       else
       {
         mapRet = PROTECT(NEW_LIST( tiv.size() ));
+        ++protectCount;
         index_type outCol = static_cast<index_type>(NUMERIC_VALUE(splitcol));
         for (i=0; i < tiv.size(); ++i)
         {
