@@ -6,7 +6,7 @@
 #bmDll = as.character(dlls$bigmemory[2])
 #pkgLibs = paste('PKG_LIBS=-lblas -l', bmDll, sep='')
 
-pkgLibs = paste('PKG_LIBS=-lblas -llapack ', sep='')
+pkgLibs = ""
 cppFlags = 'PKG_CPPFLAGS=-I../include'
 # This could be put in bigmemory's configure.R file to handle 
 # linking to the real-time library.
