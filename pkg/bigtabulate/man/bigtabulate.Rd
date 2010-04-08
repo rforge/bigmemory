@@ -157,7 +157,14 @@ array-like object(s), each similar to what is returned by
 \code{\link{aggregate}}, \code{\link{table}}, \code{\link{split}}}
 \examples{
 data(iris)
-iris[,2] <- round(iris[,2]) # So columns 2 and 5 will be factor-like.
+
+# First, break up column 2 into 5 groups, and leave column 5 as a factor
+# (which is is).  Note that iris is a data.frame, which is fine.  A matrix
+# would also be fine.  A big.matrix would also be fine!
+bigtable(iris, ccols=c(2, 5), breaks=list(5, NA))
+
+iris[,2] <- round(iris[,2]) # So columns 2 and 5 will be factor-like for
+                            # convenience in these examples, below:
 
 ans1 <- bigtable(iris, c(2, 5))
 ans1
@@ -168,16 +175,18 @@ table(iris[,2], iris[,5])
 # Here, our formulation is simpler than split's, and is faster and more
 # memory-efficient:
 ans2 <- bigsplit(iris, c(2, 5), splitcol=1)
-ans2[1:2]
-split(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]))
+ans2[1:3]
+split(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]))[1:3]
 
 ans3 <- bigtsummary(iris, c(2, 5), cols=1)
-ans3[1:2]
-by(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]), summary)[1:2]
+ans3[1:3]
+by(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]), summary)[1:3]
 
-# For testing:
+# Note that the $summary result, below, is an array/list of non-scalar
+# results of the summary.
 ans <- bigtabulate(iris, c(2, 5), summary.cols=1, splitcol=NULL)
 ans
+ans$summary[1:length(ans$summary)]
 
 }
 \keyword{methods}

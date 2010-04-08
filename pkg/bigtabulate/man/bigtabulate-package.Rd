@@ -2,24 +2,20 @@
 \alias{bigtabulate-package}
 \docType{package}
 \title{
-bigtabulate: a tapply()-like function for both matrices and big.matrix objects.
+A suite of functions for fast, efficient tabular operations (table-,
+tapply-, split-, and aggregate-like) with both matrix and big.matrix
+objects.
 }
 \description{
-This package extends the bigmemory package, but also provides a new function for
-use with \R \code{matrix} objects.  The function \code{\link{bigtabulate}}
-is like \code{\link{tapply}}, doing tabulations based on a specified conditional
-structure.  In other words, for every cell of a (possibly multidimensional)
-contingency table, collect some statistic(s) of interest.  At the lowest level,
-this supports an extremely fast alternative to \code{\link{table}} for matrices
-that also works on \code{\link[bigmemory]{big.matrix}} objects.  But general functions
-may be applied, as well.
+See \code{\link{bigtabulate}}, \code{\link{bigtable}}, \code{\link{bigsplit}},
+\code{\link{bigaggregate}}, and \code{\link{bigtsummary}}.
 }
 \details{
 \tabular{ll}{
 Package: \tab bigtabulate\cr
 Type: \tab Package\cr
-Version: \tab 1.0.4\cr
-Date: \tab 2010-04-07\cr
+Version: \tab 1.0.5\cr
+Date: \tab 2010-04-08\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
@@ -42,8 +38,5 @@ Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 \code{\link[biganalytics]{bigkmeans}}, \code{\link[biganalytics]{binit}}, \code{\link[biganalytics]{colmean}}, \code{\link{tapply}}.
 }
 \examples{
-# A basic example:
-
-
-
+# None provided here.
 }

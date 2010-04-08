@@ -1,6 +1,6 @@
 Package: bigtabulate
-Version: 1.0.4
-Date: 2010-04-07
+Version: 1.0.5
+Date: 2010-04-08
 Title: table-, tapply-, and aggregate-like functionality for matrix and big.matrix objects.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
