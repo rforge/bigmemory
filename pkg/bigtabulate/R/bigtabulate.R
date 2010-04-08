@@ -103,18 +103,6 @@ bigtabulate <- function(x,
   if (is.numeric(splitcol) && !splitlist)
     stop("non-list split is not allowed on a column")
 
-#cat("------------ args\n")
-#print(ccols)
-#print(breakm)
-#print(table)
-#print(table.useNA)
-#print(summary)
-#print(summary.cols)
-#print(summary.na.rm)
-#print(splitcol)
-#print(splitlist)
-#cat("------------\n")
-
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
                  as.logical(table), as.integer(table.useNA),
@@ -146,7 +134,6 @@ bigtabulate <- function(x,
   #                     nothing returned if is.null(splitcol), so don't return anything from C++
   #                     in that case.  Or a vector of the factor levels.
 
-#print(ans)
 
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })

@@ -10,19 +10,12 @@
 #     Note that the dimnames are not in shared memory.
 
 .onLoad <- function(libname, pkgname) {
-    library.dynam("bigmemory", pkgname, libname);
+    library.dynam("bigmemory", pkgname, libname)
     options(bigmemory.print.warning=TRUE)
     options(bigmemory.typecast.warning=TRUE)
     options(bigmemory.allow.dimnames=FALSE)
     options(bigmemory.default.type="double")
-    cat("\nLoading bigmemory version >= 4.0, a major revision since 3.12.\n")
-    cat("If you experience problems moving from 3.12 up to 4.X.Y, please email\n")
-    cat("bigmemoryauthors@gmail.com.\n\n")
-    cat("Note: bigmemory >= 4.0 no longer includes summary statistics,\n")
-    cat("kmeans, and linear regression functionality.  The new packages\n")
-    cat("biganalytics, synchronicity, bigalgebra, and bigtabulate provide extended\n")
-    cat("functionality.  Further information is available at\n")
-    cat("http://www.bigmemory.org/.\n\n")
+    packageStartupMessage("\nbigmemory >= 4.0 is a major revision since 3.1.2; please see package\nbiganalytics and http://www.bigmemory.org for more information.\n")
 }
 
 #.noGenerics <- TRUE           # This was a problem, not used.

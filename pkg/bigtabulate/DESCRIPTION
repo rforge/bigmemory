@@ -1,14 +1,14 @@
 Package: bigtabulate
 Version: 1.0.4
 Date: 2010-04-07
-Title: tapply() juiced up for matrix and big.matrix objects.
+Title: table-, tapply-, and aggregate-like functionality for matrix and big.matrix objects.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
 Depends: methods, foreach
 Suggests: bigmemory, biganalytics
 Description: This package extends the bigmemory package with table-, tapply-, split-,
-  and aggregate-like behavior.  The functions may also be used with regular R matrices
-  for speed and memory-efficiency gains.
+  and aggregate-like support for big.matrix objects.  The functions may also be
+  used with regular R matrices for improving speed and memory-efficiency.
 License: LGPL-3Copyright: (C) 2010 John W. Emerson and Michael J. Kane
 URL: http://www.bigmemory.org
 LazyLoad: yes
