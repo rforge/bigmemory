@@ -11,7 +11,8 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/exception/exception.hpp>
-#include <boost/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #ifndef INTERLOCKED_EXCHANGE_HACK
   #include <boost/interprocess/sync/named_mutex.hpp>
 #endif
@@ -153,10 +154,11 @@ bool SharedBigMatrix::create_uuid()
 {
   try
   {
-    // See http://www.boost.org/doc/libs/1_36_0/libs/random/random_demo.cpp
-    // for documentation about seed problems with random number based uuid.
-    boost::uuid id = uuid::create();
-    _uuid = id.to_string();
+    stringstream ss;
+    boost::uuids::basic_random_generator<boost::mt19937> gen;
+    boost::uuids::uuid u = gen();
+    ss << u;
+    _uuid = ss.str();
     return true;
   }
   catch(std::exception &e)

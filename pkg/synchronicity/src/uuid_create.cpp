@@ -3,7 +3,9 @@
 #include <cstring>  // Hack to make sure the correct memcpy is called
 #include <cstdio>
 #include <string>
-#include <boost/uuid.hpp>
+#include <sstream>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <R.h>
 #include "util.h"
@@ -15,8 +17,11 @@ extern "C"
 
 SEXP boost_create_uuid()
 {
-  std::string newUuid = uuid::create().to_string();
-  return String2RChar(newUuid);
+  std::stringstream ss;
+  boost::uuids::basic_random_generator<boost::mt19937> gen;
+  boost::uuids::uuid u = gen();
+  ss << u;
+  return String2RChar(ss.str());
 }
 
 } // extern "C"
