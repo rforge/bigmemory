@@ -4,36 +4,36 @@
 \title{BLAS daxpy functionality}
 \description{
 This function implements the function Y := ALPHA * X + Y where
-X and Y may be either native R matrices or big.matrix objects.  
+X and Y may be either native R matrices or \code{\link[bigmemory]{big.matrix}} objects.  
 }
 \usage{
 daxpy(N=NULL, ALPHA=1, X, INCX=1, Y, INCY=1)
 }
 \arguments{
   \item{N}{the number of elements in the matrix}
-  \item{ALPHA}{the value to scale the matrix X by}
-  \item{X}{either a native R matrix or a big.matrix object}
-  \item{INCX}{spacing between elements of X to be copied}
-  \item{Y}{either a native R matrix or a big.matrix object}
-  \item{INCY}{spacing between elements of Y to be copied}
+  \item{ALPHA}{the value to scale the matrix \code{X} by}
+  \item{X}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{INCX}{spacing between elements of \code{X} to be copied}
+  \item{Y}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{INCY}{spacing between elements of \code{Y} to be copied}
 }
 \details{
-If N, INCX, INCY are not specified, the default is addition of all
-elements of X to Y
+If \code{N}, \code{INCX}, \code{INCY} are not specified, the default is addition of all
+elements of \code{X} to \code{Y}.
 }
 \value{
 The function returns 0 if the operation is successful.
-It should be noted that the function mutates Y.
+It should be noted that the function mutates \code{Y}.
 }
 \references{
-http://www.netlib.org/blas/daxpy.f
+\url{http://www.netlib.org/blas/daxpy.f}
 }
 \author{
-Michael Kane
+Michael J. Kane
 }
 
 \seealso{
-bigmemory
+\code{\link[bigmemory]{bigmemory}}
 }
 \examples{
 require(bigmemory)

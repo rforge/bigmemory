@@ -10,29 +10,29 @@ positive definite matrix A.
 dpotrf(UPLO='U', N=NULL, A, LDA=NULL)
 }
 \arguments{
-  \item{UPLO}{if 'U', the upper triangle of A is stored; if 'L', the lower
-              triangle of A is stored}
-  \item{N}{the number of columns of A}
-  \item{A}{either a native R matrix or a big.matrix object}
-  \item{LDA}{the number of rows of A}
+  \item{UPLO}{if \code{'U'}, the upper triangle of \code{A} is stored; if \code{'L'}, the lower
+              triangle of \code{A} is stored}
+  \item{N}{the number of columns of \code{A}}
+  \item{A}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{LDA}{the number of rows of \code{A}}
 }
 \details{
-If UPLO is not specified 'U' is assumed.  If N or LDA are not specified,
+If \code{UPLO} is not specified, \code{'U'} is assumed.  If \code{N} or \code{LDA} are not specified,
 appropriate defaults are used.
 }
 \value{
 The function returns 0 if the operation is successful.
-It should be noted that the function mutates A.
+It should be noted that the function mutates \code{A}.
 }
 \references{
-http://www.netlib.org/blas/daxpy.f
+\url{http://www.netlib.org/blas/daxpy.f}
 }
 \author{
-Michael Kane
+Michael J. Kane
 }
 
 \seealso{
-bigmemory
+\code{\link[bigmemory]{bigmemory}}
 }
 \examples{
 require(bigmemory)

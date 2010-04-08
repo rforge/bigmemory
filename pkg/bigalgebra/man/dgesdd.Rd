@@ -13,30 +13,30 @@ dgesdd( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
   VT, LDVT=NULL, WORK=NULL, LWORK=NULL, IWORK=NULL)
 }
 \arguments{
-  \item{JOBZ}{if 'A', all M columns of U and all N rows of VT are returned 
-              in U and VT;  if 'S', the first min(M, N) columns of U and the 
-              first min(M, N) rows of VT are returned in U and VT; if 'O', if 
-              M >= N, the first N columns of U are overwritten to A 
-              and all rows of VT are writted; otherwise, 
-              all columns of U are returned in the array U and the first M 
-              rows of VT are overwritten in A; if 'N', no columns of U or
-              rows of VT are computed}
-  \item{M}{the number of rows in A}
-  \item{N}{the number of columns in A}
-  \item{A}{either a native R matrix or a big.matrix object; it should be noted
-           that A is overwritten on output;}
-  \item{LDA}{the number of rows in A}
-  \item{S}{the sorted singular values of A}
+  \item{JOBZ}{if \code{'A'}, all \code{M} columns of \code{U} and all \code{N} rows of \code{VT} are returned 
+              in \code{U} and \code{VT};  if \code{'S'}, the first \code{min(M, N)} columns of \code{U} and the 
+              first min(M, N) rows of \code{VT} are returned in \code{U} and \code{VT}; if \code{'O'}, if 
+              \code{M >= N}, the first \code{N} columns of \code{U} are overwritten to \code{A} 
+              and all rows of \code{VT} are writted; otherwise, 
+              all columns of \code{U} are returned in the array \code{U} and the first \code{M} 
+              rows of \code{VT} are overwritten in \code{A}; if \code{'N'}, no columns of \code{U} or
+              rows of \code{VT} are computed}
+  \item{M}{the number of rows in \code{A}}
+  \item{N}{the number of columns in \code{A}}
+  \item{A}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object; it should be noted that \code{A} is overwritten on output;}
+  \item{LDA}{the number of rows in \code{A}}
+  \item{S}{the sorted singular values of \code{A}}
   \item{U}{the left singular vectors}
-  \item{LDU}{the number of rows in U}
+  \item{LDU}{the number of rows in \code{U}}
   \item{VT}{the right singular vectors}
-  \item{LDVT}{the number of rows in VT}
+  \item{LDVT}{the number of rows in \code{VT}}
   \item{WORK}{an internal double vector to perform the SVD}
-  \item{LWORK}{the length of the WORK vector}
+  \item{LWORK}{the length of the \code{WORK} vector}
   \item{IWORK}{an internal integer vector to perform the SVD}
 }
 \details{
-If JOBZ, M, N, LDA, LDU, LDVT, WORK, LWORK, or IWORK parameters are not 
+If \code{JOBZ}, \code{M}, \code{N}, \code{LDA}, \code{LDU}, \code{LDVT}, \code{WORK},
+\code{LWORK}, or \code{IWORK} parameters are not 
 specified, appropriate defaults are supplied.
 }
 \value{
@@ -44,10 +44,10 @@ The function returns 0 if successful, < 0 if the -i-th argument to the internal
 function had an illegal value, and > 0 if the function did not converge.
 }
 \references{
-http://www.netlib.org/lapack/double/dgesdd.f
+\url{http://www.netlib.org/lapack/double/dgesdd.f}
 }
 \author{
-Michael Kane
+Michael J. Kane
 }
 %\note{
 %%  ~~further notes~~
@@ -56,7 +56,7 @@ Michael Kane
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-bigmemory
+\url{http://www.netlib.org/blas/daxpy.f}
 }
 \examples{
 require(bigmemory)

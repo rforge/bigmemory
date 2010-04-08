@@ -4,7 +4,7 @@
 \title{BLAS dscal functionality}
 \description{
 This function implements the function Y := ALPHA * Y where
-Y may be either native R matrices or big.matrix objects.  
+Y may be either native \R matrices or \code{big.matrix} objects.  
 }
 \usage{
 dscal(N=NULL, ALPHA, Y, INCY=1)
@@ -12,26 +12,26 @@ dscal(N=NULL, ALPHA, Y, INCY=1)
 \arguments{
   \item{N}{the number of elements in the matrix}
   \item{ALPHA}{the value to scale the matrix by}
-  \item{Y}{either a native R matrix or a big.matrix object}
+  \item{Y}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{INCY}{spacing between elements to be copied}
 }
 \details{
-If N and INCY are not specified, the default is scaling all 
-elements of Y
+If \code{N} and \code{INCY} are not specified, the default is scaling all 
+elements of \code{Y}.
 }
 \value{
 The function returns 0 if the operation is successful.
-It should be noted that the function mutates Y.
+It should be noted that the function mutates \code{Y}.
 }
 \references{
-http://www.netlib.org/blas/dscal.f
+\url{http://www.netlib.org/blas/dscal.f}
 }
 \author{
-Michael Kane
+Michael J. Kane
 }
 
 \seealso{
-bigmemory
+\code{\link[bigmemory]{bigmemory}}
 }
 \examples{
 require(bigmemory)

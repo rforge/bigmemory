@@ -4,35 +4,35 @@
 \title{BLAS dcopy functionality}
 \description{
 This function implements the function Y := X where
-Y and X may be either native R matrices or big.matrix objects.  
+Y and X may be either native \R matrices or \code{\link[bigmemory]{big.matrix}} objects.  
 }
 \usage{
 dcopy(N=NULL, X, INCX=1, Y, INCY=1)
 }
 \arguments{
   \item{N}{the number of elements in the matrix}
-  \item{X}{eith a native R matrix or a big.matrix object}
+  \item{X}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{INCX}{spacing between elements to copy}
-  \item{Y}{eith a native R matrix or a big.matrix object}
+  \item{Y}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{INCY}{spacing between elements to be copied}
 }
 \details{
-If N, INCX, and INCY are not specified, the default is a copy of all 
-elements from X to Y
+If \code{N}, \code{INCX}, and \code{INCY} are not specified, the default is a copy of all 
+elements from \code{X} to \code{Y}.
 }
 \value{
 The function returns 0 if the operation is successful.  It should be
-noted that the function mutates Y.
+noted that the function mutates \code{Y}.
 }
 \references{
-http://www.netlib.org/blas/dcopy.f
+\url{http://www.netlib.org/blas/dcopy.f}
 }
 \author{
-Michael Kane
+Michael J. Kane
 }
 
 \seealso{
-bigmemory
+\code{\link[bigmemory]{bigmemory}}
 }
 \examples{
 require(bigmemory)

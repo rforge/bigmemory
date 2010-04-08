@@ -4,35 +4,43 @@
 \alias{bigalgebra}
 \docType{package}
 \title{
-This package provides blas dgemm functionality for native R matrices and
+BLAS and LAPACK functionality for native R matrices and
 big.matrix objects.
 }
 \description{
-See title
+BLAS and LAPACK functionality for native \R matrices and
+\code{\link[bigmemory]{big.matrix}} objects.
 }
 \details{
 \tabular{ll}{
 Package: \tab bigalgebra\cr
 Type: \tab Package\cr
-Version: \tab 0.3\cr
+Version: \tab 0.4\cr
 Date: \tab 2010-04-08\cr
-License: \tab What license is it under?\cr
+License: \tab LGPL-3\cr
+Copyright: \tab (C) 2010 Michael J. Kane, John W. Emerson, and Bryan Lewis\cr
+URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
-Use this package for multiplying matrices using a BLAS library.
+BLAS and LAPACK functionality for native \R matrices and
+\code{\link[bigmemory]{big.matrix}} objects.  These are particularly memory-efficient
+and introduce side-effects: calling a function will result in a change of one or more
+of the arguments.
 }
 \author{
-Michael Kane
+Michael J. Kane, Bryan Lewis, John W. Emerson
 
 Maintainer: Mike <kaneplusplus@gmail.com>
 }
 \references{
-http://www.netlib.org/blas/dgemm.f
+\url{http://www.netlib.org/blas/}
+
+\url{http://www.netlib.org/lapack/}
 }
-\keyword{ package }
+\keyword{package}
 \seealso{
-\code{\link[bigmemory-package]{big.matrix}} 
+\code{\link[bigmemory]{big.matrix}} 
 }
 \examples{
-print('bigalgebra')
+# None here.
 }

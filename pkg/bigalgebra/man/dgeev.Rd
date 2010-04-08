@@ -4,51 +4,44 @@
 \title{BLAS dgeev functionality}
 \description{
 This function implements the function Y := ALPHA * X + Y where
-X and Y may be either native R matrices or big.matrix objects.  
+X and Y may be either native \R matrices or \code{\link[bigmemory]{big.matrix}} objects.  
 }
 \usage{
 dgeev(JOBVL='V', JOBVR='V', N=NULL, A, LDA=NULL, WR, WI, VL,
   LDVL=NULL, VR=NULL, LDVR=NULL, WORK=NULL, LWORK=NULL)
 }
 \arguments{
-  \item{JOBVL}{if 'N', left eigenvectors of A are not computed; if 'V',
-               left eigenvectors of A are computed}
-  \item{JOBVR}{if 'N', right eigenvectors of A are not computed; if 'V',
-               right eigenvectors of A are computed}
-  \item{N}{the number of columns of A}
-  \item{A}{the matrix to find the eigen values of; either a native R matrix or
-           a big.matrix object}
-  \item{LDA}{the number of rows of A}
-  \item{WR}{the real part of the eigen values; either a native R matrix or a
-           big.matrix object}
-  \item{WI}{the imaginary part of the eigen values; either a native R matrix 
-           or a big.matrix object}
-  \item{VL}{the left eigen vectors of A; either a native R matrix 
-           or a big.matrix object}
-  \item{LDVL}{the number of columns of A}
-  \item{VR}{the right eigen vectors of A; either a native R matrix 
-           or a big.matrix object}
-  \item{LDVR}{the number of columns of A}
-  \item{WORK}{either a native R matrix or a big.matrix object}
-  \item{LWORK}{the length of WORK}
+  \item{JOBVL}{if \code{'N'}, left eigenvectors of \code{A} are not computed; if \code{'V'}, left eigenvectors of \code{A} are computed}
+  \item{JOBVR}{if \code{'N'}, right eigenvectors of \code{A} are not computed; if \code{'V'}, right eigenvectors of \code{A} are computed}
+  \item{N}{the number of columns of \code{A}}
+  \item{A}{the matrix to find the eigenvalues of; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{LDA}{the number of rows of \code{A}}
+  \item{WR}{the real part of the eigen values; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{WI}{the imaginary part of the eigen values; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{VL}{the left eigenvectors of \code{A}; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{LDVL}{the number of columns of \code{A}}
+  \item{VR}{the right eigenvectors of \code{A}; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} objectt}
+  \item{LDVR}{the number of columns of \code{A}}
+  \item{WORK}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{LWORK}{the length of \code{WORK}}
 }
 \details{
-If JOBVL, JOBVR, N, LDA, LDVL, VR, LDVR, WORK, or LWORK are not specified,
-appropriate default values are provided
+If \code{JOBVL}, \code{JOBVR}, \code{N}, \code{LDA}, \code{LDVL}, \code{VR}, \code{LDVR}, \code{WORK},
+or \code{LWORK} are not specified, appropriate default values are used.
 }
 \value{
 The function returns 0 if the operation is successful.
-It should be noted that the function mutates Y.
+It should be noted that the function mutates \code{Y}.
 }
 \references{
-http://www.netlib.org/lapack/double/dgeev.f
+\url{http://www.netlib.org/lapack/double/dgeev.f}
 }
 \author{
-Michael Kane
+Michael J. Kane
 }
 
 \seealso{
-bigmemory
+\code{\link[bigmemory]{bigmemory}}
 }
 \examples{
 require(bigmemory)
