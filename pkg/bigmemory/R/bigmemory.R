@@ -1188,7 +1188,7 @@ DescribeBigMatrix = function(x)
   else
   {
     ret = list(sharedType='FileBacked',
-               sharedName=shared.name(x), filename=file.name(x),
+               filename=file.name(x),
                totalRows = .Call("GetTotalRows", x@address),
                totalCols = .Call("GetTotalColumns", x@address),
                rowOffset = .Call("GetRowOffset", x@address),

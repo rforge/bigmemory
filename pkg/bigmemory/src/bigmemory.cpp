@@ -2310,24 +2310,38 @@ SEXP CAttachFileBackedBigMatrix(SEXP fileName,
 
 SEXP SharedName( SEXP address )
 {
-  SharedBigMatrix *pMat = 
-    reinterpret_cast<SharedBigMatrix*>(R_ExternalPtrAddr(address));
-  return String2RChar(pMat->shared_name());
+  BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(address);
+  SharedMemoryBigMatrix *psmbm = dynamic_cast<SharedMemoryBigMatrix*>(pMat);
+  if (psmbm) return String2RChar(psmbm->shared_name());
+  error("Object is not a shared memory big.matrix.");
+  return R_NilValue;
+  
 }
 
 SEXP FileName( SEXP address )  
 {   
-  FileBackedBigMatrix *pMat =   
-    reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));   
-  return String2RChar(pMat->file_name());   
+  BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(address);
+  FileBackedBigMatrix *pfbbm = dynamic_cast<FileBackedBigMatrix*>(pMat);
+  if (pfbbm) return String2RChar(pfbbm->file_name());
+  error("Object is not a filebacked big.matrix.");
+  return R_NilValue;
 }
 
 SEXP Flush( SEXP address )  
 {   
   FileBackedBigMatrix *pMat =   
     reinterpret_cast<FileBackedBigMatrix*>(R_ExternalPtrAddr(address));   
+  FileBackedBigMatrix *pfbbm = dynamic_cast<FileBackedBigMatrix*>(pMat);
   SEXP ret = PROTECT(NEW_LOGICAL(1));
-  LOGICAL_DATA(ret)[0] = pMat->flush() ? (Rboolean)TRUE : Rboolean(FALSE);
+  if (pfbbm)
+  { 
+    LOGICAL_DATA(ret)[0] = pfbbm->flush() ? (Rboolean)TRUE : Rboolean(FALSE);
+  }
+  else
+  {
+    LOGICAL_DATA(ret)[0] = (Rboolean)FALSE;
+    error("Object is not a filebacked big.matrix");
+  }
   UNPROTECT(1);
   return ret;
 }
