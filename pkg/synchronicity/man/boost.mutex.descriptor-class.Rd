@@ -3,8 +3,8 @@
 \docType{class}
 \alias{descriptor-class}
 \alias{boost.mutex.descriptor-class}
-\alias{attach.resource,boost.mutex.descriptor-method}
-\alias{attach.resource,character-method}
+\alias{attach.mutex,boost.mutex.descriptor-method}
+\alias{attach.mutex,character-method}
 
 \title{Class ``boost.mutex.descriptor'' }
 \description{	 An object of this class contains necessary and sufficient
@@ -24,7 +24,7 @@ Class \code{"\linkS4class{descriptor}"}, directly.
 }
 \section{Methods}{
   \describe{
-    \item{attach.resource}{\code{signature(obj = "boost.mutex.descriptor")}: ... }
+    \item{attach.mutex}{\code{signature(obj = "boost.mutex.descriptor")}: ... }
 	 }
 }
 \author{Michael J. Kane <kaneplusplus@gmail.com>}

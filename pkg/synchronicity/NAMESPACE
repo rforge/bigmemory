@@ -13,5 +13,5 @@ exportMethods(
   timeout,
   shared.name,
   describe,
-  attach.resource)
+  attach.mutex)
 useDynLib(synchronicity)

@@ -1,15 +1,15 @@
-\name{describe, attach.resource}
+\name{describe, attach.mutex}
 \Rdversion{1.1}
 \alias{describe}
-\alias{attach.resource}
+\alias{attach.mutex}
 \title{Create Descriptors to Mutexes and Attach}
 \description{
 The \code{describe} function returns information that is needed to 
 ``connect'' to a mutex from another process.  This connection is performed
-by the \code{attach.resource} function.}
+by the \code{attach.mutex} function.}
 \usage{
 describe(x)
-attach.resource(obj, \dots)}
+attach.mutex(obj, \dots)}
 \arguments{
   \item{x}{a \code{boost.mutex} object}
   \item{obj}{a \code{boost.mutex.descriptor} object}
@@ -19,13 +19,13 @@ object has been stored via dput. }
 }
 \value{
 The \code{describe} function returns a \code{boost.mutex.descriptor} object.
-the \code{attach.resource} function returns a \code{boost.mutex} object
+the \code{attach.mutex} function returns a \code{boost.mutex} object
 described by \code{obj}.
 }
 \author{Michael J. Kane <kaneplusplus@gmail.com>}
 \examples{
   m = boost.mutex()
-  mm = attach.resource(describe(m))
+  mm = attach.mutex(describe(m))
   # Now, both m and mm specify the same mutex.
 }
 \keyword{programming}

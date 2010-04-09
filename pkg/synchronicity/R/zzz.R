@@ -11,12 +11,12 @@
         timeout=timeout(x))))
     })
 
-  if (!isGeneric('attach.resource'))
+  if (!isGeneric('attach.mutex'))
   {
-    setGeneric('attach.resource', function(obj, ...) 
-      standardGeneric('attach.resource'))
+    setGeneric('attach.mutex', function(obj, ...) 
+      standardGeneric('attach.mutex'))
 
-    setMethod('attach.resource', signature(obj='character'),
+    setMethod('attach.mutex', signature(obj='character'),
       function(obj, ...)
       {
         path = match.call()[['path']]
@@ -28,7 +28,7 @@
         if (basename(obj) != obj)
         {
 
-            warning(paste("Two paths were specified in attach.resource.",
+            warning(paste("Two paths were specified in attach.mutex",
               "The one associated with the file will be used.", sep="  "))
           path <- dirname(obj)
           obj <- basename(obj)
@@ -41,10 +41,10 @@
         if (fi$isdir)
           stop( fileWithPath, "is a directory" )
         info <- dget(fileWithPath)
-        return(attach.resource(info, path=path))
+        return(attach.mutex(info, path=path))
       })
   }
-  setMethod('attach.resource', signature(obj='boost.mutex.descriptor'),
+  setMethod('attach.mutex', signature(obj='boost.mutex.descriptor'),
     function(obj, ...)
     {
       desc = description(obj)
