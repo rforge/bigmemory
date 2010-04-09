@@ -146,7 +146,6 @@ std::vector<ValueType> get_unique( const InputIter itStart,
   bool valueAdded=false;
   if (itStart == itEnd)
     return v;
-  int i=0;
   for (it = itStart; it != itEnd; ++it)
   {
     if (isna(*it))
@@ -197,8 +196,6 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
   SEXP ret = PROTECT(NEW_LIST(GET_LENGTH(columns)));
   int protectCount = 1;
   Values v;
-  const index_type minRowIndex = 0;
-  const index_type maxRowIndex = 1;
   const index_type breaksIndex = 2;
 
   index_type column;
@@ -450,7 +447,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       {
         mapRet = PROTECT(NEW_LIST( tiv.size() ));
         ++protectCount;
-        index_type outCol = static_cast<index_type>(NUMERIC_VALUE(splitcol));
         for (i=0; i < static_cast<index_type>(tiv.size()); ++i)
         {
           Values &ind = tiv[i];
