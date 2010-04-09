@@ -54,7 +54,8 @@ y <- attach.big.matrix(zdescription)
 y[,]
 y
 z
-y[1,1] <- -100
+zz <- attach.resource(zdescription)
+zz[1,1] <- -100
 y[,]
 z[,]
 }
