@@ -100,7 +100,7 @@ An object of class \code{kmeans}, just as produced by \code{\link{kmeans}}.
   \dontrun{
     library(doSNOW)
     cl <- makeCluster(3, type="SOCK")
-    registerDoSNOW()
+    registerDoSNOW(cl)
     ans <- bigkmeans(x, 2, nstart=5)
   }
 
