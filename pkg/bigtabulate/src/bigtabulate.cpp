@@ -346,7 +346,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   if ( LOGICAL_VALUE(returnSummary) )
   {
     procCols.resize(GET_LENGTH(processColumns));
-    for (k=0; k < procCols.size(); ++k)
+    for (k=0; k < static_cast<index_type>(procCols.size()); ++k)
     {
       procCols[k] = static_cast<index_type>(NUMERIC_DATA(processColumns)[k])-1;
     }
@@ -390,7 +390,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     }
     if ( LOGICAL_VALUE(returnSummary) )
     {
-      for (k=0; k < ts.size(); ++k)
+      for (k=0; k < static_cast<index_type>(ts.size()); ++k)
       {
         TableSummaries &ss = ts[k];
         double matVal = static_cast<double>(
@@ -437,7 +437,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       {
         mapRet = PROTECT(NEW_LIST( tis.size() ));
         ++protectCount;
-        for (i=0; i < tis.size(); ++i)
+        for (i=0; i < static_cast<index_type>(tis.size()); ++i)
         {
           Indices &ind = tis[i];
           vec = PROTECT(NEW_NUMERIC(tis[i].size()));
@@ -451,7 +451,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         mapRet = PROTECT(NEW_LIST( tiv.size() ));
         ++protectCount;
         index_type outCol = static_cast<index_type>(NUMERIC_VALUE(splitcol));
-        for (i=0; i < tiv.size(); ++i)
+        for (i=0; i < static_cast<index_type>(tiv.size()); ++i)
         {
           Values &ind = tiv[i];
           vec = PROTECT(RNew(tiv[i].size()));
@@ -465,10 +465,10 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     {
       mapRet = NEW_NUMERIC(m.nrow());
       double *pmr = NUMERIC_DATA(mapRet);
-      for (i=0; i < tis.size(); ++i)
+      for (i=0; i < static_cast<index_type>(tis.size()); ++i)
       {
         Indices &inds = tis[i];
-        for (j=0; j < inds.size(); ++j)
+        for (j=0; j < static_cast<index_type>(inds.size()); ++j)
         {
           pmr[j] = i;
         }
@@ -505,7 +505,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       SEXP retMat = allocMatrix(REALSXP, ts.size(), 5);
       setAttrib(retMat, R_DimNamesSymbol, dimnames);
       MatrixAccessor<double> rm( NUMERIC_DATA(retMat), ts.size() );
-      for (j=0; j < ts.size(); ++j)
+      for (j=0; j < static_cast<index_type>(ts.size()); ++j)
       {
         if (tvs[i] > 0)
         {
