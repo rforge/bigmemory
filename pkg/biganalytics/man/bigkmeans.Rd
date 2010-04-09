@@ -41,16 +41,17 @@ Only the algorithm by MacQueen is used here.
 }
 \note{
 A comment should be made about the excellent package \pkg{foreach}.  By
-default, it behaves much like a \code{for} loop here over the \code{nstart}
+default, it provides \code{\link[foreach]{foreach}}, which is used
+much like a \code{for} loop, here over the \code{nstart}
 random starting points.  Even so, there are efficiencies, doing a comparison
-of each result to the previous best, rather than saving everything and doing
-a final comparison.
+of each result to the previous best result (rather than saving everything and doing
+a final comparison of all results).
 
-When a parallel backend has been registered (see \pkg{doSNOW}, \pkg{doMC},
+When a parallel backend has been registered (see packages \pkg{doSNOW}, \pkg{doMC},
 and \pkg{doMPI}, for example), \code{bigkmeans()} automatically distributes
 the \code{nstart} random starting points across the available workers.  This
-is done in shared memory on an SMP, and is distributed on a cluster, *IF*
-the \code{big.matrix} is filebacked.  If used on a cluster with an in-RAM
+is done in shared memory on an SMP, but is distributed on a cluster *IF*
+the \code{big.matrix} is file-backed.  If used on a cluster with an in-RAM
 \code{big.matrix}, it will fail horribly.  We're considering an extra option
 as an alternative to the current behavior.
 }

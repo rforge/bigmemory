@@ -18,7 +18,7 @@ dgemm(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
   }
   \item{TRANSB}{see \code{TRANSA}}
   \item{M}{specifies  the number  of rows  of the  matrix \code{A}  and of the  matrix \code{C};  \code{M}  must  be at least  zero.}
-  \item{N}{specifies the number  of columns of the matrix \code{B} and the number of columns of the matrix \code{C}. \code{N} must be at least zero.}
+  \item{N}{specifies the number  of columns of the matrix \code{B} and the number of columns of the matrix \code{C}; \code{N} must be at least zero.}
   \item{K}{specifies  the number of columns of the matrix \code{A} and the number of rows of the matrix \code{B}; \code{K} must be at least  zero}
   \item{ALPHA}{specifies the scalar alpha}
   \item{A}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
@@ -36,7 +36,7 @@ appropriate number of rows or columns of the matrix based on the \code{TRANS*}
 arguments.
 }
 \value{
-The function returns 0 if the operation is successful.
+The function returns \code{0} if the operation is successful.
 It should be noted that the function mutates \code{C}.
 }
 \references{

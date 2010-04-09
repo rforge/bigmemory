@@ -12,7 +12,8 @@ to the more obvious summary statistics (see \code{\link{colmean}}, etc...),
 \pkg{biganalytics} offers \code{\link{biglm.big.matrix}},
 \code{\link{bigglm.big.matrix}}, \code{\link{bigkmeans}},
 \code{\link{binit}}, and \code{\link[=apply-method]{apply}} for \code{big.matrix}
-objects.
+objects.  Some of the functions may be used with native \R objects, as well,
+providing gains in speed and memory-efficiency.
 }
 \details{
 \tabular{ll}{

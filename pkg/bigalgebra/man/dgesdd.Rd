@@ -15,7 +15,7 @@ dgesdd( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
 \arguments{
   \item{JOBZ}{if \code{'A'}, all \code{M} columns of \code{U} and all \code{N} rows of \code{VT} are returned 
               in \code{U} and \code{VT};  if \code{'S'}, the first \code{min(M, N)} columns of \code{U} and the 
-              first min(M, N) rows of \code{VT} are returned in \code{U} and \code{VT}; if \code{'O'}, if 
+              first \code{min(M, N)} rows of \code{VT} are returned in \code{U} and \code{VT}; if \code{'O'}, if 
               \code{M >= N}, the first \code{N} columns of \code{U} are overwritten to \code{A} 
               and all rows of \code{VT} are writted; otherwise, 
               all columns of \code{U} are returned in the array \code{U} and the first \code{M} 
@@ -40,8 +40,8 @@ If \code{JOBZ}, \code{M}, \code{N}, \code{LDA}, \code{LDU}, \code{LDVT}, \code{W
 specified, appropriate defaults are supplied.
 }
 \value{
-The function returns 0 if successful, < 0 if the -i-th argument to the internal
-function had an illegal value, and > 0 if the function did not converge.
+The function returns \code{0} if successful, less than \code{0} if the \eqn{i^{th}} argument to the internal
+function had an illegal value, and greater than \code{0} if the function did not converge.
 }
 \references{
 \url{http://www.netlib.org/lapack/double/dgesdd.f}

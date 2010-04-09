@@ -30,7 +30,9 @@ of counts of the numbers of cases appearing in each of the bins,
 the bins.
 }
 \author{John W. Emerson and Michael J. Kane}
-\seealso{\code{\link[bigmemory]{big.matrix}}, \code{\link[bigtabulate]{bigtable}}}
+\seealso{
+\code{\link[bigmemory]{big.matrix}}, \code{\link[bigtabulate]{bigtable}}
+}
 \examples{
 y <- matrix(rnorm(40), 20, 2)
 y[1,1] <- NA

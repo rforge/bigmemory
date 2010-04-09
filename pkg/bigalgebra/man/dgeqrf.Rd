@@ -22,7 +22,7 @@ If \code{N}, \code{INCX}, \code{INCY} are not specified, the default is addition
 elements of \code{X} to \code{Y}.
 }
 \value{
-The function returns 0 if the operation is successful.
+The function returns \code{0} if the operation is successful.
 It should be noted that the function mutates \code{Y}.
 }
 \references{

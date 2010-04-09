@@ -21,7 +21,7 @@ If \code{UPLO} is not specified, \code{'U'} is assumed.  If \code{N} or \code{LD
 appropriate defaults are used.
 }
 \value{
-The function returns 0 if the operation is successful.
+The function returns \code{0} if the operation is successful.
 It should be noted that the function mutates \code{A}.
 }
 \references{

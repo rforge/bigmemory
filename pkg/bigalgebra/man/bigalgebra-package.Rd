@@ -4,7 +4,7 @@
 \alias{bigalgebra}
 \docType{package}
 \title{
-BLAS and LAPACK functionality for native R matrices and
+BLAS and LAPACK routines for native R matrices and
 big.matrix objects.
 }
 \description{
@@ -39,7 +39,7 @@ Maintainer: Mike <kaneplusplus@gmail.com>
 }
 \keyword{package}
 \seealso{
-\code{\link[bigmemory]{big.matrix}} 
+\code{\link[bigmemory]{bigmemory}}, \code{\link[bigmemory]{big.matrix}} 
 }
 \examples{
 # None here.

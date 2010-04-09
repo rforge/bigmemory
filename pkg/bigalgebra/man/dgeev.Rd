@@ -16,8 +16,8 @@ dgeev(JOBVL='V', JOBVR='V', N=NULL, A, LDA=NULL, WR, WI, VL,
   \item{N}{the number of columns of \code{A}}
   \item{A}{the matrix to find the eigenvalues of; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{LDA}{the number of rows of \code{A}}
-  \item{WR}{the real part of the eigen values; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
-  \item{WI}{the imaginary part of the eigen values; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{WR}{the real part of the eigenvalues; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
+  \item{WI}{the imaginary part of the eigenvalues; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{VL}{the left eigenvectors of \code{A}; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{LDVL}{the number of columns of \code{A}}
   \item{VR}{the right eigenvectors of \code{A}; either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} objectt}
@@ -30,7 +30,7 @@ If \code{JOBVL}, \code{JOBVR}, \code{N}, \code{LDA}, \code{LDVL}, \code{VR}, \co
 or \code{LWORK} are not specified, appropriate default values are used.
 }
 \value{
-The function returns 0 if the operation is successful.
+The function returns \code{0} if the operation is successful.
 It should be noted that the function mutates \code{Y}.
 }
 \references{

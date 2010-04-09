@@ -20,7 +20,7 @@ If \code{N} and \code{INCY} are not specified, the default is scaling all
 elements of \code{Y}.
 }
 \value{
-The function returns 0 if the operation is successful.
+The function returns \code{0} if the operation is successful.
 It should be noted that the function mutates \code{Y}.
 }
 \references{

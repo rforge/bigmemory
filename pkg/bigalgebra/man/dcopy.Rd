@@ -21,7 +21,7 @@ If \code{N}, \code{INCX}, and \code{INCY} are not specified, the default is a co
 elements from \code{X} to \code{Y}.
 }
 \value{
-The function returns 0 if the operation is successful.  It should be
+The function returns \code{0} if the operation is successful.  It should be
 noted that the function mutates \code{Y}.
 }
 \references{

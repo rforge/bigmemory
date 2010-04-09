@@ -1,4 +1,4 @@
-\name{colmean, colmin, min, colmax, max, colrange, range, colvar, etc...}
+\name{colmean, colmin, min, colrange, colvar,  colsd, colprod, colsum, colna, etc...}
 \alias{colmean}
 \alias{colmean,big.matrix-method}
 \alias{colmin}
