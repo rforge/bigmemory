@@ -163,6 +163,7 @@ array-like object(s), each similar to what is returned by
 \seealso{\code{\link[bigmemory]{big.matrix}}, \code{\link{tapply}},
 \code{\link{aggregate}}, \code{\link{table}}, \code{\link{split}}}
 \examples{
+
 data(iris)
 
 # First, break up column 2 into 5 groups, and leave column 5 as a
