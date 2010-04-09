@@ -1,5 +1,3 @@
-#ifndef INTERLOCKED_EXCHANGE_HACK
-
 #include <boost/interprocess/shared_memory_object.hpp>
 #include "bigmemory/SharedCounter.h"
 
@@ -57,4 +55,3 @@ index_type SharedCounter::get() const
   return _pVal == NULL ? 0 : *_pVal;
 }
 
-#endif // INTERLOCKED_EXCHANGE_HACK

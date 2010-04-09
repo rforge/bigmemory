@@ -227,7 +227,6 @@ void* CreateSharedMatrix( const std::string &sharedName,
   return dataRegionPtrs[0]->get_address();
 }
 
-#ifndef INTERLOCKED_EXCHANGE_HACK
 bool SharedMemoryBigMatrix::create( const index_type numRow, 
   const index_type numCol, const int matrixType, 
   const bool sepCols )
@@ -246,11 +245,15 @@ bool SharedMemoryBigMatrix::create( const index_type numRow,
     _matType = matrixType;
     _sepCols = sepCols;
     _sharedName=_uuid;
+#ifndef INTERLOCKED_EXCHANGE_HACK
     // Create the associated mutex and counter;
     named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());
     mutex.lock();
+#endif
     _counter.init( _sharedName+"_counter" );
+#ifndef INTERLOCKED_EXCHANGE_HACK
     mutex.unlock();
+#endif
     if (_sepCols)
     {
       switch(_matType)
@@ -306,7 +309,6 @@ bool SharedMemoryBigMatrix::create( const index_type numRow,
     return false;
   }
 }
-#endif 
 
 template<typename T>
 void* ConnectSharedSepMatrix( const std::string &uuid, 
@@ -337,7 +339,6 @@ void* ConnectSharedSepMatrix( const std::string &uuid,
   return reinterpret_cast<void*>(pMat);
 }
 
-#ifndef INTERLOCKED_EXCHANGE_HACK
 template<typename T>
 void* ConnectSharedMatrix( const std::string &sharedName, 
   MappedRegionPtrs &dataRegionPtrs, SharedCounter &counter)
@@ -374,11 +375,15 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
     _totalCols=_ncol;
     _matType = matrixType;
     _sepCols = sepCols;
+#ifndef INTERLOCKED_EXCHANGE_HACK
     // Attach to the associated mutex and counter;
     named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());
     mutex.lock();
+#endif
     _counter.init( _sharedName+"_counter" );
+#ifndef INTERLOCKED_EXCHANGE_HACK
     mutex.unlock();
+#endif
     if (_sepCols)
     {
       switch(_matType)
@@ -434,7 +439,6 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
     return false;
   }
 }
-#endif //INTERLOCKED_EXCHANGE_HACK
 
 void DestroySharedSepMatrix( const std::string &uuid, const index_type ncol )
 {
@@ -453,12 +457,13 @@ void DestroySharedSepMatrix( const std::string &uuid, const index_type ncol )
   }
 }
 
-#ifndef INTERLOCKED_EXCHANGE_HACK
 bool SharedMemoryBigMatrix::destroy()
 {
   using namespace boost::interprocess;
+#ifndef INTERLOCKED_EXCHANGE_HACK
   named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());
   mutex.lock();
+#endif
   bool destroyThis = (1==_counter.get()) ? true : false;
   try
   {
@@ -484,26 +489,29 @@ bool SharedMemoryBigMatrix::destroy()
         shared_memory_object::remove(_uuid.c_str());
       }
     }
+#ifndef INTERLOCKED_EXCHANGE_HACK
     mutex.unlock();
     if (destroyThis)
     {
       named_mutex::remove((_sharedName+"_counter_mutex").c_str());
     }
+#endif
     return true;
   }
   catch(std::exception &e)
   {
     printf("%s\n", e.what());
     printf("%s line %d\n", __FILE__, __LINE__);
+#ifndef INTERLOCKED_EXCHANGE_HACK
     mutex.unlock();
     if (destroyThis)
     {
       named_mutex::remove((_sharedName+"_counter_mutex").c_str());
     }
+#endif
     return false;
   }
 }
-#endif //INTERLOCKED_EXCHANGE_HACK
 
 template<typename T>
 void* ConnectFileBackedSepMatrix( const std::string &sharedName,

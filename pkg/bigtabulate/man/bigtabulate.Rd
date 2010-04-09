@@ -93,7 +93,7 @@ The functions are juiced-up versions of the base \R functions;
 they work on both regular \R matrices and data frames, but are specialized
 for use with \pkg{bigmemory} and \pkg{foreach}.  They are particularly fast and
 memory-efficient.  Further performance gains may be achieved
-with \code{bigaggregate} via \code{\link{foreach}} when a parallel backend
+with \code{bigaggregate} via \code{\link[foreach]{foreach}} when a parallel backend
 has been registered, and objects use shared memory.
 
 When \code{x} is a \code{matrix} or a \code{data.frame}, some additional
@@ -101,7 +101,7 @@ work may be required.  For example, a character column of a \code{data.frame}
 will be converted to a \code{\link{factor}} and then coerced to numeric
 values (factor level numberings).  And when parallel computions are requested
 by \code{bigaggregate} (because of a registered parallel backend to
-\code{\link{foreach}}), an \R object will be copied to a temporary
+\code{\link[foreach]{foreach}}), an \R object will be copied to a temporary
 \code{big.matrix} in shared memory.
 
 The conditional structure is specified via \code{ccols} and \code{breaks}
