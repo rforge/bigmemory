@@ -1061,7 +1061,7 @@ setMethod('sub.big.matrix', signature(x='big.matrix.descriptor'),
   {
     rowOffset <- firstRow-1
     colOffset <- firstCol-1
-    rbm <- attach.resource(x, backingpath)
+    rbm <- attach.resource(x, path=backingpath)
     if (is.null(lastRow)) lastRow <- nrow(rbm)
     if (is.null(lastCol)) lastCol <- ncol(rbm)
     numCols <- lastCol-firstCol+1

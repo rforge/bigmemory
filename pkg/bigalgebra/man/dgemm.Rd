@@ -28,7 +28,7 @@ dgemm(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
   \item{BETA}{specifies the scalar beta}
   \item{C}{either a native \R \code{\link{matrix}} or a \code{\link[bigmemory]{big.matrix}} object}
   \item{LDC}{see \code{LDA}}
-  \item{COFF}{see blas documentation.}
+  \item{COFF}{the column offset in the C matrix.}
 }
 \details{
 If \code{LD*}, \code{K}, \code{M}, or \code{N} parameters are not specified, the default is the 
