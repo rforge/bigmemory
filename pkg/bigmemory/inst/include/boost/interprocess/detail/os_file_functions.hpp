@@ -121,7 +121,7 @@ inline bool truncate_file (file_handle_t hnd, std::size_t size)
    if(!winapi::get_file_size(hnd, filesize))
       return false;
 
-   if(size > filesize){
+   if(size > static_cast<std::size_t>(filesize)){
       if(!winapi::set_file_pointer_ex(hnd, filesize, 0, winapi::file_begin)){
          return false;
       }      
