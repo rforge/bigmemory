@@ -75,7 +75,7 @@ SEXP CBinIt1(MatrixType x, index_type nr, SEXP pcol, SEXP Baddr)
   double max = pB[1];
   index_type nbins = (index_type) pB[2];
 
-  index_type col = (index_type) NUMERIC_VALUE(pcol); - 1;
+  index_type col = (index_type) NUMERIC_VALUE(pcol) - 1;
 
   int good;
   T *pc = x[col];
