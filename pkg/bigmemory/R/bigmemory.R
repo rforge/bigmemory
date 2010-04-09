@@ -1168,15 +1168,19 @@ DescribeBigMatrix = function(x)
 {
   if (!is.filebacked(x))
   {
-    ret <- list(sharedType = 'SharedMemory',
-                sharedName = shared.name(x), 
-                totalRows = .Call("GetTotalRows", x@address),
-                totalCols = .Call("GetTotalColumns", x@address),
-                rowOffset = .Call("GetRowOffset", x@address),
-                colOffset = .Call("GetColOffset", x@address),
-                nrow=nrow(x), ncol=ncol(x),
-                rowNames=rownames(x), colNames=colnames(x), type=typeof(x), 
-                separated=is.separated(x))
+    if (is.shared(x)) {
+      ret <- list(sharedType = 'SharedMemory',
+                  sharedName = shared.name(x), 
+                  totalRows = .Call("GetTotalRows", x@address),
+                  totalCols = .Call("GetTotalColumns", x@address),
+                  rowOffset = .Call("GetRowOffset", x@address),
+                  colOffset = .Call("GetColOffset", x@address),
+                  nrow=nrow(x), ncol=ncol(x),
+                  rowNames=rownames(x), colNames=colnames(x), type=typeof(x), 
+                  separated=is.separated(x))
+    } else {
+      stop("you can't describe a non-shared big.matrix.")
+    }
   }
   else
   {

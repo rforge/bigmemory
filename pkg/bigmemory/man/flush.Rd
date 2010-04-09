@@ -23,10 +23,12 @@ on flushing creates a bottleneck (likely near the threshold of available \acrony
 }
 \author{John W. Emerson and Michael J. Kane }
 \examples{
+
 x <- big.matrix(nrow=3, ncol=3, backingfile='flushtest.bin',
   descriptorfile='flushtest.desc', type='integer')
 x[1,1] <- 0
 flush(x)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

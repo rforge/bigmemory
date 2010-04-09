@@ -32,12 +32,14 @@ a \code{\link{big.matrix}}.
 \author{John W. Emerson and Michael J. Kane}
 \seealso{\code{\link{big.matrix}}}
 \examples{
+
 x <- as.big.matrix(matrix(1:30, 10, 3))
 y <- deepcopy(x, -1)    # Don't include the first column.
 x
 y
 head(x)
 head(y)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

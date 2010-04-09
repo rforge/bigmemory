@@ -40,6 +40,7 @@ a vector of row indices satisfying the criteria.
 \author{John W. Emerson and Michael J. Kane}
 \seealso{\code{\link{big.matrix}}, \code{\link{which}}}
 \examples{
+
 x <- as.big.matrix(matrix(1:30, 10, 3))
 options(bigmemory.allow.dimnames=TRUE)
 colnames(x) <- c("A", "B", "C")
@@ -78,5 +79,6 @@ x[1,1] <- Inf
 mwhich(x, 1, Inf, 'eq')
 mwhich(x, 1, 1, 'gt')
 mwhich(x, 1, 1, 'le')
+
 }
 \keyword{methods}

@@ -132,6 +132,7 @@ Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
 \code{\link{big.matrix}}, \code{\link{mwhich}}, \code{\link{read.big.matrix}}
 }
 \examples{
+
 # Our examples are all trivial in size, rather than burning huge amounts
 # of memory.
 
@@ -145,4 +146,5 @@ colnames(x)
 options(bigmemory.allow.dimnames=TRUE)
 colnames(x) <- NULL
 x[,]
+
 }

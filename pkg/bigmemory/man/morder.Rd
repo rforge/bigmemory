@@ -49,6 +49,7 @@ the rules here to avoid memory overhead and improve performance.
 \seealso{\code{\link{order}}
 }
 \examples{
+
 m = matrix(as.double(as.matrix(iris)), nrow=nrow(iris))
 morder(m, 1)
 order(m[,1])
@@ -56,6 +57,7 @@ order(m[,1])
 m[order(m[,1]), 2]
 mpermute(m, cols=1)
 m[,2]
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

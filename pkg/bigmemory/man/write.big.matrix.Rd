@@ -64,6 +64,7 @@ a \code{\link{big.matrix}} object is returned by \code{read.big.matrix}, while
 \author{John W. Emerson and Michael J. Kane }
 \seealso{\code{\link{big.matrix}}}
 \examples{
+
 # Without specifying the type, this big.matrix x will hold integers.
 x <- as.big.matrix(matrix(1:10, 5, 2))
 x[2,2] <- NA

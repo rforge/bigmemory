@@ -119,6 +119,7 @@ and \code{TRUE} or \code{FALSE} for \code{is.big.matrix} and the other functions
 \pkg{synchronicity}, and \pkg{bigalgebra} provide advanced functionality.
 }
 \examples{
+
 x <- big.matrix(10, 2, type='integer', init=-5)
 options(bigmemory.allow.dimnames=TRUE)
 colnames(x) <- c("alpha", "beta")
