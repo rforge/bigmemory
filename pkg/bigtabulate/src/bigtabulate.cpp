@@ -382,7 +382,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         tis[tableIndex].push_back(i+1);
       else
         tiv[tableIndex].push_back( 
-          m[static_cast<index_type>(NUMERIC_VALUE(splitcol))][i] );
+          m[static_cast<index_type>(NUMERIC_VALUE(splitcol))-1][i] );
     }
     if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
     {
