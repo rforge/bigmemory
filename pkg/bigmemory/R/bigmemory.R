@@ -18,7 +18,6 @@ setClass('descriptor', representation(description='list'))
 setClass('big.matrix.descriptor', contains='descriptor')
 
 # Here, x is a big.matrix, and the result is a descriptor.
-setGeneric('describe', function(x) standardGeneric('describe'))
 
 # Here, x is a descriptor, and the result is the description which is
 # the relevant data needed for the attach.
@@ -1161,12 +1160,6 @@ filebacked.big.matrix <- function(nrow, ncol,
   }
   return(x)
 }
-
-setMethod('describe', signature(x='big.matrix'),
-  function(x)
-  {
-    return(new('big.matrix.descriptor', description=DescribeBigMatrix(x)))
-  })
 
 setMethod('description', signature(x='big.matrix.descriptor'),
   function(x) return(x@description))
