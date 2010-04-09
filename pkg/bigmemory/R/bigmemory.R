@@ -1128,7 +1128,7 @@ filebacked.big.matrix <- function(nrow, ncol,
     (basename(descriptorfile) != descriptorfile)) )
   {
     stop(paste("The path to the descriptor and backing file are",
-      , "specified with the backingpath option"))
+               "specified with the backingpath option"))
   }
   if (is.null(backingpath)) backingpath <- '.'
   backingpath <- path.expand(backingpath)
