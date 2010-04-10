@@ -1047,7 +1047,7 @@ setMethod('is.sub.big.matrix', signature(x='big.matrix'),
 # of row.  This could be made more sophiticated but it would probably
 # take a lot of work.
 setGeneric('sub.big.matrix', function(x, firstRow=1, lastRow=NULL,
-  firstCol=1, lastCol=NULL, backingpath='') standardGeneric('sub.big.matrix'))
+  firstCol=1, lastCol=NULL, backingpath=NULL) standardGeneric('sub.big.matrix'))
 
 setMethod('sub.big.matrix', signature(x='big.matrix'),
   function(x, firstRow, lastRow, firstCol, lastCol, backingpath)
