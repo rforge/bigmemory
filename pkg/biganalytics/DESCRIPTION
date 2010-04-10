@@ -5,7 +5,7 @@ Title: A library of utilities for big.matrix objects of package bigmemory.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
 Depends: methods, stats, utils, bigmemory (>= 4.0.0)
-Suggests: foreach, biglm, bigtabulate
+Suggests: foreach, biglm
 Description: This package extends the bigmemory package with various analytics.
   Functions bigkmeans and binit may also be used with native R objects. 
   For tapply-like functions, the bigtabulate package may also be helpful.
