@@ -269,7 +269,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     lmi["summary"] = i++;
     retNames.push_back(std::string("summary"));
   }
-  
   SEXP ret = PROTECT(NEW_LIST(i));
   setAttrib( ret, R_NamesSymbol, StringVec2RChar( retNames ) );
   SET_VECTOR_ELT( ret, lmi[string("levels")], uniqueLevels );
@@ -330,7 +329,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     if ( isna(NUMERIC_VALUE(splitcol)) )
     {
       tis.resize(totalListSize);
-      std::cout << "tis resized to " << tis.size() << std::endl;
     }
     else
       tiv.resize(totalListSize);
@@ -438,7 +436,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
           Indices &ind = tis[i];
           vec = PROTECT(NEW_NUMERIC(tis[i].size()));
           ++protectCount;
-          std::copy( ind.begin(), ind.end(), RData(vec) );
+          std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
           SET_VECTOR_ELT( mapRet, i, vec );
         }
       }
