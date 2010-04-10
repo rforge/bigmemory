@@ -145,7 +145,7 @@ submatrices of rows and columns 1, 4, and 5.  Note that different functions
 can make use of different sets of columns, but the share a common
 conditional structure. It is assumed that there is sufficient RAM 
 to support the analysis of one (or a few) submatrices of data; however, the
-use of  shared memory via \code{\link[bigmemory]{bigmemory}} can be particularly 
+use of  shared memory via \code{\link[bigmemory]{bigmemory-package}} can be particularly 
 efficient.
 
 Finally, \code{bigsplit} is somewhat more general than \code{split}.
