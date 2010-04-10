@@ -11,11 +11,11 @@ if (Sys.info()[['sysname']] == "Windows" )
 } else {
   if (length( grep( 'Rlapack', list.files(file.path(R.home(), "lib"))))==0)
   {
-    lapacklib = '-llapack'
-    blaslib = '-lblas'
+    lapacklib = paste("-L", file.path(R.home(), "lib"), ' -llapack', sep='')
+    blaslib = paste("-L", file.path(R.home(), "lib"), ' -lblas', sep='')
   } else {
-    lapacklib = '-lRlapack'
-    blaslib = '-lRblas'
+    lapacklib = paste("-L", file.path(R.home(), "lib"), ' -lRlapack', sep='')
+    blaslib = paste("-L", file.path(R.home(), "lib"), ' -lRblas', sep='')
   }
 #  pkgLibs="PKG_LIBS=-lblas -llapack " 
   pkgLibs=paste("PKG_LIBS=", lapacklib, " ", blaslib, " ", sep="")
