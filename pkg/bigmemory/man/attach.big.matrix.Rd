@@ -35,7 +35,7 @@ a \code{big.matrix} object.
 \code{attach.big.matrix} return a new instance of type \code{big.matrix}
 corresponding to a shared-memory or file-backed \code{big.matrix}.
 }
-\author{John W. Emerson and Michael J. Kane}
+\author{Michael J. Kane and John W. Emerson <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link{bigmemory}}, \code{\link{big.matrix}}, or the class documentation \code{\linkS4class{big.matrix}}.}
 \examples{
 

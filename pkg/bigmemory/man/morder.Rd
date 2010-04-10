@@ -45,7 +45,7 @@ function is called.
 This type of a side-effect is generally frowned upon in \R, but we ``break''
 the rules here to avoid memory overhead and improve performance.
 }
-\author{Michael J. Kane and John W. Emerson}
+\author{Michael J. Kane <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link{order}}
 }
 \examples{

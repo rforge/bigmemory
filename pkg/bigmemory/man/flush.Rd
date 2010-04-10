@@ -21,7 +21,7 @@ on flushing creates a bottleneck (likely near the threshold of available \acrony
 \value{
 \code{TRUE} or \code{FALSE} (invisible), indicating whether or not the flush was successful.
 }
-\author{John W. Emerson and Michael J. Kane }
+%\author{John W. Emerson and Michael J. Kane }
 \examples{
 
 x <- big.matrix(nrow=3, ncol=3, backingfile='flushtest.bin',

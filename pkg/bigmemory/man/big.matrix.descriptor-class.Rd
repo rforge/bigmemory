@@ -29,7 +29,7 @@ Class \code{"\linkS4class{descriptor}"}, directly.
 	 }
 }
 \references{Other types of descriptors are defined in package \pkg{synchronicity}.}
-\author{John W. Emerson and Michael J. Kane}
+%\author{John W. Emerson and Michael J. Kane}
 \note{We provide \code{attach.resource} for convenience, but expect most users
 will prefer\cr
 \code{\link{attach.big.matrix}}.}

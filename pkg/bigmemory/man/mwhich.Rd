@@ -37,7 +37,7 @@ in \acronym{C++}.
 \value{
 a vector of row indices satisfying the criteria.
 }
-\author{John W. Emerson and Michael J. Kane}
+\author{John W. Emerson <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link{big.matrix}}, \code{\link{which}}}
 \examples{
 

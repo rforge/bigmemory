@@ -69,7 +69,7 @@ An object of class \code{kmeans}, just as produced by \code{\link{kmeans}}.
   eds L. M. Le Cam & J. Neyman,
   \bold{1}, pp. 281--297. Berkeley, CA: University of California Press.
 }
-\author{John W. Emerson and Michael J. Kane }
+\author{John W. Emerson <bigmemoryauthors.@gmail.com>}
 \seealso{\code{\link[bigmemory]{big.matrix}}, \code{\link[foreach]{foreach}}}
 \examples{
   # Simple example (with one processor):

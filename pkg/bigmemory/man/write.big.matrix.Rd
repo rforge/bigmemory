@@ -61,7 +61,7 @@ to numeric values.  Would you use such features?  Email us and let us know!
 a \code{\link{big.matrix}} object is returned by \code{read.big.matrix}, while
 \code{write.big.matrix} creates an output file (a path could be part of \code{filename}).
 }
-\author{John W. Emerson and Michael J. Kane }
+\author{John W. Emerson and Michael J. Kane <bigmemoryauthors@gmail.com> }
 \seealso{\code{\link{big.matrix}}}
 \examples{
 

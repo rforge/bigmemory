@@ -33,7 +33,7 @@ otherwise.
 A \code{\link{big.matrix}} which is actually a submatrix of a larger \code{big.matrix}.
 It is not a physical copy.  Only contiguous blocks may form a submatrix.
 }
-\author{John W. Emerson and Michael J. Kane}
+%\author{John W. Emerson and Michael J. Kane}
 \seealso{\code{\link{big.matrix}}}
 \examples{
 

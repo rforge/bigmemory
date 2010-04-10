@@ -37,7 +37,7 @@ an object of class \code{biglm}.
 Thomas Lumley (2005). biglm: bounded memory linear and generalized
   linear models. R package version 0.4.
 }
-\author{Michael J. Kane}
+%\author{Michael J. Kane}
 \seealso{\code{\link[biglm]{biglm}}, \code{\link[bigmemory]{big.matrix}}}
 \examples{
 # This example is quite silly, using the iris

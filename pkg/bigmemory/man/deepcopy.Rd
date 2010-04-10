@@ -29,7 +29,7 @@ It can also make a copy of only a subset of columns.
 \value{
 a \code{\link{big.matrix}}.
 }
-\author{John W. Emerson and Michael J. Kane}
+%\author{John W. Emerson and Michael J. Kane}
 \seealso{\code{\link{big.matrix}}}
 \examples{
 
