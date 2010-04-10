@@ -104,7 +104,7 @@ bigtabulate <- function(x,
     stop("non-list split is not allowed on a column")
 
   if (!is.matrix(x)) {
-    ans <- .Call("BigMatrixTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
+    ans <- .Call("BigMatrixTAPPLY", x@address, as.numeric(ccols), as.numeric(breakm),
                  as.logical(table), as.integer(table.useNA),
                  as.logical(summary), as.numeric(summary.cols), 
                  as.logical(summary.na.rm), splitcol, as.logical(splitlist))
