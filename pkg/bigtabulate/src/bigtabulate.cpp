@@ -395,8 +395,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         if (isna(static_cast<typename MatrixAccessorType::value_type>(matVal)))
         {
           ++ss[tableIndex][6];
-          if (!LOGICAL_VALUE(summaryNARM))
-            continue;
+          continue;
         }
         if (ss[tableIndex][4] == 0) 
         {
