@@ -3,14 +3,14 @@
 \alias{lock}
 \alias{lock.shared}
 \alias{unlock}
-\title{Lock and Unlock a Mutex}
+\title{Lock and unlock a mutex}
 \description{The \code{lock} and \code{unlock} functions allow a user to
 specify exclusive or shared access to a resource.}
 \usage{lock(m, \dots)
 lock.shared(m, \dots)
 unlock(m, \dots)}
 \arguments{
-  \item{m}{an object derived from class named.exclusive.lock.call}
+  \item{m}{an object derived from class mutex.}
   \item{\dots}{options associated with the mutex being used including 
 \code{block} which forces the mutex to return immediately after trying
 to acquire a lock}

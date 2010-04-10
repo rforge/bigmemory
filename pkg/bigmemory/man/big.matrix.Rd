@@ -112,7 +112,7 @@ A \code{big.matrix} is returned (for \code{big.matrix} and
 \code{filebacked.big.matrix}, and\cr \code{as.big.matrix}),
 and \code{TRUE} or \code{FALSE} for \code{is.big.matrix} and the other functions.
 }
-\author{John W. Emerson and Michael J. Kane}
+\author{John W. Emerson and Michael J. Kane <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link{bigmemory}}, and perhaps the class documentation of
 \code{\linkS4class{big.matrix}}; \code{\link{attach.big.matrix}} and
 \code{\link{describe}}.  Sister packages \pkg{biganalytics}, \pkg{bigtabulate},

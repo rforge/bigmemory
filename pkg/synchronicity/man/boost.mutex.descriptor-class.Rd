@@ -28,7 +28,7 @@ Class \code{"\linkS4class{descriptor}"}, directly.
 	 }
 }
 \author{Michael J. Kane <kaneplusplus@gmail.com>}
-\seealso{See also \code{\link{boost.mutex}}}
+\seealso{\code{\link{boost.mutex}}}
 \examples{
 showClass("boost.mutex.descriptor")
 }

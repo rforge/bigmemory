@@ -1,5 +1,5 @@
 \name{synchronicity-package}
-\Rdversion{1.0.2}
+\Rdversion{1.0.4}
 \alias{synchronicity-package}
 \alias{synchronicity}
 \docType{package}
@@ -15,8 +15,8 @@ support interprocess communication (ipc) and message passing.
 \tabular{ll}{
 Package: \tab synchronicity\cr
 Type: \tab Package\cr
-Version: \tab 1.0.3\cr
-Date: \tab 2010-03-31\cr
+Version: \tab 1.0.4\cr
+Date: \tab 2010-04-10\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
@@ -25,7 +25,7 @@ LazyLoad: \tab yes\cr
 }
 \author{Michael J. Kane <kaneplusplus@gmail.com>}
 \references{
-The Bigmemory Project: \url{http://www.bigmemory.org/}.
+The Bigmemory Project: \url{http://www.bigmemory.org/}. //
 Boost Interprocess Library: \url{http://www.boost.org/}.
 }
 \examples{

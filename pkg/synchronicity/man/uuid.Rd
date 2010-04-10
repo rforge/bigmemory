@@ -6,7 +6,7 @@ Create a universal unique identifier.
 }
 \description{
 This function creates an identifier that will be (with high probability)
-unique on a single machine or group of machines
+unique on a single machine or group of machines.
 }
 \usage{
 uuid()
@@ -18,7 +18,7 @@ The functions uses the boost uuid functionality.
 A unique string.
 }
 \references{
-http://www.boostpro.com/vault/
+/url{http://www.boost.org/doc/libs/1_42_0/libs/uuid/uuid.html}
 }
 \author{Michael J. Kane <kaneplusplus@gmail.com>}
 \examples{

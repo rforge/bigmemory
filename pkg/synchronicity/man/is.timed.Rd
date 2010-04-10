@@ -1,7 +1,7 @@
 \name{is.timed, timeout}
 \alias{is.timed}
 \alias{timeout}
-\title{ Timeout Operations for boost.mutex Objects }
+\title{ Timeout operations for boost.mutex objects }
 \description{
 The \code{is.timed} function tells if a \code{boost.mutex} object has a timeout.
 The \code{timeout} function tells how long a mutex will wait for a timeout.
@@ -12,7 +12,7 @@ timeout(m)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{m}{ The \code{boost.mutex} object to get timeout information for }
+  \item{m}{ a \code{boost.mutex} object to get timeout information for }
 }
 \value{
 \code{is.timed} returns \code{TRUE} if the object has a timeout and \code{FALSE}

@@ -159,7 +159,7 @@ conduct a split of \code{x[,splitcol]}.
 array-like object(s), each similar to what is returned by 
 \code{\link{tapply}} and the associated \R functions.
 }
-\author{John W. Emerson and Michael J. Kane <bigmemoryauthors@gmail.com}
+\author{Michael J. Kane and John W. Emerson <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link[bigmemory]{big.matrix}}, \code{\link{tapply}},
 \code{\link{aggregate}}, \code{\link{table}}, \code{\link{split}}}
 \examples{

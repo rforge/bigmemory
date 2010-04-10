@@ -1,6 +1,6 @@
 \name{shared.name}
 \alias{shared.name}
-\title{The Name of a Mutex's Shared Resource}
+\title{The name of a mutex's shared resource}
 \description{
 This function returns the shared resource associated with a
 \code{boost.mutex} object.

@@ -2,7 +2,7 @@
 \Rdversion{1.1}
 \alias{describe}
 \alias{attach.mutex}
-\title{Create Descriptors to Mutexes and Attach}
+\title{Create descriptors to mutexes and attach}
 \description{
 The \code{describe} function returns information that is needed to 
 ``connect'' to a mutex from another process.  This connection is performed
@@ -13,9 +13,7 @@ attach.mutex(obj, \dots)}
 \arguments{
   \item{x}{a \code{boost.mutex} object}
   \item{obj}{a \code{boost.mutex.descriptor} object}
-  \item{\dots}{options associated with the mutex being used including
-\code{path} which gives the directory where a \code{boost.mutex.descriptor}
-object has been stored via dput. }
+  \item{\dots}{other options needed to attach to a mutex.}
 }
 \value{
 The \code{describe} function returns a \code{boost.mutex.descriptor} object.

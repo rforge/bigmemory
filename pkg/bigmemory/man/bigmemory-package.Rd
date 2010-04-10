@@ -11,7 +11,7 @@ by default,
 allocated to shared memory and may use memory-mapped files.  Packages
 \pkg{biganalytics}, \pkg{synchronicity}, \pkg{bigalgebra}, and \pkg{bigtabulate} provide
 advanced functionality.  Access to and manipulation of a \code{\link{big.matrix}}
-object is exposed in \R by an \acronym{S4} class whose interface is simlar
+object is exposed in \R by an S4 class whose interface is simlar
 to that of an \R \code{\link{matrix}}.  Use of these packages in parallel environments
 can provide substantial speed and memory efficiencies.  \pkg{bigmemory} also
 provides a \acronym{C++} framework for the development of new tools that can
@@ -24,7 +24,7 @@ Type: \tab Package\cr
 Version: \tab 4.1.5\cr
 Date: \tab 2010-04-09\cr
 License: \tab LGPL-3\cr
-Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
+Copyright: \tab (C) 2010 Michael J. Kane and John W. Emerson\cr
 URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
@@ -124,7 +124,7 @@ subsets of the matrix.
 \author{
 Michael J. Kane and John W. Emerson
 
-Maintainers: Jay and Mike <bigmemoryauthors@gmail.com>
+Maintainers: Mike and Jay <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}

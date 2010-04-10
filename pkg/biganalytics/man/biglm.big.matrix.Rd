@@ -27,7 +27,7 @@ bigglm.big.matrix( formula, data, chunksize=NULL, ..., fc=NULL,
 \details{
 See \pkg{biglm} package for more information;  
 \code{chunksize} defaults to\cr
-\code{floor(nrow(data)/ncol(data)^2)}.
+\code{max(floor(nrow(data)/ncol(data)^2), 10000)}.
 }
 \value{
 an object of class \code{biglm}.

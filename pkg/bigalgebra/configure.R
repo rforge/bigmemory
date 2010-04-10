@@ -9,7 +9,7 @@ if (Sys.info()[['sysname']] == "Windows" )
   bigmemoryDirNames = gsub('\\\\', "/", path.expand(bigmemoryDirNames))
   pkgLibs="PKG_LIBS=-lRblas -lRlapack "
 } else {
-  if ( length( grep( 'lapack', list.files(file.path(R.home(), "lib"))) ) )
+  if (length( grep( 'Rlapack', list.files(file.path(R.home(), "lib"))))==0)
   {
     lapacklib = '-llapack'
     blaslib = '-lblas'
