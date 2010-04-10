@@ -5,7 +5,7 @@ bigtabulate <- function(x,
                         splitcol=NULL, splitret="list") {
 
   if (!is.matrix(x) && !is.data.frame(x)) {
-    if (class(x)=="big.matrix")
+    if (class(x)!="big.matrix")
       stop("bigtabulate requires matrix, data.frame, or big.matrix objects.")
   }
 
