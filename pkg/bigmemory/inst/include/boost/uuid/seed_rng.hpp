@@ -147,7 +147,7 @@ private:
 
             if(random_)
             {
-                std::fread( buffer, 1, 20, random_ );
+                size_t temp = std::fread( buffer, 1, 20, random_ );
             }
 
             // using an uninitialized buffer[] if fopen fails
