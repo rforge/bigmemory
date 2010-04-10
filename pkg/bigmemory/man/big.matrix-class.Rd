@@ -95,7 +95,7 @@ The following are probably more interesting:
     \item{apply}{\code{signature(x = "big.matrix")}: \code{apply()} where \code{MARGIN} may only be 1 or 2, but otherwise conforming to what you would expect from \code{apply()}.}
 	 }
 }
-%\author{John W. Emerson and Michael J. Kane}
+\author{Michael J. Kane and John W. Emerson <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link{big.matrix}}}
 \examples{
 showClass("big.matrix")
