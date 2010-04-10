@@ -8,8 +8,17 @@ if (Sys.info()[['sysname']] == "Windows" )
 {
   bigmemoryDirNames = gsub('\\\\', "/", path.expand(bigmemoryDirNames))
   pkgLibs="PKG_LIBS=-lRblas -lRlapack "
-}else{
-  pkgLibs="PKG_LIBS=-lblas -llapack " 
+} else {
+  if ( length( grep( 'lapack', list.files(file.path(R.home(), "lib"))) ) )
+  {
+    lapacklib = '-llapack'
+    blaslib = '-lblas'
+  } else {
+    lapacklib = '-lRlapack'
+    blaslib = '-lRblas'
+  }
+#  pkgLibs="PKG_LIBS=-lblas -llapack " 
+  pkgLibs=paste("PKG_LIBS=", lapacklib, " ", blaslib, " ", sep="")
 }
 isDir = file.info(bigmemoryDirNames)$isdir
 isDir[is.na(isDir)] = FALSE
