@@ -23,9 +23,10 @@ URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
 }
-\author{Michael J. Kane <kaneplusplus@gmail.com>}
+\author{Michael J. Kane <bigmemoryauthors@gmail.com>}
 \references{
-The Bigmemory Project: \url{http://www.bigmemory.org/}. //
+The Bigmemory Project: \url{http://www.bigmemory.org/}. 
+
 Boost Interprocess Library: \url{http://www.boost.org/}.
 }
 \examples{

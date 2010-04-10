@@ -18,7 +18,7 @@ mutex will attempt to acquire the lock indefinitely.}
 \value{
   This function returns a \code{boost.mutex} object.
 }
-\author{Michael J. Kane <kaneplusplus@gmail.com>}
+\author{Michael J. Kane <bigmemoryauthors@gmail.com>}
 
 \seealso{\code{\link{synchronicity}}}
 \examples{

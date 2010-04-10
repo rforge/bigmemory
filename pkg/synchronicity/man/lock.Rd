@@ -28,7 +28,7 @@ block until the shared lock is released.
 The function returns \code{TRUE} if the lock is successfully called and
 \code{FALSE} otherwise
 }
-\author{Michael J. Kane <kaneplusplus@gmail.com>}
+\author{Michael J. Kane <bigmemoryauthors@gmail.com>}
 \examples{
   m = boost.mutex()
   lock(m)

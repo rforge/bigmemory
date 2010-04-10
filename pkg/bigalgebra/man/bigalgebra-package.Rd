@@ -30,7 +30,7 @@ of the arguments.
 \author{
 Michael J. Kane, Bryan Lewis, John W. Emerson
 
-Maintainer: Mike <kaneplusplus@gmail.com>
+Maintainer: Mike <bigmemoryauthors@gmail.com>
 }
 \references{
 \url{http://www.netlib.org/blas/}

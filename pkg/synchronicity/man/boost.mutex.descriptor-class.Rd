@@ -27,7 +27,7 @@ Class \code{"\linkS4class{descriptor}"}, directly.
     \item{attach.mutex}{\code{signature(obj = "boost.mutex.descriptor")}: ... }
 	 }
 }
-\author{Michael J. Kane <kaneplusplus@gmail.com>}
+\author{Michael J. Kane <bigmemoryauthors@gmail.com>}
 \seealso{\code{\link{boost.mutex}}}
 \examples{
 showClass("boost.mutex.descriptor")

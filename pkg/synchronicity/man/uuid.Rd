@@ -20,7 +20,7 @@ A unique string.
 \references{
 \url{http://www.boost.org/doc/libs/1_42_0/libs/uuid/uuid.html}
 }
-\author{Michael J. Kane <kaneplusplus@gmail.com>}
+\author{Michael J. Kane <bigmemoryauthors@gmail.com>}
 \examples{
 print(uuid())
 print(uuid())
