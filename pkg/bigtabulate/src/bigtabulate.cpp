@@ -567,21 +567,21 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks,
     switch (pMat->matrix_type())
     {
       case 1:
-        return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), columns, 
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<int>( SepMatrixAccessor<char>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
       case 2:
-        return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), columns,
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<int>( SepMatrixAccessor<short>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
       case 4:
-        return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), columns,
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<int>( SepMatrixAccessor<int>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
       case 8:
-        return TAPPLY<double>( SepMatrixAccessor<double>(*pMat), columns,
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<double>( SepMatrixAccessor<double>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
     }
   }
   else
@@ -589,21 +589,21 @@ SEXP BigMatrixTAPPLY( SEXP bigMatAddr, SEXP columns, SEXP breaks,
     switch (pMat->matrix_type())
     {
       case 1:
-        return TAPPLY<int>( MatrixAccessor<char>(*pMat), columns,
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<int>( MatrixAccessor<char>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
       case 2:
-        return TAPPLY<int>( MatrixAccessor<short>(*pMat), columns, 
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<int>( MatrixAccessor<short>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
       case 4:
-        return TAPPLY<int>( MatrixAccessor<int>(*pMat), columns, 
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<int>( MatrixAccessor<int>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
       case 8:
-        return TAPPLY<double>( MatrixAccessor<double>(*pMat), columns, 
-          breaks, processColumns, returnTable, useNA,
-          returnSummary, summaryNARM, splitcol, splitlist );
+        return TAPPLY<double>( MatrixAccessor<double>(*pMat), 
+          columns, breaks, returnTable, useNA,
+          returnSummary, processColumns, summaryNARM, splitcol, splitlist );
     }
   }
   return R_NilValue;
