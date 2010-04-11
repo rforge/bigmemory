@@ -231,7 +231,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
     names(stats)[i] <- thisname
   }
 
-  # Here, process fargs chunkwise.  Use foreach on the chunks.
+  # Here, process the chunks of data.
   xdesc <- if (!is.matrix(x)) describe(x) else NULL
   fans <- foreach(i=usesplit) %dopar% {
     if (is.null(i)) {
@@ -240,22 +240,23 @@ bigaggregate <- function(x, stats, usesplit=NULL,
       return(temp)
     }
     if (!is.null(xdesc)) {
-      y <- attach.big.matrix(xdesc)
-      y <- y[i,,drop=FALSE]
-    } else {
-      y <- x[i,,drop=FALSE]
-    }
+      x <- attach.big.matrix(xdesc)
+      #y <- y[i,,drop=FALSE]
+    } #else {
+      #y <- x[i,,drop=FALSE]
+    #}
     temp <- vector("list", length=0)
     for (j in names(stats)) {
       farg <- stats[[j]]
       tempname <- names(formals(farg[[1]]))[1]
       if (is.character(farg[[1]])) farg[[1]] <- as.symbol(farg[[1]])
-      farg[[2]] <- y[,farg[[2]],drop=FALSE]
+      farg[[2]] <- x[i,farg[[2]],drop=FALSE]
       if (!is.null(tempname)) names(farg)[2] <- tempname
       else names(farg)[2] <- ""
       mode(farg) <- "call"
       temp[[j]] <- eval(farg)
     }
+    
     return(temp)
   }
 
