@@ -241,20 +241,20 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
 }
 
 template<typename T>
-long double stable_mean( T* pv, const std::vector<double> &rows, 
-  long double mean1 )
+double stable_mean( T* pv, const std::vector<double> &rows, 
+  LDOUBLE mean1 )
 {
   std::size_t i;
   if ( R_FINITE(static_cast<double>(mean1) ) )
   {
-    long double t= 0.;
+    LDOUBLE t= 0.;
     T v;
     for (i=0; i < rows.size(); ++i)
     {
       v = pv[static_cast<index_type>(rows[i])-1];
-      if (!isna(v)) t += static_cast<long double>(v) - mean1;
+      if (!isna(v)) t += static_cast<LDOUBLE>(v) - mean1;
     }
-    return mean1 + t / static_cast<long double>(rows.size());
+    return mean1 + t / static_cast<LDOUBLE>(rows.size());
     
   }
   else
@@ -269,8 +269,8 @@ double var( T* pv, const std::vector<double> &rows, double mean )
   if (rows.size() == 0)
     return NA_REAL;
 
-  long double s=0.0;
-  std::size_t i;
+  LDOUBLE s=0.0;
+  std::size_t i, naCount=0;
   T v;
   for (i=0; i < rows.size(); ++i)
   {
@@ -279,8 +279,12 @@ double var( T* pv, const std::vector<double> &rows, double mean )
     {
       s+=(static_cast<double>(v)-mean)*(static_cast<double>(v)-mean);
     }
+    else
+    {
+      ++naCount;
+    }
   }
-  return static_cast<double>(s / (static_cast<long double>(rows.size()) - 1.0));
+  return static_cast<double>(s/(static_cast<LDOUBLE>(rows.size()-naCount)-1.0));
 }
 
 
@@ -541,7 +545,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       SEXP retMat = allocMatrix(REALSXP, ts.size(), 5);
       setAttrib(retMat, R_DimNamesSymbol, dimnames);
       MatrixAccessor<double> rm( NUMERIC_DATA(retMat), ts.size() );
-      long double temp;
+      LDOUBLE temp;
       for (j=0; j < static_cast<index_type>(ts.size()); ++j)
       {
         if (tvs[i] > 0)
@@ -551,8 +555,8 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
             rm[0][j] = ts[j][i][0];
             rm[1][j] = ts[j][i][1];
             temp = stable_mean( m[procCols[j]], tis[i], 
-              static_cast<long double>(ts[j][i][2]) / 
-                static_cast<long double>(tvs[i]));
+              static_cast<LDOUBLE>(ts[j][i][2]) / 
+                static_cast<LDOUBLE>(tvs[i]-ts[j][i][5]));
             rm[2][j] = static_cast<double>(temp);
             rm[3][j] = sqrt( var( m[procCols[j]], tis[i], temp ) );
             rm[4][j] = ts[j][i][5];
