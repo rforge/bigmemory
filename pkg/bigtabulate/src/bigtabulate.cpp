@@ -240,6 +240,50 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
   return(ret);
 }
 
+template<typename T>
+long double stable_mean( T* pv, const std::vector<double> &rows, 
+  long double mean1 )
+{
+  std::size_t i;
+  if ( R_FINITE(static_cast<double>(mean1) ) )
+  {
+    long double t= 0.;
+    T v;
+    for (i=0; i < rows.size(); ++i)
+    {
+      v = pv[static_cast<index_type>(rows[i])-1];
+      if (!isna(v)) t += static_cast<long double>(v) - mean1;
+    }
+    return mean1 + t / static_cast<long double>(rows.size());
+    
+  }
+  else
+  {
+    return mean1;
+  }
+}
+
+template<typename T>
+double var( T* pv, const std::vector<double> &rows, double mean )
+{
+  if (rows.size() == 0)
+    return NA_REAL;
+
+  long double s=0.0;
+  std::size_t i;
+  T v;
+  for (i=0; i < rows.size(); ++i)
+  {
+    v = pv[static_cast<index_type>(rows[i])-1];
+    if (!isna(v)) 
+    {
+      s+=(static_cast<double>(v)-mean)*(static_cast<double>(v)-mean);
+    }
+  }
+  return static_cast<double>(s / (static_cast<long double>(rows.size()) - 1.0));
+}
+
+
 // For now, assume an index mapper.
 template<typename RType, typename MatrixAccessorType>
 SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
@@ -324,9 +368,9 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   typedef std::vector<index_type> ProcessColumns;
   ProcessColumns procCols;
  
-  if ( splitcol != NULL_USER_OBJECT )
+  if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
   {
-    if ( isna(NUMERIC_VALUE(splitcol)) )
+    if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
     {
       tis.resize(totalListSize);
     }
@@ -348,7 +392,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     ts.resize( procCols.size() );
     // min, max, sum, sum^2
     std::fill( ts.begin(), ts.end(), 
-      TableSummaries(totalListSize, TableSummary(7, 0)) );
+      TableSummaries(totalListSize, TableSummary(6, 0.)) );
   }
   // Get the indices for each of the column-value combinations.
   for (i=0; i < m.nrow(); ++i)
@@ -371,9 +415,9 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     if (tableIndex == -1 || mapperVal == -1)
       continue;
     tableIndex += mapperVal;
-    if ( splitcol != NULL_USER_OBJECT )
+    if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
     {
-      if ( isna(NUMERIC_VALUE(splitcol)) )
+      if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
         tis[tableIndex].push_back(i+1);
       else
         tiv[tableIndex].push_back( 
@@ -392,23 +436,23 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
           m[static_cast<index_type>(procCols[k])][i]);
         if (isna(static_cast<typename MatrixAccessorType::value_type>(matVal)))
         {
-          ++ss[tableIndex][6];
+          ++ss[tableIndex][5];
           continue;
         }
-        if (ss[tableIndex][4] == 0) 
+        if (ss[tableIndex][3] == 0) 
         {
           ss[tableIndex][0] = matVal;
-          ss[tableIndex][4] = 1;
+          ss[tableIndex][3] = 1;
         }
         else
         {
           if (ss[tableIndex][0] > matVal)
             ss[tableIndex][0] = matVal;
         }
-        if (ss[tableIndex][5] == 0) 
+        if (ss[tableIndex][4] == 0) 
         {
           ss[tableIndex][1] = matVal;
-          ss[tableIndex][5] = 1;
+          ss[tableIndex][4] = 1;
         }
         else
         {
@@ -416,7 +460,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
             ss[tableIndex][1] = matVal;
         }
         ss[tableIndex][2] += matVal;
-        ss[tableIndex][3] += pow(matVal, 2.0);
       }
     }
   }
@@ -498,6 +541,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       SEXP retMat = allocMatrix(REALSXP, ts.size(), 5);
       setAttrib(retMat, R_DimNamesSymbol, dimnames);
       MatrixAccessor<double> rm( NUMERIC_DATA(retMat), ts.size() );
+      long double temp;
       for (j=0; j < static_cast<index_type>(ts.size()); ++j)
       {
         if (tvs[i] > 0)
@@ -506,10 +550,12 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
           {
             rm[0][j] = ts[j][i][0];
             rm[1][j] = ts[j][i][1];
-            rm[2][j] = ts[j][i][2] / static_cast<double>(tvs[i]);
-            rm[3][j] = (ts[j][i][3] - pow(ts[j][i][2], 2.0)) / 
-              static_cast<double>(tvs[i]);
-            rm[4][j] = ts[j][i][6];
+            temp = stable_mean( m[procCols[j]], tis[i], 
+              static_cast<long double>(ts[j][i][2]) / 
+                static_cast<long double>(tvs[i]));
+            rm[2][j] = static_cast<double>(temp);
+            rm[3][j] = sqrt( var( m[procCols[j]], tis[i], temp ) );
+            rm[4][j] = ts[j][i][5];
           }
           else
           {
@@ -517,7 +563,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
             rm[1][j] = NA_REAL;
             rm[2][j] = NA_REAL;
             rm[3][j] = NA_REAL;
-            rm[4][j] = ts[j][i][6];
+            rm[4][j] = ts[j][i][5];
           }
         }
         else
