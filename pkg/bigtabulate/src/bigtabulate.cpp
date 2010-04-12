@@ -507,8 +507,8 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
             rm[0][j] = ts[j][i][0];
             rm[1][j] = ts[j][i][1];
             rm[2][j] = ts[j][i][2] / static_cast<double>(tvs[i]);
-            rm[3][j] = ts[j][i][3] / static_cast<double>(tvs[i]) -
-              pow( rm[2][j], 2.0 );
+            rm[3][j] = (ts[j][i][3] - pow(ts[j][i][2], 2.0)) / 
+              static_cast<double>(tvs[i]);
             rm[4][j] = ts[j][i][6];
           }
           else

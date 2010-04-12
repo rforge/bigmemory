@@ -726,7 +726,7 @@ struct SecondIsNA : public std::unary_function<PairType, bool>
 
 template<typename MatrixAccessorType>
 void reorder_matrix( MatrixAccessorType m, SEXP orderVec, 
-  index_type numColumns )
+  index_type numColumns, FileBackedBigMatrix *pfbm )
 {
   double *pov = NUMERIC_DATA(orderVec);
   typedef typename MatrixAccessorType::value_type ValueType;
@@ -740,6 +740,7 @@ void reorder_matrix( MatrixAccessorType m, SEXP orderVec,
       vs[j] = m[i][static_cast<index_type>(pov[j])-1];
     }
     std::copy( vs.begin(), vs.end(), m[i] );
+    if (pfbm) pfbm->flush();
   }
 }
 
@@ -841,7 +842,7 @@ void ReorderRIntMatrix( SEXP matrixVector, SEXP nrow, SEXP ncol, SEXP orderVec )
   return reorder_matrix( 
     MatrixAccessor<int>(INTEGER_DATA(matrixVector), 
       static_cast<index_type>(INTEGER_VALUE(nrow))), orderVec,
-      static_cast<index_type>(INTEGER_VALUE(ncol)) );
+      static_cast<index_type>(INTEGER_VALUE(ncol)), NULL );
 }
 
 void ReorderRNumericMatrix( SEXP matrixVector, SEXP nrow, SEXP ncol, 
@@ -850,7 +851,7 @@ void ReorderRNumericMatrix( SEXP matrixVector, SEXP nrow, SEXP ncol,
   return reorder_matrix( 
     MatrixAccessor<double>(NUMERIC_DATA(matrixVector), 
       static_cast<index_type>(INTEGER_VALUE(nrow))), orderVec,
-      static_cast<index_type>(INTEGER_VALUE(ncol)) );
+      static_cast<index_type>(INTEGER_VALUE(ncol)), NULL );
 }
 
 void ReorderBigMatrix( SEXP address, SEXP orderVec )
@@ -862,16 +863,16 @@ void ReorderBigMatrix( SEXP address, SEXP orderVec )
     {
       case 1:
         return reorder_matrix( SepMatrixAccessor<char>(*pMat), orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
       case 2:
         return reorder_matrix( SepMatrixAccessor<short>(*pMat), orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
       case 4:
         return reorder_matrix( SepMatrixAccessor<int>(*pMat),orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
       case 8:
         return reorder_matrix( SepMatrixAccessor<double>(*pMat),orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
     }
   }
   else
@@ -880,16 +881,16 @@ void ReorderBigMatrix( SEXP address, SEXP orderVec )
     {
       case 1:
         return reorder_matrix( MatrixAccessor<char>(*pMat),orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
       case 2:
         return reorder_matrix( MatrixAccessor<short>(*pMat),orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
       case 4:
         return reorder_matrix( MatrixAccessor<int>(*pMat),orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
       case 8:
         return reorder_matrix( MatrixAccessor<double>(*pMat),orderVec,
-          pMat->ncol() );
+          pMat->ncol(), dynamic_cast<FileBackedBigMatrix*>(pMat) );
     }
   }
 }

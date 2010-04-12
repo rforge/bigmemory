@@ -1345,6 +1345,7 @@ morder <- function(x, cols, na.last=TRUE, decreasing = FALSE)
   {
     stop("Bad column indices.")
   }
+  if (is.character(cols)) cols <- mmap( cols, colnames(x) )
 
   if (class(x) == 'big.matrix')
   {
