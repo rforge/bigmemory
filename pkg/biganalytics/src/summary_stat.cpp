@@ -280,8 +280,8 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
 {
   if (n < 1) 
   {
-    value = NA_REAL;
-    return;
+    *value = NA_REAL;
+    return (Rboolean)TRUE;
   }
   tmean(x, n, value, narm, NA_VALUE);
   double avg = *value;
