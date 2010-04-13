@@ -239,12 +239,7 @@ bigaggregate <- function(x, stats, usesplit=NULL,
       names(temp) <- names(stats)
       return(temp)
     }
-    if (!is.null(xdesc)) {
-      x <- attach.big.matrix(xdesc)
-      #y <- y[i,,drop=FALSE]
-    } #else {
-      #y <- x[i,,drop=FALSE]
-    #}
+    if (!is.null(xdesc)) x <- attach.big.matrix(xdesc)
     temp <- vector("list", length=0)
     for (j in names(stats)) {
       farg <- stats[[j]]
@@ -256,6 +251,8 @@ bigaggregate <- function(x, stats, usesplit=NULL,
       mode(farg) <- "call"
       temp[[j]] <- eval(farg)
     }
+    rm(farg)
+    gc()
     
     return(temp)
   }
