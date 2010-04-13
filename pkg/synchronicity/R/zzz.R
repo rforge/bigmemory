@@ -1,8 +1,15 @@
 .onLoad <- function(libname, pkgname)
 {
-  if (!isGeneric('describe'))
+ 
+  if (!isGeneric('describe')) {
     setGeneric('describe', function(x) standardGeneric('describe'))
-  
+  } else { 
+    err <- try(asNamespace('bigmemory'), silent=TRUE)
+    if (!is(err, 'try-err')) {
+      setGeneric('describe', package='bigmemory')
+    }
+  }
+ 
   setMethod('describe', signature(x='boost.mutex'),
     function(x)
     {

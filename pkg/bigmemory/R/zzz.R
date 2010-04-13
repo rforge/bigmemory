@@ -1,8 +1,14 @@
 
 .onLoad <- function(libname, pkgname) {
 
-  if (!isGeneric('describe'))
+  if (!isGeneric('describe')) {
     setGeneric('describe', function(x) standardGeneric('describe'))
+  } else { 
+    err <- try(asNamespace('synchronicity'), silent=TRUE)
+    if (!is(err, 'try-err')) {
+      setGeneric('describe', package='synchronicity')
+    }
+  }
 
   setMethod('describe', signature(x='big.matrix'),
     function(x)
