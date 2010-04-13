@@ -1341,11 +1341,11 @@ setMethod('is.shared', signature(x='big.matrix'),
 
 morder <- function(x, cols, na.last=TRUE, decreasing = FALSE)
 {
+  if (is.character(cols)) cols <- mmap( cols, colnames(x) )
   if (sum(cols > ncol(x)) > 0 | sum(cols < 1) > 0 | sum(is.na(cols) > 0))
   {
     stop("Bad column indices.")
   }
-  if (is.character(cols)) cols <- mmap( cols, colnames(x) )
 
   if (class(x) == 'big.matrix')
   {
