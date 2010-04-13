@@ -232,41 +232,22 @@ Rboolean tmean(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
   LDOUBLE s = 0.0;
   index_type i;
   Rboolean updated = (Rboolean)TRUE;
-
+  std::size_t naCount=0;
   for (i = 0; i < n; i++) {
-    if (!isna(x[i])) 
+    if (!isna(x[i]))
+    { 
 			s += x[i];
+    }
     else if (!narm) {
       *value = NA_REAL;
       return(updated);
     }
-  }
-  s /= (LDOUBLE)n;
-  *value = (double) s;
-
-  return(updated);
-}
-
-Rboolean tmean(double *x, index_type n, double *value, Rboolean narm,
-               double NA_VALUE)
-{
-  LDOUBLE s = 0.0, t = 0.0;
-  index_type i;
-  Rboolean updated = (Rboolean)TRUE;
-
-  for (i = 0; i < n; i++) {
-    if (!ISNAN(x[i])) s += x[i];
-    else if (!narm) {
-      *value = NA_REAL;
-      return((Rboolean)TRUE);
+    else
+    {
+      ++naCount;
     }
   }
-  s /= (LDOUBLE)n;
-  if (R_FINITE((double)s)) {
-    for (i = 0; i < n; i++) t += (x[i] - s);
-    s += t / ((LDOUBLE)n);   
-  } 
-
+  s /= (LDOUBLE)(n-naCount);
   *value = (double) s;
 
   return(updated);
@@ -285,24 +266,32 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
   }
   tmean(x, n, value, narm, NA_VALUE);
   double avg = *value;
-
+  
   index_type i;
   Rboolean updated = (Rboolean)TRUE;
-  
+  index_type naCount=0;
   double sum=0.0;
-  double addNum;
+  T addNum;
   for (i=0; i < n; ++i) {
-    addNum = (double)x[i];
+    addNum = x[i];
     if (isna(addNum)) {
-      if (narm) continue;
-      else {
+      if ( (Rboolean)narm == TRUE )
+      {
+        ++naCount;
+      }
+      else 
+      {
         *value = NA_REAL;
         return updated;
       }
     }
-    sum += (addNum - avg) * (addNum - avg);
+    else
+    {
+      sum += (static_cast<double>(addNum) - avg) * 
+      (static_cast<double>(addNum) - avg);
+    }
   }
-  *value = sum/((double)n-1.0);
+  *value = sum/((double)(n-naCount)-1.0);
   return(updated);
 
 }
