@@ -19,8 +19,8 @@ providing gains in speed and memory-efficiency.
 \tabular{ll}{
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
-Version: \tab 1.0.7\cr
-Date: \tab 2010-04-08\cr
+Version: \tab 1.0.8\cr
+Date: \tab 2010-04-12\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
