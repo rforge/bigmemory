@@ -191,6 +191,14 @@ bigaggregate <- function(x, stats, usesplit=NULL,
   # At this point I have usesplit, which is the map.  Everything else is much like I had
   # previously in commented code, below.
 
+  if (is.data.frame(x)) {
+    for (i in 1:ncol(x)) {
+      if (is.character(x[,i])) x[,i] <- factor(x[,i])
+      if (is.factor(x[,i])) x[,i] <- as.integer(x[,i])
+    }
+    x <- as.matrix(x)
+  }
+
   require(foreach)
   if (is.null(getDoParName())) {
     registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
