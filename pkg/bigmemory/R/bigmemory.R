@@ -1266,8 +1266,13 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     }
     else
     {
+      if (!file.exists(file.path(path, info$filename)))
+      {
+        stop(paste("The backing file", paste(path, info$filename, sep=''),
+          "could not be found"))
+      }
       address <- .Call('CAttachFileBackedBigMatrix', 
-        info$fileName, path, info$totalRows, info$totalCols, 
+        info$filename, path, info$totalRows, info$totalCols, 
         as.character(info$rowNames), as.character(info$colNames), 
         as.integer(typeLength), info$separated)
     }

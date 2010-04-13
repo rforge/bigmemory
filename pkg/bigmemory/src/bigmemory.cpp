@@ -517,14 +517,15 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
   {
     // getline may be slow
     std::getline(file, lc);
-  
     string::size_type first=0, last=0;
     j=0;
     while (first < lc.size() && last < lc.size())
     {
       last = lc.find_first_of(sep, first);
       if (last > lc.size())
-        last = lc.size();
+      {
+        last = lc.size()-1;
+      }
       element = lc.substr(first, last-first);
       if (LOGICAL_VALUE(hasRowNames) && LOGICAL_VALUE(useRowNames) && 0==j)
       {
@@ -546,7 +547,7 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
       }
       else
       {
-        if (j-offset < pMat->ncol())
+        if (j-offset < pMat->ncol()+1)
         {
           if (element == "NA")
           {
