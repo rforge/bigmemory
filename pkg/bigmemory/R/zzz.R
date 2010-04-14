@@ -1,13 +1,11 @@
 
 .onLoad <- function(libname, pkgname) {
 
-  if (!isGeneric('describe')) {
-    setGeneric('describe', function(x) standardGeneric('describe'))
-  } else { 
-    err <- try(asNamespace('synchronicity'), silent=TRUE)
-    if (!is(err, 'try-err')) {
-      setGeneric('describe', package='synchronicity')
-    }
+  isNamespaceLoaded <- function(name)
+  { !is.null(.Internal(getRegisteredNamespace(as.name(name)))) }
+  
+  if (!isNamespaceLoaded('synchronicity')) {
+      setGeneric('describe', function(x) standardGeneric('describe'))
   }
 
   setMethod('describe', signature(x='big.matrix'),
