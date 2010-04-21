@@ -435,6 +435,10 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     {
       for (k=0; k < static_cast<index_type>(ts.size()); ++k)
       {
+        // index 5 is the na count
+        // index 4 means first min value is found
+        // index 3 means first max value is found
+        // index 2 is the running sum
         TableSummaries &ss = ts[k];
         double matVal = static_cast<double>(
           m[static_cast<index_type>(procCols[k])][i]);
@@ -550,7 +554,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       {
         if (tvs[i] > 0)
         {
-          if (LOGICAL_VALUE(summaryNARM) || ts[j][i][6] == 0)
+          if (LOGICAL_VALUE(summaryNARM) || ts[j][i][5] == 0)
           {
             rm[0][j] = ts[j][i][0];
             rm[1][j] = ts[j][i][1];
