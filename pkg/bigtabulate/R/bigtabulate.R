@@ -64,9 +64,9 @@ bigtabulate <- function(x,
 
   if (!is.logical(table)) stop("table must be logical.")
   table.useNA <- -1
-  if (useNA=="no") table.useNA <- 0
-  if (useNA=="ifany") table.useNA <- 1
-  if (useNA=="always") table.useNA <- 2
+  if (useNA=="no") table.useNA <- as.integer(0)
+  if (useNA=="ifany") table.useNA <- as.integer(1)
+  if (useNA=="always") table.useNA <- as.integer(2)
   if (table.useNA==-1) stop("invalid argument to useNA.")
 
   if (!is.logical(summary.na.rm)) stop("summary.na.rm must be logical.")
@@ -94,7 +94,7 @@ bigtabulate <- function(x,
   splitlist <- FALSE
   if (splitret=="list") splitlist <- TRUE
 
-  # splitcol=NULL	Don't return any map type of anything.         #### Make this -1?
+  # splitcol=NULL	Don't return any map type of anything.
   # splitcol=NA		Essentially split 1:nrow(x)
   # splitcol=a column   Split this single column.
   # splitlist=TRUE by default: the return is a list of either split 1:nrow(x) or col entries
@@ -105,22 +105,20 @@ bigtabulate <- function(x,
 
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x@address, as.numeric(ccols), as.numeric(breakm),
-                 as.logical(table), as.integer(table.useNA),
-                 as.logical(summary), as.numeric(summary.cols), 
-                 as.logical(summary.na.rm), splitcol, as.logical(splitlist))
+                 table, table.useNA,
+                 summary, as.numeric(summary.cols), 
+                 summary.na.rm, splitcol, splitlist)
   } else {
     if (is.integer(x)) {
       ans <- .Call("RIntTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
-                   as.logical(table), as.integer(table.useNA),
+                   table, table.useNA,
                    summary, as.numeric(summary.cols), 
-                   as.logical(summary.na.rm), splitcol, 
-                   as.logical(splitlist))
+                   summary.na.rm, splitcol, splitlist)
     } else {
       ans <- .Call("RNumericTAPPLY", x, as.numeric(ccols), as.numeric(breakm),
-                   as.logical(table), as.integer(table.useNA),
+                   table, table.useNA,
                    summary, as.numeric(summary.cols), 
-                   as.logical(summary.na.rm), splitcol, 
-                   as.logical(splitlist))
+                   summary.na.rm, splitcol, splitlist)
     }
   }
 
@@ -133,7 +131,6 @@ bigtabulate <- function(x,
   # - ans$split:	list of length prod(dim()) containing the split or map result;
   #                     nothing returned if is.null(splitcol), so don't return anything from C++
   #                     in that case.  Or a vector of the factor levels.
-
 
   z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
@@ -175,8 +172,8 @@ bigtsummary <- function(x, ccols,
 
   return(bigtabulate(x, ccols=ccols, breaks=breaks,
                      table=FALSE, useNA=useNA,
-                     summary.cols=cols, summary.na.rm=na.rm,
-                     splitcol=NULL))
+                     summary.cols=cols, summary.na.rm=na.rm))
+
 }
 
 bigaggregate <- function(x, stats, usesplit=NULL,
@@ -210,12 +207,14 @@ bigaggregate <- function(x, stats, usesplit=NULL,
 
   if (!is.null(getDoParName()) && getDoParName()!="doSEQ") {
     require(bigmemory)
+    if (distributed) bf <- "" 
+    else bf <- NULL
     if (is.matrix(x)) {
-      x <- as.big.matrix(x, backingfile=ifelse(distributed, "", NULL))
+      x <- as.big.matrix(x, backingfile=bf)
       warning("Temporary shared big.matrix created for parallel calculations.")
     }
-    if (!is.shared(x) || !is.filebacked(x)) {
-      x <- deepcopy(x, backingfile=ifelse(distributed, "", NULL))
+    if (!is.shared(x) && !is.filebacked(x)) {
+      x <- deepcopy(x, backingfile=bf)
       warning("Temporary shared big.matrix created for parallel calculations.")
     }
   }
