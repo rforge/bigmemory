@@ -129,6 +129,7 @@ colnames(x)
 rownames(x)
 x[,]
 x[1:8,1] <- 11:18
+colnames(x) <- NULL
 x[,]
 
 x <- as.big.matrix(matrix(-5, 10, 2))
