@@ -31,7 +31,7 @@ class BoostMutexInfo
       _counter.init(newName+"_counter");
     }
 
-    bool init(const std::string &newName, const index_type timeout)
+    bool init(const std::string &newName, const long timeout)
     {
       init(newName);
       _timeout = timeout;
@@ -55,7 +55,7 @@ class BoostMutexInfo
       }
     }
     
-    index_type timeout() const {return _timeout;}
+    long timeout() const {return _timeout;}
 
     std::string name() const {return _name;}
 
@@ -67,7 +67,7 @@ class BoostMutexInfo
     bool& locked() {return _locked;}
 
   protected:
-    index_type _timeout;
+    long _timeout;
     std::string _name;
     SharedCounter _counter;
     bool _read;
@@ -140,10 +140,9 @@ SEXP boost_unlock(const std::string &resourceName,
 extern "C"
 {
 
-ptime to_ptime( double timeout )
+ptime to_ptime( const long timeout )
 {
-  return second_clock::local_time() + 
-    seconds( static_cast<index_type>(timeout) );
+  return second_clock::local_time() + seconds( timeout );
 }
 
 void DestroyBoostMutexInfo( SEXP mutexInfoAddr )
@@ -167,7 +166,7 @@ SEXP CreateBoostMutexInfo( SEXP resourceName, SEXP timeout )
   else 
   {
     pbmi->init( RChar2String(resourceName), 
-      static_cast<index_type>( NUMERIC_VALUE(timeout) ) );
+      static_cast<long>( NUMERIC_VALUE(timeout) ) );
   }
   SEXP address = R_MakeExternalPtr( pbmi, R_NilValue, R_NilValue );
   R_RegisterCFinalizerEx( address, (R_CFinalizer_t)DestroyBoostMutexInfo,
@@ -191,7 +190,7 @@ SEXP GetTimeout( SEXP mutexInfoAddr )
     return NULL_USER_OBJECT;
   }
   SEXP ret = PROTECT(NEW_NUMERIC(1));
-  NUMERIC_DATA(ret)[0] = pbmi->timeout();
+  NUMERIC_DATA(ret)[0] = static_cast<double>(pbmi->timeout());
   UNPROTECT(1);
   return ret;
 }

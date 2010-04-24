@@ -52,7 +52,7 @@ setGeneric('timeout', function(m) standardGeneric('timeout'))
 setMethod('timeout', signature(m='boost.mutex'),
   function(m)
   {
-    return(.Call('GetTimeout', m))
+    return(.Call('GetTimeout', m@mutexInfoAddr))
   })
 
 setGeneric('is.timed', function(m) standardGeneric('is.timed'))
