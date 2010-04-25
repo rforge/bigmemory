@@ -1,4 +1,4 @@
 import(methods)
-export(bigtabulate, bigsplit, bigtable, bigtsummary, bigaggregate)
+export(bigtabulate, bigsplit, bigtable, bigtsummary)
 useDynLib(bigtabulate)
 

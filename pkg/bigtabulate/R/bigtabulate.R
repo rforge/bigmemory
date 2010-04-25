@@ -124,7 +124,7 @@ bigtabulate <- function(x,
 
   # The return will always contain
   # - ans$levels, a list of length(ccols) of factor levels possibly plus "NA"
-
+  #
   # It will contain at least one of the following:
   # - ans$table:	vector of length prod(dim())
   # - ans$summary:	list of length prod(dim()) of cell summary matrices with 5 columns
@@ -175,96 +175,101 @@ bigtsummary <- function(x, ccols,
 
 }
 
-bigaggregate <- function(x, stats, usesplit=NULL,
-                         ccols=NA, breaks=vector("list", length=length(ccols)), 
-                         useNA="no", distributed=FALSE, rettype="celllist", 
-                         simplify=TRUE) {
-  if (is.null(usesplit)) {
-    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, 
-      splitcol=NA, splitret="list")
-  }
-
-  # At this point I have usesplit, which is the map.  Everything else is much like I had
-  # previously in commented code, below.
-
-  if (is.data.frame(x)) {
-    for (i in 1:ncol(x)) {
-      if (is.character(x[,i])) x[,i] <- factor(x[,i])
-      if (is.factor(x[,i])) x[,i] <- as.integer(x[,i])
-    }
-    x <- as.matrix(x)
-  }
-
-  require(foreach)
-  if (is.null(getDoParName())) {
-    registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
-  }
-  if (!is.list(stats[[1]])) stats <- list(stats=stats)
-  if (is.null(names(stats))) stop("stats must be a named list")
-  if (length(unique(names(stats)))!=length(stats))
-    stop("names of stats list must be unique")
-
-  if (!is.null(getDoParName()) && getDoParName()!="doSEQ") {
-    require(bigmemory)
-    if (distributed) bf <- "" 
-    else bf <- NULL
-    if (is.matrix(x)) {
-      x <- as.big.matrix(x, backingfile=bf)
-      warning("Temporary shared big.matrix created for parallel calculations.")
-    }
-    if (!is.shared(x) && !is.filebacked(x)) {
-      x <- deepcopy(x, backingfile=bf)
-      warning("Temporary shared big.matrix created for parallel calculations.")
-    }
-  }
-
-  # Now prepare the arguments.
-  for (i in 1:length(stats)) {
-    thisname <- names(stats)[i]
-    args <- stats[[i]]
-    if (!is.list(args))
-      stop(paste("stats element", thisname, "needs to be list."))
-    if (!is.function(args[[1]]) && !is.character(args[[1]])) {
-      stop(paste("first argument of stats element", thisname, 
-        "needs to be a function."))
-    }
-    if (is.character(args[[2]])) {
-      if (is.null(colnames(x))) stop("column names do not exist.")
-      else args[[2]] <- bigmemory:::mmap(args[[2]], colnames(x))
-    }
-    if (!is.numeric(args[[2]])) args[[2]] <- as.numeric(args[[2]])
-    stats[[i]] <- args
-    names(stats)[i] <- thisname
-  }
-
-  # Here, process the chunks of data.
-  xdesc <- if (!is.matrix(x)) describe(x) else NULL
-  fans <- foreach(i=usesplit) %dopar% {
-    if (is.null(i)) {
-      temp <- as.list(rep(NA, length(stats)))
-      names(temp) <- names(stats)
-      return(temp)
-    }
-    if (!is.null(xdesc)) x <- attach.big.matrix(xdesc)
-    temp <- vector("list", length=0)
-    for (j in names(stats)) {
-      farg <- stats[[j]]
-      tempname <- names(formals(farg[[1]]))[1]
-      if (is.character(farg[[1]])) farg[[1]] <- as.symbol(farg[[1]])
-      farg[[2]] <- x[i,farg[[2]],drop=FALSE]
-      if (!is.null(tempname)) names(farg)[2] <- tempname
-      else names(farg)[2] <- ""
-      mode(farg) <- "call"
-      temp[[j]] <- eval(farg)
-    }
-    rm(farg)
-    gc()
-    
-    return(temp)
-  }
-
-  #temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
-
+#
+# April 25, 2010: we decided not to include bigaggregate() at this point.
+# It just wasn't adding that much, and the performance is poor for all but
+# the largest examples.
+#
+#bigaggregate <- function(x, stats, usesplit=NULL,
+#                         ccols=NA, breaks=vector("list", length=length(ccols)), 
+#                         useNA="no", distributed=FALSE, rettype="celllist", 
+#                         simplify=TRUE) {
+#  if (is.null(usesplit)) {
+#    usesplit <- bigsplit(x, ccols=ccols, breaks=breaks, useNA=useNA, 
+#      splitcol=NA, splitret="list")
+#  }
+#
+#  # At this point I have usesplit, which is the map.  Everything else is much like I had
+#  # previously in commented code, below.
+#
+#  if (is.data.frame(x)) {
+#    for (i in 1:ncol(x)) {
+#      if (is.character(x[,i])) x[,i] <- factor(x[,i])
+#      if (is.factor(x[,i])) x[,i] <- as.integer(x[,i])
+#    }
+#    x <- as.matrix(x)
+#  }
+#
+#  require(foreach)
+#  if (is.null(getDoParName())) {
+#    registerDoSEQ() # A little hack to avoid the foreach warning 1st time.
+#  }
+#  if (!is.list(stats[[1]])) stats <- list(stats=stats)
+#  if (is.null(names(stats))) stop("stats must be a named list")
+#  if (length(unique(names(stats)))!=length(stats))
+#    stop("names of stats list must be unique")
+#
+#  if (!is.null(getDoParName()) && getDoParName()!="doSEQ") {
+#    require(bigmemory)
+#    if (distributed) bf <- "" 
+#    else bf <- NULL
+#    if (is.matrix(x)) {
+#      x <- as.big.matrix(x, backingfile=bf)
+#      warning("Temporary shared big.matrix created for parallel calculations.")
+#    }
+#    if (!is.shared(x) && !is.filebacked(x)) {
+#      x <- deepcopy(x, backingfile=bf)
+#      warning("Temporary shared big.matrix created for parallel calculations.")
+#    }
+#  }
+#
+#  # Now prepare the arguments.
+#  for (i in 1:length(stats)) {
+#    thisname <- names(stats)[i]
+#    args <- stats[[i]]
+#    if (!is.list(args))
+#      stop(paste("stats element", thisname, "needs to be list."))
+#    if (!is.function(args[[1]]) && !is.character(args[[1]])) {
+#      stop(paste("first argument of stats element", thisname, 
+#        "needs to be a function."))
+#    }
+#    if (is.character(args[[2]])) {
+#      if (is.null(colnames(x))) stop("column names do not exist.")
+#      else args[[2]] <- bigmemory:::mmap(args[[2]], colnames(x))
+#    }
+#    if (!is.numeric(args[[2]])) args[[2]] <- as.numeric(args[[2]])
+#    stats[[i]] <- args
+#    names(stats)[i] <- thisname
+#  }
+#
+#  # Here, process the chunks of data.
+#  xdesc <- if (!is.matrix(x)) describe(x) else NULL
+#  fans <- foreach(i=usesplit) %dopar% {
+#    if (is.null(i)) {
+#      temp <- as.list(rep(NA, length(stats)))
+#      names(temp) <- names(stats)
+#      return(temp)
+#    }
+#    if (!is.null(xdesc)) x <- attach.big.matrix(xdesc)
+#    temp <- vector("list", length=0)
+#    for (j in names(stats)) {
+#      farg <- stats[[j]]
+#      tempname <- names(formals(farg[[1]]))[1]
+#      if (is.character(farg[[1]])) farg[[1]] <- as.symbol(farg[[1]])
+#      farg[[2]] <- x[i,farg[[2]],drop=FALSE]
+#      if (!is.null(tempname)) names(farg)[2] <- tempname
+#      else names(farg)[2] <- ""
+#      mode(farg) <- "call"
+#      temp[[j]] <- eval(farg)
+#    }
+#    rm(farg)
+#    gc()
+#    
+#    return(temp)
+#  }
+#
+#  #temp <- array(temp, dim=sapply(dn, length), dimnames=dn)
+#
 #  if (rettype=="statlist") {
 #    # Provide list of length(stats) of arrayed answers.
 #    z <- NULL
@@ -289,10 +294,10 @@ bigaggregate <- function(x, stats, usesplit=NULL,
 #      z[[j]] <- temp
 #    }
 #  }
-
+#
 #  z[is.null(z)] <- NULL
-
-  return(fans)
-
-}
+#
+#  return(fans)
+#
+#}
 
