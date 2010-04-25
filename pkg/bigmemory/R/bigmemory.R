@@ -878,14 +878,14 @@ setMethod('read.big.matrix', signature(filename='character'),
   {
     if (!is.logical(header))
       stop("header argument must be logical")
-    if (is.logical(col.names) | is.logical(row.names))
+    if (is.logical(col.names) || is.logical(row.names))
       stop("row.names and col.names, if used, must only be vectors of names (not logicals).")
     if ( (header || is.character(col.names)) && is.numeric(extraCols) )
     {
       stop(paste("When column names are specified, extraCols must be the names",
                  "of the extra columns."))
     }
-    if (!header & is.null(col.names) & is.character(extraCols))
+    if (!header && is.null(col.names) && is.character(extraCols))
       stop(paste("No header and no column names were specified, so extraCols",
            "must be an integer."))
     if (!file.exists(filename))
