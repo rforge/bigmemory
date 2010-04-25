@@ -522,10 +522,6 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
     while (first < lc.size() && last < lc.size())
     {
       last = lc.find_first_of(sep, first);
-      if (last > lc.size())
-      {
-        last = lc.size()-1;
-      }
       element = lc.substr(first, last-first);
       if (LOGICAL_VALUE(hasRowNames) && LOGICAL_VALUE(useRowNames) && 0==j)
       {
