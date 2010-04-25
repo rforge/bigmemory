@@ -159,7 +159,7 @@ void DestroyBoostMutexInfo( SEXP mutexInfoAddr )
 SEXP CreateBoostMutexInfo( SEXP resourceName, SEXP timeout )
 {
   BoostMutexInfo *pbmi = new BoostMutexInfo();
-  if (NULL_USER_OBJECT == timeout) 
+  if (GET_LENGTH(timeout) == 0)
   {
     pbmi->init( RChar2String(resourceName) );
   }

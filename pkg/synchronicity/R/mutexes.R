@@ -53,6 +53,9 @@ setMethod('timeout', signature(m='boost.mutex'),
   function(m)
   {
     return(.Call('GetTimeout', m@mutexInfoAddr))
+#    ret = .Call('GetTimeout', m@mutexInfoAddr)
+#    if (length(ret) == 0) ret = Inf
+#    return(ret)
   })
 
 setGeneric('is.timed', function(m) standardGeneric('is.timed'))
@@ -74,7 +77,7 @@ boost.mutex=function(sharedName=NULL, timeout=NULL)
   {
     stop("The timeout parameter must be numeric.")
   }
-  if (!is.null(timeout) && timeout <= 0)
+  if (is.numeric(timeout) && timeout <= 0)
   {
     stop("You must specify a timeout greater than zero.")
   }
