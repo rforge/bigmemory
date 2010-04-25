@@ -172,7 +172,7 @@ When used in conjunction with a parallel package (such as \pkg{foreach},
 \pkg{snow}, \pkg{Rmpi}, or \pkg{multicore}, for example),
 even shared-memory parallel-computing becomes
 accessible to non-experts.  
-The progamming interface is stable, and offers the flexibility to support
+The programming interface is stable, and offers the flexibility to support
 the development of
 algorithms working seamlessly on both \texttt{big.matrix} and traditional
 \texttt{matrix} objects.  For examples of this, look first
