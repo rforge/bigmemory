@@ -127,7 +127,7 @@ only takes 3-4 minutes to process the 11 GB of data on a laptop with only
 \begin{Sinput}
 > library(bigmemory)
 > library(biganalytics)
-> x <- read.big.matrix("airline.csv", type="integer", header="TRUE", 
+> x <- read.big.matrix("airline.csv", type="integer", header=TRUE, 
 +                      backingfile="airline.bin",
 +                      descriptorfile="airline.desc",
 +                      extraCols="Age")

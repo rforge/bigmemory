@@ -15,8 +15,8 @@ BLAS and LAPACK functionality for native \R matrices and
 \tabular{ll}{
 Package: \tab bigalgebra\cr
 Type: \tab Package\cr
-Version: \tab 0.4\cr
-Date: \tab 2010-04-08\cr
+Version: \tab 0.5\cr
+Date: \tab 2010-04-25\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 Michael J. Kane, John W. Emerson, and Bryan Lewis\cr
 URL: \tab http://www.bigmemory.org\cr
