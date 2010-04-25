@@ -132,19 +132,22 @@ bigtabulate <- function(x,
   #                     nothing returned if is.null(splitcol), so don't return anything from C++
   #                     in that case.  Or a vector of the factor levels.
 
-  z <- NULL
+## JAY: make this more efficient (might prevent one copy):
+
+  #z <- NULL
   dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
-  if (table) z$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
+  ans$levels <- NULL
+  if (table) ans$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
   if (summary){
-     z$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
+     ans$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
   }
   if (!is.null(splitcol)) {
-    z$split <- ans$split
-    names(z$split) <- names(dn)
+    #z$split <- ans$split
+    names(ans$split) <- names(dn)
   }
 
-  if (length(z)==1) return(z[[1]])
-  return(z)
+  if (length(ans)==1) return(ans[[1]])
+  return(ans)
 
 }
 
