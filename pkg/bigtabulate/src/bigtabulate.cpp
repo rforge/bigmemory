@@ -88,8 +88,9 @@ class BreakMapper : public Mapper<T>
       _width = max - _min;
       _breakWidth = _width / (numBreaks-1);
       _totalBreaks= numBreaks-1;
-      _naIndex = _totalBreaks+1;
-      Mapper<T>::_size = _totalBreaks + static_cast<std::size_t>(_useNA);
+      _naIndex = static_cast<index_type>(_totalBreaks+1);
+      Mapper<T>::_size = static_cast<std::size_t>(_totalBreaks) + 
+        static_cast<std::size_t>(_useNA);
     }
 
     virtual int to_index( const T value ) const
@@ -205,7 +206,7 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
     column = static_cast<index_type>(NUMERIC_DATA(columns)[i])-1;
     if ( !isna(breaks[i][0]) )
     {
-      v.resize(breaks[i][breaksIndex]);
+      v.resize(static_cast<std::size_t>(breaks[i][breaksIndex]));
       for (j=0; j < breaks[i][breaksIndex]; ++j)
       {
         v[j] = static_cast<typename MatrixAccessorType::value_type>(j);
