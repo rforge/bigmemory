@@ -85,6 +85,9 @@ setGeneric('as.big.matrix',
            backingfile=NULL, backingpath=NULL,
            descriptorfile=NULL, shared=TRUE) standardGeneric('as.big.matrix'))
 
+setMethod('as.matrix', signature(x='big.matrix'),
+  function(x) return(x[,]))
+
 setMethod('as.big.matrix', signature(x='matrix'),
   function(x, type, separated, backingfile, backingpath, descriptorfile,
     shared)

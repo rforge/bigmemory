@@ -20,6 +20,7 @@
 \alias{dimnames<-,big.matrix,list-method}
 \alias{dimnames,big.matrix-method}
 \alias{head,big.matrix-method}
+\alias{as.matrix,big.matrix-method}
 \alias{is.big.matrix,big.matrix-method}
 \alias{is.big.matrix,ANY-method}
 \alias{is.filebacked,big.matrix-method}
@@ -80,6 +81,7 @@ The following are probably more interesting:
     \item{dimnames<-}{\code{signature(x = "big.matrix", value = "list")}: set the row and column names, prohibited by default (see \code{\link{bigmemory}} to override). }
     \item{dimnames}{\code{signature(x = "big.matrix")}: get the row and column names. }
     \item{head}{\code{signature(x = "big.matrix")}: get the first 6 (or \code{n}) rows. }
+    \item{as.matrix}{\code{signature(x = "big.matrix")}: coerce a \code{big.matrix} to a \code{matrix}. }
     \item{is.big.matrix}{\code{signature(x = "big.matrix")}: return \code{TRUE} if it's a \code{big.matrix}. }
     \item{is.filebacked}{\code{signature(x = "big.matrix")}: return \code{TRUE} if there is a file-backing. }
     \item{is.separated}{\code{signature(x = "big.matrix") }: return \code{TRUE} if the \code{big.matrix} is organized as a separated column vectors.}

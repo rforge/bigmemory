@@ -170,19 +170,41 @@ setMethod('colna', signature(x='big.matrix'),
     return(ret)
   })
 
+#setMethod('summary',
+#  signature(object='big.matrix'),
+#  function(object)
+#  {
+#    rows = 1:ncol(object)
+#    cn = c('min', 'max', 'mean', "NAs")
+#    s = matrix(NA, ncol = length(cn), nrow = length(rows))
+#    colnames(s) = cn
+#    rownames(s) = colnames(object)
+#    s[,'min'] = colmin(object, rows, na.rm=TRUE)
+#    s[,'max'] = colmax(object, rows, na.rm=TRUE)
+#    s[,'mean'] = colmean(object, rows, na.rm=TRUE)
+#    s[,"NAs"] = colna(object, rows)
+#    tab=as.table(s)
+#    return(tab)
+#  })
+
 setMethod('summary',
   signature(object='big.matrix'),
   function(object)
   {
-    rows = 1:ncol(object)
-    cn = c('min', 'max', 'mean', "NAs")
-    s = matrix(NA, ncol = length(cn), nrow = length(rows))
-    colnames(s) = cn
-    rownames(s) = colnames(object)
-    s[,'min'] = colmin(object, rows, na.rm=TRUE)
-    s[,'max'] = colmax(object, rows, na.rm=TRUE)
-    s[,'mean'] = colmean(object, rows, na.rm=TRUE)
-    s[,"NAs"] = colna(object, rows)
-    tab=as.table(s)
+    rows <- 1:ncol(object)
+    cn <- c('min', 'max', 'mean', 'NAs')
+    s <- matrix(NA, ncol = length(cn), nrow = length(rows))
+    colnames(s) <- cn
+    rownames(s) <- colnames(object)
+    for (i in rows) {
+      s[i,'min'] <- colmin(object, i, na.rm=TRUE)
+      s[i,'max'] <- colmax(object, i, na.rm=TRUE)
+      s[i,'mean'] <- colmean(object, i, na.rm=TRUE)
+      s[i,'NAs'] <- colna(object, i)
+    }
+    tab <- as.table(s)
     return(tab)
   })
+
+
+

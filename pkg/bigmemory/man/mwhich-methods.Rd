@@ -13,10 +13,14 @@ also works for regular numeric matrices without the memory overhead.
 }
 \section{Methods}{
 \describe{
-\item{\code{signature(x = "big.matrix", cols = "ANY", vals = "ANY", comps = "ANY", op = "character")}}{ ... }
-\item{\code{signature(x = "big.matrix", cols = "ANY", vals = "ANY", comps = "ANY", op = "missing")}}{ ... }
-\item{\code{signature(x = "matrix", cols = "ANY", vals = "ANY", comps = "ANY", op = "character")}}{ ... }
-\item{\code{signature(x = "matrix", cols = "ANY", vals = "ANY", comps = "ANY", op = "missing")}}{ ... }
+\item{\code{signature(x = "big.matrix", cols = "ANY", vals = "ANY",
+  comps = "ANY", op = "character")}}{ ... }
+\item{\code{signature(x = "big.matrix", cols = "ANY", vals = "ANY",
+  comps = "ANY", op = "missing")}}{ ... }
+\item{\code{signature(x = "matrix", cols = "ANY", vals = "ANY",
+  comps = "ANY", op = "character")}}{ ... }
+\item{\code{signature(x = "matrix", cols = "ANY", vals = "ANY",
+  comps = "ANY", op = "missing")}}{ ... }
 }}
 \seealso{\code{\link{big.matrix}}, \code{\link{which}}, \code{\link{mwhich}}}
 \keyword{methods}

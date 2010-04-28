@@ -134,11 +134,11 @@ only takes 3-4 minutes to process the 11 GB of data on a laptop with only
 > summary(x)
                           min        max        mean        NA's
 Year                     1987       2008        1998           0
-Month                       1         12     6.48309           0
-DayofMonth                  1         31    15.72129           0
-DayOfWeek                   1          7     3.94140           0
-ArrDelay                -1437       2598     6.89996     2502926
-DepDelay                -1410       2601     7.97715     2230332
+Month                       1         12        6.55           0
+DayofMonth                  1         31       15.72           0
+DayOfWeek                   1          7        3.94           0
+ArrDelay                -1437       2598        7.05     2587529
+DepDelay                -1410       2601        8.17     2302136
 ... (other variables omitted here) ...
 \end{Sinput}
 \end{Schunk}
@@ -222,7 +222,7 @@ A traditional approach to calculating all the birthmonths might use a \code{for(
 > allplanes <- unique(x[,'TailNum'])
 > planeStart <- rep(0, length(allplanes))
 > for (i in allplanes) {
-+   planeStart[i] <- birthmonth( x[mwhich(y, 'TailNum', i, 'eq'),
++   planeStart[i] <- birthmonth( x[mwhich(x, 'TailNum', i, 'eq'),
 +                                  c('Year', 'Month'), drop=FALSE] )
 + }
 \end{Sinput}
@@ -255,8 +255,8 @@ completing the task in a mere 30 seconds:
 \begin{Schunk}
 \begin{Sinput}
 > planeStart <- sapply(planeindices,
-                       function(i) birthmonth(x[i, c('Year','Month'),
-                                                drop=FALSE])
++                      function(i) birthmonth(x[i, c('Year','Month'),
++                                               drop=FALSE]))
 \end{Sinput}
 \end{Schunk} 
 
@@ -349,6 +349,14 @@ regression.
 \noindent
 {\bf Additional Information and Supporting Material}
 \vspace*{0.5cm}
+
+These examples were tested both in Linux 64-bit and Windows 7 Enterprise 64-bit
+environments.
+Older versions of Windows operating systems (including Vista 64-bit) seem
+to suffer from extremely inefficient caching behavior with filebackings and
+are not recommended for use with
+\pkg{bigmemory}; 32-bit environments will be limited by approximately 2 GB
+of addressable memory.
 
 The packages are available via R-Forge and on CRAN as of
 late April, 2010; please see

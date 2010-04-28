@@ -31,7 +31,7 @@ the bins.
 }
 \author{John W. Emerson and Michael J. Kane}
 \seealso{
-\code{\link[bigmemory]{big.matrix}}, \code{\link[bigtabulate]{bigtable}}
+\code{\link[bigmemory]{big.matrix}}
 }
 \examples{
 y <- matrix(rnorm(40), 20, 2)

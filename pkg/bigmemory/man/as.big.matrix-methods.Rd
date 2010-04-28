@@ -4,6 +4,7 @@
 \alias{as.big.matrix,matrix-method}
 \alias{as.big.matrix,vector-method}
 \alias{as.big.matrix,data.frame-method}
+\alias(as.matrix,big.matrix-method}
 \title{Create a ``big.matrix'' from a matrix or vector.}
 \description{
 Create a \code{\link{big.matrix}} from a \code{matrix} or \code{vector}

@@ -21,8 +21,8 @@ work both with \code{big.matrix} and native \R \code{matrix} objects.
 \tabular{ll}{
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
-Version: \tab 4.1.8\cr
-Date: \tab 2010-04-25\cr
+Version: \tab 4.1.9\cr
+Date: \tab 2010-04-26\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 Michael J. Kane and John W. Emerson\cr
 URL: \tab http://www.bigmemory.org\cr
@@ -53,33 +53,26 @@ flush
 }
 
 Multi-gigabyte data sets challenge and frustrate \R
-users even on well-equipped hardware.
-\acronym{C/C++} and \acronym{Fortran} programming can be helpful, but
-are cumbersome for interactive data analysis and
-lack the flexibility and power of \R's rich statistical
-programming environment.  The package \pkg{bigmemory}
-and its sister packages
-bridge this gap, implementing massive matrices 
-and supporting their basic
-manipulation and exploration.  A \code{\link{big.matrix}}
-is ideal for problems
-involving the analysis in \R of manageable subsets of the data,
-or when an analysis is conducted mostly in \acronym{C++}. 
-The data structures are allocated to shared memory,
-allowing separate 
+users, even on well-equipped hardware.
+Use of \acronym{C/C++} can provide efficiencies,
+but is cumbersome for interactive data analysis and
+lacks the flexibility and power of \R's rich statistical
+programming environment.  The package \pkg{bigmemory} and sister
+packages \pkg{biganalytics}, \pkg{synchronicity}, \pkg{bigtabulate},
+and \pkg{bigalgebra} bridge this gap, implementing massive matrices
+and supporting their manipulation and exploration.
+The data structures may be allocated to shared memory, allowing separate
 processes on the same computer to share access to a single copy of the
 data set.  The data structures may also be file-backed, allowing users
-to more easily manage and analyze data sets larger than available
-\acronym{RAM} or shared across nodes in a cluster environment.
-These features open the door for powerful and
+to easily manage and analyze data sets larger than available RAM and
+share them across nodes of a cluster.
+These features of the Bigmemory Project open the door for powerful and
 memory-efficient parallel analyses and data mining of massive data sets.
 
 This project (\pkg{bigmemory} and its sister packages)
 is still actively developed, although the design and current features
-can be viewed as "stable."
-Please send us an email
-letting us know you are trying the package, and we'll keep you
-informed of updates.
+can be viewed as "stable."  Please feel free to email us with any
+questions: bigmemoryauthors@gmail.com.
 }
 \note{
 Various options are available. \code{options(bigmemory.typecast.warning)}
@@ -101,7 +94,7 @@ functionality relocated
 to package \pkg{biganalytics}, and new linear algebra support available in
 package \pkg{bigalgebra}.  
 Package \pkg{bigtabulate} extends the \pkg{bigmemory} package with table-,
-tapply-, split-, and aggregate-like behavior.  The functions may also be used
+tapply-, and split-like behavior.  The functions may also be used
 with regular \R matrices for speed and memory-efficiency gains.
 Package \pkg{bigmemory} itself is now minimalist,
 providing only the core functionality.  As an example, the \code{apply()}

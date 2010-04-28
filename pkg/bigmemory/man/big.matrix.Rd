@@ -16,10 +16,12 @@ may be file-backed.
 }
 \usage{
 big.matrix(nrow, ncol, type = options()$bigmemory.default.type,
-  init = NULL, dimnames = NULL, separated = FALSE, backingfile = NULL,
-  backingpath = NULL, descriptorfile = NULL, shared = TRUE)
-filebacked.big.matrix(nrow, ncol, type = options()$bigmemory.default.type,
-  init = NULL, dimnames = NULL, separated = FALSE, backingfile = NULL,
+  init = NULL, dimnames = NULL, separated = FALSE,
+  backingfile = NULL, backingpath = NULL, descriptorfile = NULL,
+  shared = TRUE)
+filebacked.big.matrix(nrow, ncol,
+  type = options()$bigmemory.default.type, init = NULL,
+  dimnames = NULL, separated = FALSE, backingfile = NULL,
   backingpath = NULL, descriptorfile = NULL)
 as.big.matrix(x, type = NULL, separated = FALSE,
   backingfile = NULL, backingpath = NULL, descriptorfile = NULL,
@@ -34,14 +36,14 @@ is.nil(address)
   \item{x}{a \code{matrix}, \code{vector}, or \code{data.frame} for \code{as.big.matrix}; if a vector, a one-column\cr \code{big.matrix} is created by \code{as.big.matrix}; if a \code{data.frame}, see details.  For the \code{is.*} functions, \code{x} is likely a \code{big.matrix}.}
   \item{nrow}{number of rows.}
   \item{ncol}{number of columns.}
-  \item{type}{the type of the atomic element (\code{options()$bigmemory.default.type} by default -- \code{"double"} -- but can be changed by the user.).}
+  \item{type}{the type of the atomic element (\code{options()$bigmemory.default.type} by default -- \code{"double"} -- but can be changed by the user to \code{"integer"}, \code{"short"}, or \code{"char"}).}
   \item{init}{a scalar value for initializing the matrix (\code{NULL} by default to avoid unnecessary time spent doing the initializing).}
   \item{dimnames}{a list of the row and column names; use with caution for large objects.}
   \item{separated}{use separated column organization of the data; see details.}
   \item{backingfile}{the root name for the file(s) for the cache of \code{x}.}
   \item{backingpath}{the path to the directory containing the file backing cache.}
   \item{descriptorfile}{the name of the file to hold the backingfile description, for subsequent use with \code{\link{attach.big.matrix}}; if \code{NULL}, the \code{backingfile} is used as the root part of the descriptor file name.  The descriptor file is placed in the same directory as the backing files.}
-  \item{shared}{\code{TRUE} by default, and always \code{TRUE} if the \code{big.matrix} is filebacked.  For a non-filebacked \code{big.matrix}, \code{shared=FALSE} uses non-shared memory, which can be more stable for large (say, >50\% of RAM) objects.  Shared memory allocation can sometimes fail in such cases due to exhausted shared-memory resources in the system.}
+  \item{shared}{\code{TRUE} by default, and always \code{TRUE} if the \code{big.matrix} is file-backed.  For a non-filebacked \code{big.matrix}, \code{shared=FALSE} uses non-shared memory, which can be more stable for large (say, >50\% of RAM) objects.  Shared memory allocation can sometimes fail in such cases due to exhausted shared-memory resources in the system.}
   \item{address}{an \code{externalptr}, so \code{is.nil(x@address)} might be a sensible thing to want to check, but it's pretty obscure.}
 }
 \details{
@@ -94,7 +96,7 @@ cache (or possibly multiple file caches, if \code{separated=TRUE}).
 This can incur a substantial performance penalty for such large matrices, but less
 of a penalty than most other approaches for handling such large objects.
 A side-effect of creating a file-backed object is
-not only the filebacking(s), but a descriptor file (in the same directory) that is
+not only the file-backing(s), but a descriptor file (in the same directory) that is
 needed for subsequent attachments (see \code{\link{attach.big.matrix}}).
 
 Note that we do not allow setting or changing the \code{dimnames} attributes
@@ -113,6 +115,7 @@ A \code{big.matrix} is returned (for \code{big.matrix} and
 and \code{TRUE} or \code{FALSE} for \code{is.big.matrix} and the other functions.
 }
 \author{John W. Emerson and Michael J. Kane <bigmemoryauthors@gmail.com>}
+\references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}
 \seealso{\code{\link{bigmemory}}, and perhaps the class documentation of
 \code{\linkS4class{big.matrix}}; \code{\link{attach.big.matrix}} and
 \code{\link{describe}}.  Sister packages \pkg{biganalytics}, \pkg{bigtabulate},

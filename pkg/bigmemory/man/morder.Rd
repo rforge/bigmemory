@@ -3,8 +3,9 @@
 \alias{mpermute}
 \title{Ordering and row-permuting functions for ``big.matrix'' and ``matrix'' objects}
 \description{
-The \code{morder} function returns a permutation which rearranges an object
-according the the values in the specified columns (a multi-column ordering).
+The \code{morder} function returns a permutation of row indices which can be used
+to rearrangea an object
+according to the values in the specified columns (a multi-column ordering).
 The \code{mpermute} function actually
 reorders the rows of a \code{big.matrix} or \code{matrix} based on 
 an order vector or a desired ordering on a set of columns.
@@ -29,10 +30,10 @@ the resulting \code{big.matrix} or \code{matrix} (i.e. in this case, \code{order
 a permutation of \code{1:nrow(x)} which rearranges objects according to the
 values in the specified columns. However, \code{morder} takes
 a \code{big.matrix} or an \R \code{matrix} (with numeric type) and a set of 
-columns (\code{cols}) with which to determine the ordering. \code{morder} does
+columns (\code{cols}) with which to determine the ordering; \code{morder} does
 not incur the same memory overhead required by \code{order}, and runs more quickly.
 
-The \code{mreorder} function changes the row ordering of a \code{big.matrix}
+The \code{mpermute} function changes the row ordering of a \code{big.matrix}
 or \code{matrix} based on a vector \code{order} or an ordering based
 on a set of columns specifed by \code{cols}.  It should be noted that
 this function has side-effects, that is \code{x} is changed when this
