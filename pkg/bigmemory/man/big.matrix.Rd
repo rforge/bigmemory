@@ -104,6 +104,14 @@ by default; such changes would not be reflected in the descriptor objects or
 in shared memory.  To override this, set\cr
 \code{options(bigmemory.allow.dimnames=TRUE)}.
 
+It should also be noted that a user can create an ``anonymous'' file-backed
+\code{big.matrix} by specifying "" as the \code{filebacking} argument.
+In this case, the backing resides in the temporary directory and a
+descriptor file is not created.  These should be used with caution since
+even anonymous backings use disk space which could eventually fill the 
+hard drive.  Anonymous backings are removed either manually, by a 
+user, or automatically, when the operating system deems it appropriate.
+
 Finally, note that \code{as.big.matrix} can coerce data frames.  It does this by
 making any character columns into factors, and then making all factors numeric
 before forming the \code{big.matrix}.  Level labels are not preserved and must
