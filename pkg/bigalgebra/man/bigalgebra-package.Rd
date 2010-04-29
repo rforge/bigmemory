@@ -42,11 +42,50 @@ Maintainer: Mike <bigmemoryauthors@gmail.com>
 \code{\link[bigmemory]{bigmemory}}, \code{\link[bigmemory]{big.matrix}} 
 }
 \examples{
-# None here.
+
+# Testing the development of the user-friendly operators:
+# if you have any problems, please email us!  - Jay & Mike 4/29/2010
+
 library(bigmemory)
 x <- big.matrix(3,4,init=1)
 y <- big.matrix(3,4,init=2)
-x+y
+z <- matrix(as.numeric(1:12), 3, 4)
+a <- x+y
 x[,]
 y[,]
+a
+a[,]
+
+b <- x+z
+x[,]
+z[,]
+b
+b[,]
+
+c <- z+y
+z[,]
+y[,]
+c
+c[,]
+
+d <- 1 + x
+x[,]
+d
+d[,]
+
+e <- x + (-99)
+x[,]
+e
+e[,]
+
+# Not yet implemented:
+#f <- x - 99
+#x[,]
+#f
+#f[,]
+
+g <- +x
+g
+g[,]
+
 }
