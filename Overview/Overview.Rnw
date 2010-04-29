@@ -81,9 +81,8 @@ April 29, 2010}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{quotation}
-Multi-gigabyte data sets challenge and frustrate \proglang{R}
-users, even on well-equipped hardware.
-Use of \proglang{C/C++} can provide efficiencies,
+Multi-gigabyte data sets often challenge and frustrate \proglang{R}
+users.  \proglang{C/C++} programming can provide efficiencies,
 but is cumbersome for interactive data analysis and
 lacks the flexibility and power of \proglang{R}'s rich statistical
 programming environment.  The package \pkg{bigmemory} and sister
@@ -96,7 +95,8 @@ data set.  The data structures may also be file-backed, allowing users
 to easily manage and analyze data sets larger than available RAM and
 share them across nodes of a cluster.
 These features of the Bigmemory Project open the door for powerful and
-memory-efficient parallel analyses and data mining of massive data sets.
+memory-efficient parallel analyses and data mining of massive data sets,
+even on modest hardware.
 \end{quotation} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,7 +158,8 @@ increased memory requirements of parallel programming strain the system.
 The Bigmemory Project offers packages
 for two purposes.  First, \pkg{bigmemory}, \pkg{biganalytics}, and
 \pkg{bigtabulate} have been designed to provide a minimalist,
-elegant framework for users to manage and explore large data sets.
+elegant framework for users to manage and explore large data sets, even
+on modest hardware (expensive workstations or clusters are not required).
 The interface is designed to mimic \proglang{R}'s familiar \code{matrix}
 syntax.  Matthew Keller, Assistant Professor of
 Psychology, University of Colorado at Boulder offered the following
