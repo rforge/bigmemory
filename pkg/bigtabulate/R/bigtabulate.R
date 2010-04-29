@@ -139,7 +139,7 @@ bigtabulate <- function(x,
      ans$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
   }
   if (!is.null(splitcol)) {
-    names(ans$split) <- names(dn)
+    names(ans$split) <- dn
   }
 
   if (length(ans)==1) return(ans[[1]])
