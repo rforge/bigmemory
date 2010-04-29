@@ -4,6 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include <boost/lexical_cast.hpp>
+
 #include "bigmemory/BigMatrix.h"
 #include "bigmemory/MatrixAccessor.hpp"
 #include "bigmemory/util.h"
@@ -513,6 +515,7 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
   }
   Names rn;
   index_type offset = static_cast<index_type>(LOGICAL_VALUE(hasRowNames));
+  bool badCastWarn=FALSE;
   for (i=0; i < nl; ++i)
   {
     // getline may be slow
@@ -549,11 +552,11 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
           {
             mat[j-offset][i] = static_cast<T>(C_NA);
           }
-          else if (element == "inf")
+          else if (element == "inf" || element == "Inf")
           {
             mat[j-offset][i] = static_cast<T>(posInf);
           }
-          else if (element == "-inf")
+          else if (element == "-inf" || element == "-Inf")
           {
             mat[j-offset][i] = static_cast<T>(negInf);
           }
@@ -567,12 +570,28 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
           }
           else
           {
-            mat[j-offset][i] = static_cast<T>(atof(element.c_str()));
+            try
+            {
+              mat[j-offset][i] = 
+                static_cast<T>(boost::lexical_cast<double>(element));
+            }
+            catch(...)
+            {
+              mat[j-offset][i] = static_cast<T>(C_NA);
+              if (!badCastWarn)
+              {
+                warning(
+                  (string("Some of the variables could not be read in ") +
+                   "as a numeric types.  They have been assigned NA.").c_str());
+                badCastWarn=true;
+              }
+            }
           }
         }
         else
         {
-          warning( (string("Incorrect number of entries in row ")+ttos(j)).c_str());
+          warning( 
+            (string("Incorrect number of entries in row ")+ttos(j)).c_str());
         }
       }
       first = last+1;
