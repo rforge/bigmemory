@@ -136,6 +136,17 @@ ans3[1:3]
 by(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]),
    summary)[1:3]
 
+ans4 <- bigsplit(iris, 2)
+ans4
+ans4 <- split(1:nrow(iris), iris[,2])
+ans4
+
+# Not currently implemented:
+#ans5 <- bigsplit(iris, 2, splitret="vector")
+#ans5
+#length(ans5)
+#cbind(iris, ans5)
+
 # Note that the $summary result, below, is an array/list of
 # non-scalar results of the summary.
 ans <- bigtabulate(iris, c(2, 5), summary.cols=1, splitcol=NULL)

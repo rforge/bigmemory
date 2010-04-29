@@ -93,6 +93,7 @@ bigtabulate <- function(x,
   }
   splitlist <- FALSE
   if (splitret=="list") splitlist <- TRUE
+  if (!splitlist) stop("Non-list splits not currently implemented.")
 
   # splitcol=NULL	Don't return any map type of anything.
   # splitcol=NA		Essentially split 1:nrow(x)
@@ -139,7 +140,18 @@ bigtabulate <- function(x,
      ans$summary <- array(ans$summary, dim=sapply(dn, length), dimnames=dn)
   }
   if (!is.null(splitcol)) {
-    names(ans$split) <- unlist(dn)
+    # Need to check splitret or splitlist.
+    #
+    #if (length(dn)>1) {
+    #  X <-
+    #  Ind <- rep(1:(dim(X)[1]), prod(dim(X)[2:dimd]))
+    #  for (i in 2:dimd) {
+    #      Ind <- cbind(Ind, c(matrix(1:(dim(X)[i]), byrow=T,
+    #          prod(dim(X)[1:(i-1)]), prod(dim(X)[i:dimd]))))
+    #  }
+    #
+    #}
+    names(ans$split) <- unlist(dn) # This currently only works for 1-factor splits.
   }
 
   if (length(ans)==1) return(ans[[1]])

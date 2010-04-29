@@ -52,6 +52,10 @@ you consider \code{"short"}.  If you have something that is essentially
 categorical, you might even be able use \code{"char"}, with huge memory
 savings for large data sets.
 
+Any non-numeric entry will be ignored and replaced with \code{NA},
+so reading something that traditionally would be a \code{data.frame}
+won't cause an error.  A warning is issued.
+
 Wishlist: we'd like to provide an option to ignore specified columns while
 doing reads.
 Or perhaps to specify columns targeted for factor or character conversion
