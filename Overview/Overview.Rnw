@@ -69,7 +69,7 @@ options(keep.source = TRUE, width = 75)
 \vspace*{0.5cm}
 {\bf Michael J. Kane and John W. Emerson\\
 Yale University\\
-April 25, 2010}
+April 29, 2010}
 
 \vspace*{0.25cm}
 
@@ -334,13 +334,13 @@ overhead.
 Large data regression model: biglm(formula = formula, data = data, ...)
 Sample size = 84216580 
                Coef    (95%     CI)     SE p
-(Intercept) 94.3068 90.2993 98.3142 2.0037 0
-Age          0.0141  0.0139  0.0143 0.0001 0
-Year         0.0437  0.0457  0.0417 0.0010 0
+(Intercept) 91.6149 87.6509 95.5789 1.9820 0
+Age          0.0144  0.0142  0.0146 0.0001 0
+Year        -0.0424 -0.0444 -0.0404 0.0010 0
 \end{Soutput}
 \end{Schunk}
 From this, we might conclude that older planes are associated with increased predicted
-delays, and predicted delays in recent years are higher than 10-20 years ago.  However,
+delays, and predicted delays in recent years are lower.  However, this
 exercise is merely for illustrative purposes; a serious study of airline delays would
 quickly reject this oversimplification and discover problems with this particular
 regression.
