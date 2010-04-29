@@ -43,4 +43,10 @@ Maintainer: Mike <bigmemoryauthors@gmail.com>
 }
 \examples{
 # None here.
+library(bigmemory)
+x <- big.matrix(3,4,init=1)
+y <- big.matrix(3,4,init=2)
+x+y
+x[,]
+y[,]
 }

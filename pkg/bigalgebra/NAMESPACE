@@ -1,4 +1,5 @@
 importFrom("bigmemory", "typeof")
+exportMethods("+")
 export("dgemm", 
   "dcopy", 
   "dscal", 
