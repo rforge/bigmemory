@@ -132,7 +132,7 @@ bigtabulate <- function(x,
   #                     nothing returned if is.null(splitcol), so don't return anything from C++
   #                     in that case.  Or a vector of the factor levels.
 
-  dn <- lapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
+  dn <- sapply(ans$levels, function(x) { x[is.na(x)] <- "NA"; return(x) })
   ans$levels <- NULL
   if (table) ans$table <- array(ans$table, dim=sapply(dn, length), dimnames=dn)
   if (summary){
