@@ -1033,7 +1033,9 @@ deepcopy <- function(x, cols=NULL, type=NULL, separated=NULL,
     stop(paste("Too many rows to copy at this point in time;",
                "this may be fixed in the future."))
   if (is.null(type)) type <- typeof(x)
-  if (is.null(separated)) separated <- is.separated(x)
+  if (is.big.matrix(x)) {
+    if (is.null(separated)) separated <- is.separated(x)
+  } else separated <- FALSE
   y <- big.matrix(nrow=nrow(x), ncol=length(cols), type=type, init=NULL,
                   dimnames=dimnames(x), separated=separated,
                   backingfile=backingfile, backingpath=backingpath,

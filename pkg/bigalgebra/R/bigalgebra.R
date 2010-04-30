@@ -32,7 +32,7 @@ dcopy = function(N=NULL, X, INCX=1, Y, INCY=1)
   Y.is.bm = check_matrix(Y)
   if (is.null(N))
   {
-    N = nrow(X)*nrow(Y)
+    N = nrow(X)*ncol(X)
   }
   .Call('dcopy', as.integer(N), X, as.integer(INCX), Y, as.integer(INCY),
     X.is.bm, Y.is.bm)
@@ -46,7 +46,7 @@ dscal = function(N=NULL, ALPHA, Y, INCY=1)
   Y.is.bm = check_matrix(Y)
   if (is.null(N))
   {
-    N = nrow(Y)*nrow(Y)
+    N = nrow(Y)*ncol(Y)
   } 
   .Call('dscal', as.integer(N), as.double(ALPHA), Y, as.integer(INCY),
     Y.is.bm)
@@ -61,7 +61,7 @@ daxpy = function(N=NULL, ALPHA=1, X, INCX=1, Y, INCY=1)
   Y.is.bm = check_matrix(Y)
   if (is.null(N))
   {
-    N = nrow(X)*nrow(Y)
+    N = nrow(X)*ncol(X)
   }
   .Call('daxpy', as.integer(N), as.double(ALPHA), X, as.integer(INCX),
     Y, as.integer(INCY), X.is.bm, Y.is.bm)
