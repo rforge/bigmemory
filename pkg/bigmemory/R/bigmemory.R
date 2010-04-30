@@ -55,12 +55,12 @@ big.matrix <- function(nrow, ncol, type=options()$bigmemory.default.type,
   if (is.null(init)) init <- NA
   if (shared) {
     address <- .Call('CreateSharedMatrix', as.double(nrow),
-                 as.double(ncol), as.character(colnames), as.character(rownames),
-                 as.integer(typeVal), as.double(init), as.logical(separated))
+                as.double(ncol), as.character(colnames), as.character(rownames),
+                as.integer(typeVal), as.double(init), as.logical(separated))
   } else {
     address <- .Call('CreateLocalMatrix', as.double(nrow),
-                 as.double(ncol), as.character(colnames), as.character(rownames),
-                 as.integer(typeVal), as.double(init), as.logical(separated))
+                as.double(ncol), as.character(colnames), as.character(rownames),
+                as.integer(typeVal), as.double(init), as.logical(separated))
   }
   if (is.null(address)) {
     stop(paste("Error: memory could not be allocated for instance",

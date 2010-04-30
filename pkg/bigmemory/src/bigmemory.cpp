@@ -169,15 +169,14 @@ void SetAllMatrixElements( BigMatrix *pMat, SEXP value,
 
   bool isValNA=false; 
   bool outOfRange=false;
-  if (val < C_MIN || val > C_MAX)
+  if (val < C_MIN || val > C_MAX || isna(val))
   { 
-    isValNA=true;
     if (!isna(val))
     {
       outOfRange=true;
       warning("The value given is out of range, elements will be set to NA.");
-      val = NA_C;
     }
+    val = NA_C;
   }
   for (i=0; i < ncol; ++i)
   {
