@@ -133,7 +133,7 @@ only takes 3-4 minutes to process the 11 GB of data on a laptop with only
 +                      extraCols="Age")
 > summary(x)
                           min        max        mean        NA's
-Year                     1987       2008        1998           0
+Year                     1987       2008     1998.62           0
 Month                       1         12        6.55           0
 DayofMonth                  1         31       15.72           0
 DayOfWeek                   1          7        3.94           0
