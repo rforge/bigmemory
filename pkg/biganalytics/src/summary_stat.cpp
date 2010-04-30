@@ -38,15 +38,18 @@ template<typename T>
 Rboolean tmin(T *x, index_type n, int *value, Rboolean narm, T NA_VALUE)
 {
   index_type i;
-  int s = 0 /* -Wall */;
-  Rboolean updated = (Rboolean)FALSE;
+  int s = NA_INTEGER/* -Wall */;
+  bool firstVal=false;
+//  Rboolean updated = (Rboolean)FALSE;
+  Rboolean updated = (Rboolean)TRUE;
 
   for (i = 0; i < n; i++) {
 //    if (x[i] != NA_VALUE && !isnan((double)x[i])) {
-    if (!isna(x[i])) {
-      if (!updated || s > x[i]) {
+    if (!isna(static_cast<T>(x[i]))) {
+      if (!updated || s > x[i] || !firstVal) {
         s = x[i];
         if (!updated) updated = (Rboolean)TRUE;
+        if (!firstVal) firstVal=true;
       }
     }
     else if (!narm) {
@@ -61,9 +64,11 @@ Rboolean tmin(T *x, index_type n, int *value, Rboolean narm, T NA_VALUE)
 Rboolean tmin(double *x, index_type n, double *value,
                       Rboolean narm, double NA_VALUE)
 {
-  double s = 0.0 /* -Wall */;
+  double s = NA_REAL /* -Wall */;
+  bool firstVal=false;
   index_type i;
-  Rboolean updated = (Rboolean)FALSE;
+//  Rboolean updated = (Rboolean)FALSE;
+  Rboolean updated = (Rboolean)TRUE;
 
   /* s = R_PosInf; */
   for (i = 0; i < n; i++) {
@@ -73,9 +78,10 @@ Rboolean tmin(double *x, index_type n, double *value,
         if(!updated) updated = (Rboolean)TRUE;
       }
     }
-    else if (!updated || x[i] < s) {  /* Never true if s is NA/NaN */
+    else if (!updated || x[i] < s || !firstVal) {/* Never true if s is NA/NaN */
       s = x[i];
       if(!updated) updated = (Rboolean)TRUE;
+      if (!firstVal) firstVal=true;
     }
   }
   *value = s;
@@ -89,15 +95,17 @@ template<typename T>
 Rboolean tmax(T *x, index_type n, int *value, Rboolean narm, T NA_VALUE)
 {
   index_type i;
-  int s = 0 /* -Wall */;
+  int s = NA_INTEGER/* -Wall */;
   Rboolean updated = (Rboolean)FALSE;
+  bool firstVal=false;
 
   for (i = 0; i < n; i++) {
 //    if (x[i] != NA_VALUE) {
-    if (!isna(x[i])) {
-      if (!updated || s < x[i]) {
+    if (!isna(static_cast<T>(x[i]))) {
+      if (!updated || s < x[i] || !firstVal) {
         s = x[i];
         if(!updated) updated = (Rboolean)TRUE;
+        if (!firstVal) firstVal=true;
       }
     } else if (!narm) {
       *value = NA_VALUE;
@@ -109,12 +117,13 @@ Rboolean tmax(T *x, index_type n, int *value, Rboolean narm, T NA_VALUE)
   return(updated);
 }
 
-Rboolean tmax(double *x, int n, double *value, Rboolean narm,
+Rboolean tmax(double *x, index_type n, double *value, Rboolean narm,
               double NA_VALUE)
 {
-  double s = 0.0 /* -Wall */;
+  double s = NA_REAL /* -Wall */;
   index_type i;
   Rboolean updated = (Rboolean)FALSE;
+  bool firstVal=false;
 
   for (i = 0; i < n; i++) {
     if (ISNAN(x[i])) {/* Na(N) */
@@ -123,9 +132,10 @@ Rboolean tmax(double *x, int n, double *value, Rboolean narm,
         if(!updated) updated = (Rboolean)TRUE;
       }
     }
-    else if (!updated || x[i] > s) {  /* Never true if s is NA/NaN */
+    else if (!updated || x[i] > s || !firstVal) {/* Never true if s is NA/NaN */
       s = x[i];
       if(!updated) updated = (Rboolean)TRUE;
+      if (!firstVal) firstVal=true;
     }
   }
   *value = s;
@@ -138,16 +148,20 @@ Rboolean tmax(double *x, int n, double *value, Rboolean narm,
 template<typename T>
 Rboolean tsum(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
 {
-  LDOUBLE s = 0.0;
+  LDOUBLE s = NA_REAL;
   index_type i;
-  Rboolean updated = (Rboolean)FALSE;
+  Rboolean updated = (Rboolean)TRUE;
+  bool firstValue=false;
 
   for (i = 0; i < n; i++) {
-    if (!isna(x[i])) {
-      if (!updated) updated = (Rboolean)TRUE;
-      s += x[i];
+    if (!isna(static_cast<T>(x[i]))) {
+      if (!firstValue) 
+      {
+        s = x[i];
+        firstValue=true;
+      }
+      else s += x[i];
     } else if (!narm) {
-      if (!updated) updated = (Rboolean)TRUE;
       *value = NA_REAL;
       return(updated);
     }
@@ -161,14 +175,19 @@ Rboolean tsum(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
 Rboolean tsum(double *x, int n, double *value, Rboolean narm,
               double NA_VALUE)
 {
-  LDOUBLE s = 0.0;
+  LDOUBLE s = NA_REAL;
   index_type i;
-  Rboolean updated = (Rboolean)FALSE;
+  Rboolean updated = (Rboolean)TRUE;
+  bool firstValue=false;
 
   for (i = 0; i < n; i++) {
     if (!ISNAN(x[i]) || !narm) {
-      if(!updated) updated = (Rboolean)TRUE;
-      s += x[i];
+      if (!firstValue) 
+      {
+        s = x[i];
+        firstValue=true;
+      }
+      else s += x[i];
     }
   }
   *value = s;
@@ -181,22 +200,24 @@ Rboolean tsum(double *x, int n, double *value, Rboolean narm,
 template<typename T>
 Rboolean tprod(T *x, int n, double *value, Rboolean narm, T NA_VALUE)
 {
-  LDOUBLE s = 1.0;
+  LDOUBLE s = NA_REAL;
+  bool firstVal=false;
   index_type i;
   Rboolean updated = (Rboolean)FALSE;
 
   for (i = 0; i < n; i++) {
-    if (!isna(x[i])) {
-      s *= x[i];
+    if (!isna(static_cast<T>(x[i]))) {
+      if (!firstVal) 
+      {
+        s = x[i];
+        firstVal=true;
+      }
+      else s *= x[i];
+ 
       if(!updated) updated = (Rboolean)TRUE;
     }
     else if (!narm) {
       if(!updated) updated = (Rboolean)TRUE;
-      *value = NA_REAL;
-      return(updated);
-    }
-
-    if(ISNAN(s)) {  /* how can this happen? */
       *value = NA_REAL;
       return(updated);
     }
@@ -209,14 +230,15 @@ Rboolean tprod(T *x, int n, double *value, Rboolean narm, T NA_VALUE)
 Rboolean tprod(double *x, index_type n, double *value, Rboolean narm,
                double NA_VALUE)
 {
-  LDOUBLE s = 1.0;
+  LDOUBLE s = NA_REAL;
+  bool firstVal=false;
   index_type i;
-  Rboolean updated = (Rboolean)FALSE;
+  Rboolean updated = (Rboolean)TRUE;
 
   for (i = 0; i < n; i++) {
     if (!ISNAN(x[i]) || !narm) {
-      if(!updated) updated = (Rboolean)TRUE;
-      s *= x[i];
+      if (!firstVal) s = x[i];
+      else s *= x[i];
     }
   }
   *value = s;
@@ -234,7 +256,7 @@ Rboolean tmean(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
   Rboolean updated = (Rboolean)TRUE;
   std::size_t naCount=0;
   for (i = 0; i < n; i++) {
-    if (!isna(x[i]))
+    if (!isna(static_cast<T>(x[i])))
     { 
 			s += x[i];
     }
@@ -247,11 +269,47 @@ Rboolean tmean(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
       ++naCount;
     }
   }
-  s /= (LDOUBLE)(n-naCount);
+  if (n-naCount > 0) s /= (LDOUBLE)(n-naCount);
+  else s = NA_REAL;
   *value = (double) s;
 
   return(updated);
 }
+
+template<>
+Rboolean tmean<double>(double *x, index_type n, double *value, Rboolean narm,
+               double NA_VALUE)
+{
+  LDOUBLE s = 0.0, t = 0.0;
+  index_type i;
+  index_type naCount=0;
+  Rboolean updated = (Rboolean)TRUE;
+
+  for (i = 0; i < n; i++) {
+    if (!ISNAN(x[i])) s += x[i];
+    else if (!narm) {
+      *value = NA_REAL;
+      return((Rboolean)TRUE);
+    }
+    else ++naCount;
+  }
+  if (n-naCount < 1)
+  {
+    *value=NA_REAL;
+    return(updated);
+  }
+  s /= (LDOUBLE)(n-naCount);
+  if (R_FINITE((double)s)) {
+    for (i = 0; i < n; i++) 
+    {
+      if (!ISNAN(x[i])) t += (x[i] - s);
+    }
+    s += t / ((LDOUBLE)n);
+  }
+  *value = (double) s;
+  return(updated);
+}
+
 
 // --------------------- var -------------------------------------------
 // If this works for all 4 types, could we simplify in other cases, too???
@@ -273,7 +331,7 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
   double sum=0.0;
   T addNum;
   for (i=0; i < n; ++i) {
-    addNum = x[i];
+    addNum = static_cast<T>(x[i]);
     if (isna(addNum)) {
       if ( (Rboolean)narm == TRUE )
       {
@@ -291,7 +349,8 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
       (static_cast<double>(addNum) - avg);
     }
   }
-  *value = sum/((double)(n-naCount)-1.0);
+  if (n-naCount > 1) *value = sum/((double)(n-naCount)-1.0);
+  else *value = NA_REAL;
   return(updated);
 
 }
@@ -302,10 +361,10 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
   BigMatrix *pMat = (BigMatrix*)R_ExternalPtrAddr(bigMatrixAddr);            \
   if (pMat->separated_columns())                                             \
   {                                                                          \
-    SepMatrixAccessor<dataT> Mat(*pMat);                                  \
-    index_type colOffset=pMat->col_offset();                                       \
-    index_type rowOffset=pMat->row_offset();                                       \
-    index_type i=0;                                                                \
+    SepMatrixAccessor<dataT> Mat(*pMat);                                     \
+    index_type colOffset=pMat->col_offset();                                 \
+    index_type rowOffset=pMat->row_offset();                                 \
+    index_type i=0;                                                          \
     for (i=0; i < nCols; ++i) {                                              \
       fun(Mat[(index_type)pCols[i]-1+colOffset]+rowOffset, pMat->nrow(), &pRet[i], \
                   (Rboolean)LOGICAL_VALUE(narm), NA_VALUE);                  \
@@ -313,10 +372,10 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
   }                                                                          \
   else                                                                       \
   {                                                                          \
-    MatrixAccessor<dataT> Mat(*pMat);                                     \
-    index_type i=0;                                                                \
-    index_type colOffset=pMat->col_offset();                                       \
-    index_type rowOffset=pMat->row_offset();                                       \
+    MatrixAccessor<dataT> Mat(*pMat);                                        \
+    index_type i=0;                                                          \
+    index_type colOffset=pMat->col_offset();                                 \
+    index_type rowOffset=pMat->row_offset();                                 \
     for (i=0; i < nCols; ++i) {                                              \
       fun(Mat[(index_type)pCols[i]-1+colOffset]+rowOffset, pMat->nrow(), &pRet[i], \
                     (Rboolean)LOGICAL_VALUE(narm), NA_VALUE);                \

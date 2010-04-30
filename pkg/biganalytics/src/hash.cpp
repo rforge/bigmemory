@@ -42,20 +42,17 @@ SEXP MatrixHashRanges( BigMatrix *pMat, SEXP selectColumn )
 }
 
 
-template<typename T, typename BMAccessorType>
+template<typename BMAccessorType>
 SEXP ColCountNA( BigMatrix *pMat, SEXP column )
 {
+  typedef typename BMAccessorType::value_type value_type;
   BMAccessorType mat(*pMat);
   index_type col = (index_type)NUMERIC_VALUE(column);
   index_type i, counter;
   counter=0;
   for (i=0; i < pMat->nrow(); ++i)
   {
-    if (mat[col-1][i] == NA_INTEGER ||
-      isna((double)mat[col-1][i]))
-    {
-      ++counter;
-    }
+    if (isna(mat[col-1][i])) ++counter;
   }
   SEXP ret = PROTECT(NEW_NUMERIC(1));
   NUMERIC_DATA(ret)[0] = (double)counter;
@@ -258,13 +255,13 @@ SEXP ColCountNA(SEXP address, SEXP column)
     switch (pMat->matrix_type())
     {
       case 1:
-        return ColCountNA<char, SepMatrixAccessor<char> >(pMat, column);
+        return ColCountNA< SepMatrixAccessor<char> >(pMat, column);
       case 2:
-        return ColCountNA<short, SepMatrixAccessor<short> >(pMat, column);
+        return ColCountNA< SepMatrixAccessor<short> >(pMat, column);
       case 4:
-        return ColCountNA<int, SepMatrixAccessor<int> >(pMat, column);
+        return ColCountNA< SepMatrixAccessor<int> >(pMat, column);
       case 8:
-        return ColCountNA<double, SepMatrixAccessor<double> >(pMat, column);
+        return ColCountNA< SepMatrixAccessor<double> >(pMat, column);
     }
   }
   else
@@ -272,13 +269,13 @@ SEXP ColCountNA(SEXP address, SEXP column)
     switch (pMat->matrix_type())
     {
       case 1:
-        return ColCountNA<char, MatrixAccessor<char> >(pMat, column);
+        return ColCountNA< MatrixAccessor<char> >(pMat, column);
       case 2:
-        return ColCountNA<short, MatrixAccessor<short> >(pMat, column);
+        return ColCountNA< MatrixAccessor<short> >(pMat, column);
       case 4:
-        return ColCountNA<int, MatrixAccessor<int> >(pMat, column);
+        return ColCountNA< MatrixAccessor<int> >(pMat, column);
       case 8:
-        return ColCountNA<double, MatrixAccessor<double> >(pMat, column);
+        return ColCountNA< MatrixAccessor<double> >(pMat, column);
     }
   }
   return R_NilValue;
