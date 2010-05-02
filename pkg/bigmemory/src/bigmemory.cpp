@@ -515,6 +515,8 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
   Names rn;
   index_type offset = static_cast<index_type>(LOGICAL_VALUE(hasRowNames));
   bool badCastWarn=FALSE;
+  double d;
+  int charRead;
   for (i=0; i < nl; ++i)
   {
     // getline may be slow
@@ -547,43 +549,41 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
       {
         if (j-offset < pMat->ncol()+1)
         {
-          if (element == "NA")
+          d = strtod(element.c_str(), NULL);
+          if (d != 0.0)
           {
-            mat[j-offset][i] = static_cast<T>(C_NA);
-          }
-          else if (element == "inf" || element == "Inf")
-          {
-            mat[j-offset][i] = static_cast<T>(posInf);
-          }
-          else if (element == "-inf" || element == "-Inf")
-          {
-            mat[j-offset][i] = static_cast<T>(negInf);
-          }
-          else if (element == "NaN")
-          {
-            mat[j-offset][i] = static_cast<T>(notANumber);
-          }
-          else if (element =="")
-          {
-            mat[j-offset][i] = static_cast<T>(C_NA);
+            mat[j-offset][i] = static_cast<T>(d);
           }
           else
           {
-            try
+            charRead = sscanf(element.c_str(), "%lf", &d);
+            if (charRead == element.size())
             {
-              mat[j-offset][i] = 
-                static_cast<T>(boost::lexical_cast<double>(element));
+              mat[j-offset][i] = static_cast<T>(d);
             }
-            catch(...)
+            else if (element == "NA")
             {
               mat[j-offset][i] = static_cast<T>(C_NA);
-              if (!badCastWarn)
-              {
-                warning(
-                  (string("Some of the variables could not be read in ") +
-                   "as a numeric types.  They have been assigned NA.").c_str());
-                badCastWarn=true;
-              }
+            }
+            else if (element == "inf" || element == "Inf")
+            {
+              mat[j-offset][i] = static_cast<T>(posInf);
+            }
+            else if (element == "-inf" || element == "-Inf")
+            {
+              mat[j-offset][i] = static_cast<T>(negInf);
+            }
+            else if (element == "NaN")
+            {
+              mat[j-offset][i] = static_cast<T>(notANumber);
+            }
+            else if (element =="")
+            {
+              mat[j-offset][i] = static_cast<T>(C_NA);
+            }
+            else
+            {
+              mat[j-offset][i] = static_cast<T>(C_NA);
             }
           }
         }
