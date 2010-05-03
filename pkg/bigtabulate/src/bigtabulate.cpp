@@ -232,8 +232,7 @@ SEXP UniqueLevels( MatrixAccessorType m, SEXP columns,
       v = get_unique<typename MatrixAccessorType::value_type>( 
         (m[column]), (m[column] + m.nrow()), INTEGER_VALUE(useNA) );
     }
-    sv = PROTECT(RNew(v.size()));
-    ++protectCount;
+    sv = RNew(v.size());
     std::copy( v.begin(), v.end(), RData(sv) );
     SET_VECTOR_ELT( ret, i, sv );
   }
@@ -486,8 +485,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         for (i=0; i < static_cast<index_type>(tis.size()); ++i)
         {
           Indices &ind = tis[i];
-          vec = PROTECT(NEW_NUMERIC(tis[i].size()));
-          ++protectCount;
+          vec = NEW_NUMERIC(tis[i].size());
           std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
           SET_VECTOR_ELT( mapRet, i, vec );
         }
@@ -499,8 +497,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         for (i=0; i < static_cast<index_type>(tiv.size()); ++i)
         {
           Values &ind = tiv[i];
-          vec = PROTECT(RNew(tiv[i].size()));
-          ++protectCount;
+          vec = RNew(tiv[i].size());
           std::copy( ind.begin(), ind.end(), RData(vec) );
           SET_VECTOR_ELT( mapRet, i, vec );
         }
@@ -523,8 +520,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   }
   if ( LOGICAL_VALUE(returnTable) )
   {
-    SEXP tableRet = PROTECT(NEW_INTEGER(tvs.size()));
-    ++protectCount;
+    SEXP tableRet = NEW_INTEGER(tvs.size());
     std::copy( tvs.begin(), tvs.end(), INTEGER_DATA(tableRet) );
     SET_VECTOR_ELT(ret, lmi[string("table")], tableRet);
   } 
@@ -542,8 +538,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     ++protectCount;
     for (i=0; i < GET_LENGTH(summaryRet); ++i)
     {
-      SEXP dimnames = PROTECT(NEW_LIST(2));
-      ++protectCount;
+      SEXP dimnames = NEW_LIST(2);
       SET_VECTOR_ELT(dimnames, 0, R_NilValue );
       SET_VECTOR_ELT(dimnames, 1, StringVec2RChar(colnames) );
       
