@@ -17,9 +17,5 @@ if (Sys.info()[['sysname']] == "Windows" & version$system == 'x86_64, mingw32')
   cppFlags <- paste(cppFlags, '-DINTERLOCKED_EXCHANGE_HACK')
 }
 
-configText <- cppFlags
-if (pkgLibs != '')
-{
-  configText <- paste(pkgLibs, cppFlags, sep="\n")
-}
+configText <- paste(cppFlags, pkgLibs, sep="\n")
 write( configText, 'src/Makevars' )

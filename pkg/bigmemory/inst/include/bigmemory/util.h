@@ -12,7 +12,7 @@ using namespace std;
 vector<string> RChar2StringVec( SEXP charVec );
 
 vector<string> RChar2StringVec( SEXP charVec, 
-  const vector<unsigned index_type> &indices );
+  const vector<index_type> &indices );
 
 SEXP String2RChar(const std::string &str);
 

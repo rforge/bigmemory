@@ -82,8 +82,8 @@ class BigMatrix : public boost::noncopyable
     bool column_names( const Names &newColNames )
     {
       if ( !is_submatrix() && 
-        (newColNames.size() == static_cast<Names::size_type>(ncol())) ||
-        newColNames.size() == 0 )
+        ((newColNames.size() == static_cast<Names::size_type>(ncol())) ||
+        newColNames.size() == 0) )
       {
         _colNames = newColNames; 
         return true;
@@ -101,8 +101,8 @@ class BigMatrix : public boost::noncopyable
     bool row_names( const Names &newRowNames )
     {
       if ( !is_submatrix() && 
-        (newRowNames.size() == static_cast<Names::size_type>(nrow())) ||
-        newRowNames.size() == 0 )
+        ((newRowNames.size() == static_cast<Names::size_type>(nrow())) ||
+        newRowNames.size() == 0) )
       {
         _rowNames = newRowNames; 
         return true;

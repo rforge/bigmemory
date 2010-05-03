@@ -167,7 +167,6 @@ void SetAllMatrixElements( BigMatrix *pMat, SEXP value,
   index_type ncol = pMat->ncol();
   index_type nrow = pMat->nrow();
 
-  bool isValNA=false; 
   bool outOfRange=false;
   if (val < C_MIN || val > C_MAX || isna(val))
   { 
@@ -514,7 +513,6 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
   }
   Names rn;
   index_type offset = static_cast<index_type>(LOGICAL_VALUE(hasRowNames));
-  bool badCastWarn=FALSE;
   double d;
   int charRead;
   for (i=0; i < nl; ++i)
@@ -557,7 +555,7 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
           else
           {
             charRead = sscanf(element.c_str(), "%lf", &d);
-            if (charRead == element.size())
+            if (charRead == static_cast<int>(element.size()))
             {
               mat[j-offset][i] = static_cast<T>(d);
             }

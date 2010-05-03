@@ -20,6 +20,7 @@
 #endif
 
 #include <boost/interprocess/detail/config_begin.hpp>
+#include <boost/cstdint.hpp>
 
 namespace boost {
 namespace interprocess { 
@@ -61,7 +62,8 @@ union max_align
    int         int_;
    long        long_;
    #ifdef BOOST_HAS_LONG_LONG
-   long long   long_long_;
+//   long long   long_long_;
+   ::boost::long_long_type long_long_;
    #endif
    float       float_;
    double      double_;
