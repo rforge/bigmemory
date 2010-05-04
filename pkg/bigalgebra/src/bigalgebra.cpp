@@ -2,12 +2,6 @@
 #include "ptr_util.hpp"
 #include "blas.hpp"
 
-#ifdef INT64
-#define INDEX(X) ((long)(DOUBLE_DATA (x))
-#else
-#define INDEX(X) (INTEGER_DATA (X))
-#endif
-
 using namespace std;
 // Wrappers for miscellaneous BLAS and LAPACK routines.
 
@@ -24,13 +18,27 @@ extern "C"
     double *pA = make_double_ptr (A, A_isBM);
     double *pB = make_double_ptr (B, B_isBM);
     double *pC = make_double_ptr (C, C_isBM) + j;
-      dgemm_ (CHARACTER_VALUE (TRANSA), CHARACTER_VALUE (TRANSB),
-	      INDEX (M), INDEX (N), INDEX (K),
-	      NUMERIC_DATA (ALPHA), pA, INDEX (LDA), pB,
-	      INDEX (LDB), NUMERIC_DATA (BETA), pC,
-	      INDEX (LDC));
+#ifdef INT64
+    long MM = (long)*(DOUBLE_DATA (M));
+    long NN = (long)*(DOUBLE_DATA (N));
+    long KK = (long)*(DOUBLE_DATA (K));
+    long LDAA = (long)*(DOUBLE_DATA (LDA));
+    long LDBB = (long)*(DOUBLE_DATA (LDB));
+    long LDCC = (long)*(DOUBLE_DATA (LDC));
+#else
+    int MM = (int)*(DOUBLE_DATA (M));
+    int NN = (int)*(DOUBLE_DATA (N));
+    int KK = (int)*(DOUBLE_DATA (K));
+    int LDAA = (int)*(DOUBLE_DATA (LDA));
+    int LDBB = (int)*(DOUBLE_DATA (LDB));
+    int LDCC = (int)*(DOUBLE_DATA (LDC));
+#endif
+      dgemm_ ((char *)CHARACTER_VALUE (TRANSA), 
+              (char *)CHARACTER_VALUE (TRANSB),
+	      &MM, &NN, &KK, NUMERIC_DATA (ALPHA), pA, &LDAA, pB,
+	      &LDBB, NUMERIC_DATA (BETA), pC, &LDCC);
   }
-
+/*
   void dcopy_wrapper (SEXP N, SEXP X, SEXP INCX, SEXP Y, SEXP INCY, SEXP X_isBM,
 	      SEXP Y_isBM)
   {
@@ -89,14 +97,14 @@ extern "C"
 	    INDEX (LDVL), pVR, INDEX (LDVR), pWORK,
 	    INDEX (LWORK), INDEX (INFO));
   }
+*/
 
+/*
   void dgesdd_wrapper (SEXP JOBZ, SEXP M, SEXP N, SEXP A, SEXP LDA, SEXP S, SEXP U,
 	       SEXP LDU, SEXP VT, SEXP LDVT, SEXP WORK, SEXP LWORK,
 	       SEXP IWORK, SEXP INFO, SEXP A_isBM, SEXP S_isBM, SEXP U_isBM,
 	       SEXP VT_isBM, SEXP WORK_isBM, SEXP IWORK_isBM)
   {
-/*
-XXX in process...
     double *pA = make_double_ptr (A, A_isBM);
     double *pS = make_double_ptr (S, S_isBM);
     double *pU = make_double_ptr (U, U_isBM);
@@ -107,7 +115,7 @@ XXX in process...
 	     INDEX (LDA), pS, pU, INDEX (LDU), pVT,
 	     INDEX (LDVT), pWORK, INDEX (LWORK), pIWORK,
 	     INDEX (INFO));
-*/
   }
+*/
 
 }

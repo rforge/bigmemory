@@ -149,35 +149,48 @@ if test "${LAPACK_LIBS}" == "-l"; then
   LAPACK_LIBS=`"${R_HOME}/bin/R" CMD config LAPACK_LIBS`
 fi
 
-AC_ARG_WITH(lapackInclude,
-  [AC_HELP_STRING([--with-lapackInclude="header(s)"], [use custom LAPACK header])])
-AC_ARG_WITH(blasInclude,
-  [AC_HELP_STRING([--with-blasInclude="header(s)"], [use custom BLAS header])])
-if test -z "${with_lapackInclude}"; then
-  LAPACKHEADER="\"R_ext/Lapack.h\""
-else
-  LAPACKHEADER="${with_lapackInclude}"
-fi
-if test -z "${with_blasInclude}"; then
-  BLASHEADER="\"refblas.h\""
-else
-  BLASHEADER="${with_blasInclude}"
+AC_ARG_WITH(int64,
+  AC_HELP_STRING([--with-int64],[enable BLAS 64-bit integer indexing]),
+       [INT64="#define INT64"], [INT64="#undef INT64"])
+
+AC_ARG_WITH(incDir,
+  [AC_HELP_STRING([--with-incDir=<dirs>], [Set extra include dirs])])
+if test -n "${with_incDir}"; then
+  CXXFLAGS="${with_incDir} ${CXXFLAGS}"
 fi
 
-echo "LAPACKHEADER $LAPACKHEADER"
+AC_ARG_WITH(lapackHeader,
+  [AC_HELP_STRING([--with-lapackHeader="header"], [use custom LAPACK header])])
+AC_ARG_WITH(blasHeader,
+  [AC_HELP_STRING([--with-blasHeader="header"], [use custom BLAS header])])
+if test -z "${with_lapackHeader}"; then
+  LAPACKHEADER="\"R_ext/Lapack.h\""
+else
+  LAPACKHEADER="\"${with_lapackHeader}\""
+  echo "Using LAPACK header files $LAPACKHEADER"
+fi
+if test -z "${with_blasHeader}"; then
+  BLASHEADER="\"refblas.h\""
+else
+  BLASHEADER="\"${with_blasHeader}\""
+  echo "Using BLAS header files $BLASHEADER"
+fi
 
 ACX_BLAS([LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS $FLIBS $RLIB"],[AC_MSG_NOTICE([could not find your BLAS library])])
 BM=`echo 'cat(file.path(.libPaths(), "bigmemory", "libs","bigmemory.so")[[1]])' | ${R_HOME}/bin/R --slave`
 BI=`echo 'cat(file.path(.libPaths(), "bigmemory", "include")[[1]])' | ${R_HOME}/bin/R --slave`
 BIGALGEBRA_CPPFLAGS="-I${BI} $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
 LIBS="$BM $LIBS"
-echo "USING LAPACK_LIBS = $LAPACK_LIBS"
-echo "USING BLAS_LIBS = $BLAS_LIBS"
+
+echo "Using LAPACK_LIBS $LAPACK_LIBS"
+echo "Using BLAS_LIBS $BLAS_LIBS"
+
 
 AC_SUBST(BIGALGEBRA_CPPFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(BLASHEADER)
 AC_SUBST(LAPACKHEADER)
+AC_SUBST(INT64)
 AC_CONFIG_FILES([src/Makevars])
 AC_CONFIG_FILES([src/blas.hpp])
 AC_OUTPUT
