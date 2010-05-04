@@ -48,18 +48,20 @@ bigsplit(x, ccols, breaks=vector("list", length=length(ccols)),
     \code{\link[biganalytics]{binit}} for similar specification of this option.}
   \item{table}{if \code{TRUE}, a list of table counts will be returned.}
   \item{useNA}{whether to include extra '\code{NA}' levels in the table.}
-  \item{summary.cols}{columns for which table summaries will be calculated.}
+  \item{summary.cols}{column(s) for which table summaries will be calculated.}
   \item{summary.na.rm}{if \code{TRUE}, \code{NA}s are removed from table
     summary calculations.}
   \item{splitcol}{if \code{NA}, the indices which correspond to 
     table-levels are returned.  If numeric, the corresponding column
-    values will be returned in a list corresponding to table-levels.
+    values will be returned in a list corresponding to table-levels.  If
+    \code{NULL}, then there is no splitting at all.
     }
   \item{splitret}{if \code{"list"}, the \code{splitcol} value is returned
     as a list.  When \code{splitcol} is \code{NA}, \code{splitret} may
-    be \code{"vector"}.}
-  \item{cols}{with \code{bigtsummary}, which columns should be conditionally
-    summarized?}
+    be \code{"vector"}.  Finally, \code{"sparselist"} may be a useful option
+    when the full-blown splitting structure has many unrepresented "cells".}
+  \item{cols}{with \code{bigtsummary}, which column(s) should be conditionally
+    summarized?  This (or these) will be passed on as \code{summary.cols}.}
   \item{na.rm}{on obvious option for summaries.}
 } 
 \details{
