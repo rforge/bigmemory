@@ -34,7 +34,7 @@ dcopy = function(N=NULL, X, INCX=1, Y, INCY=1)
   {
     N = nrow(X)*ncol(X)
   }
-  .Call('dcopy', as.integer(N), X, as.integer(INCX), Y, as.integer(INCY),
+  .Call('dcopy_wrapper', as.integer(N), X, as.integer(INCX), Y, as.integer(INCY),
     X.is.bm, Y.is.bm)
   return(0)
 }
@@ -48,7 +48,7 @@ dscal = function(N=NULL, ALPHA, Y, INCY=1)
   {
     N = nrow(Y)*ncol(Y)
   } 
-  .Call('dscal', as.integer(N), as.double(ALPHA), Y, as.integer(INCY),
+  .Call('dscal_wrapper', as.integer(N), as.double(ALPHA), Y, as.integer(INCY),
     Y.is.bm)
   return(0)
 }
@@ -63,14 +63,13 @@ daxpy = function(N=NULL, ALPHA=1, X, INCX=1, Y, INCY=1)
   {
     N = nrow(X)*ncol(X)
   }
-  .Call('daxpy', as.integer(N), as.double(ALPHA), X, as.integer(INCX),
+  .Call('daxpy_wrapper', as.integer(N), as.double(ALPHA), X, as.integer(INCX),
     Y, as.integer(INCY), X.is.bm, Y.is.bm)
   return(0)
 }
 
 # Matrix Multiply
 # C := ALPHA * op(A) * op(B) + BETA * C
-# I don't understand the LD parameters.
 # This is function provides dgemm functionality.  The matrix types
 # are handled on the C++ side.
 dgemm = function(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
@@ -97,7 +96,7 @@ dgemm = function(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
   if ( is.null(LDB) ) LDB = nrow (B)
   if ( is.null(LDC) ) LDC = nrow (C)
 
-  .Call("dgemm", as.character(TRANSA), as.character(TRANSB),
+  .Call('dgemm_wrapper', as.character(TRANSA), as.character(TRANSB),
     as.integer(M), as.integer(N), as.integer(K), as.double(ALPHA),
     A, as.integer(LDA), B, as.integer(LDB),
     as.double(BETA), C, as.integer(LDC), as.logical(A.is.bm), 
@@ -138,7 +137,7 @@ dgeqrf=function(M=NULL, N=NULL, A, LDA=NULL, TAU=NULL, WORK=NULL,
   TAU.is.bm = check_matrix(TAU)
   WORK.is.bm = check_matrix(WORK)
   INFO = as.integer(0)
-  .Call('dgeqrf', as.integer(M), as.integer(N), A, as.integer(LDA), 
+  .Call('dgeqrf_wrapper', as.integer(M), as.integer(N), A, as.integer(LDA), 
     TAU, WORK, as.integer(LWORK), INFO, A.is.bm, TAU.is.bm, WORK.is.bm)
   return(INFO) 
 }
@@ -158,7 +157,7 @@ dpotrf=function(UPLO='U', N=NULL, A, LDA=NULL)
   }
   A.is.bm = check_matrix(A)
   INFO = as.integer(0)
-  .Call('dpotrf', as.character(UPLO), as.integer(N), A, as.integer(LDA),
+  .Call('dpotrf_wrapper', as.character(UPLO), as.integer(N), A, as.integer(LDA),
     INFO, A.is.bm)
   return(INFO)
 }
@@ -212,7 +211,7 @@ dgeev=function(JOBVL='V', JOBVR='V', N=NULL, A, LDA=NULL, WR, WI, VL,
   VR.is.bm = check_matrix(VR)
   WORK.is.bm = check_matrix(WORK)
   INFO=as.integer(0)
-  .Call('dgeev', as.character(JOBVL), as.character(JOBVR), as.integer(N), A,
+  .Call('dgeev_wrapper', as.character(JOBVL), as.character(JOBVR), as.integer(N), A,
     as.integer(LDA), WR, WI, VL, as.integer(LDVL), VR, as.integer(LDVR),
     WORK, as.integer(LWORK), INFO, A.is.bm, WR.is.bm, WI.is.bm, 
     VL.is.bm, VR.is.bm, WORK.is.bm)
@@ -286,10 +285,9 @@ dgesdd = function( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
   WORK.is.bm = check_matrix(WORK)
   IWORK.is.bm = check_matrix(IWORK, types='integer')
   INFO = as.integer(0)
-  .Call('dgesdd', as.character(JOBZ), as.integer(M), as.integer(N), A, 
+  .Call('dgesdd_wrapper', as.character(JOBZ), as.integer(M), as.integer(N), A, 
     as.integer(LDA), S, U, as.integer(LDU), VT, as.integer(LDVT), WORK, 
     as.integer(LWORK), as.integer(IWORK), INFO, A.is.bm,
     S.is.bm, U.is.bm, VT.is.bm, WORK.is.bm, IWORK.is.bm)
   return(INFO)
 }
-

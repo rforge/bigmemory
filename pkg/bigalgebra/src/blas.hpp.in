@@ -1,0 +1,2 @@
+#include @BLASHEADER@
+#include @LAPACKHEADER@
