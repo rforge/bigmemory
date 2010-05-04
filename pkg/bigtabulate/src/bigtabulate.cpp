@@ -9,6 +9,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <iostream>
+#include <sstream>
 
 #include <math.h>
 
@@ -16,6 +17,22 @@
 #include <Rdefines.h>
 
 #include <iostream>
+
+template<typename T>
+string ttos(T i)
+{
+  stringstream s;
+  s << i;
+  return s.str();
+}
+
+template<>
+string ttos<char>(char i)
+{
+  stringstream s;
+  s << static_cast<short>(i);
+  return s.str();
+}
 
 SEXP StringVec2RChar( const vector<string> &strVec )
 {
@@ -287,6 +304,29 @@ double var( T* pv, const std::vector<double> &rows, double mean )
   return static_cast<double>(s/(static_cast<LDOUBLE>(rows.size()-naCount)-1.0));
 }
 
+template<typename RType, typename MatrixAccessorType, typename MappersType>
+std::string MakeIndexLevelName( MatrixAccessorType &m, 
+  index_type i, std::vector<bool> &isBreakMapper, 
+  MappersType &mappers, SEXP columns )
+{
+  RType val = static_cast<RType>(
+    (m[static_cast<index_type>(NUMERIC_DATA(columns)[0]-1)][i]));
+  string ret( isBreakMapper[0] ? ttos(mappers[i]->to_index(val)) : ttos(val) );
+  int j;
+  for (j=1; j < GET_LENGTH(columns); ++j)
+  {
+    val = static_cast<RType>(
+      (m[static_cast<index_type>(NUMERIC_DATA(columns)[j]-1)][i]));
+    ret += ":" + (isBreakMapper[j] ? ttos(mappers[j]->to_index(val)) : ttos(val));
+  }
+  return ret;
+}
+
+template<typename T>
+struct zero_size : public std::unary_function<T, bool>
+{
+  bool operator()( const T &vec ) const {return vec.size() == 0;}
+};
 
 // For now, assume an index mapper.
 template<typename RType, typename MatrixAccessorType>
@@ -331,6 +371,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   std::vector<int> accMult;
   // Create the data structures that map values to indices for each of the
   // columns.
+  std::vector<bool> isBreakMapper(GET_LENGTH(uniqueLevels), false);
   for (i=0; i < GET_LENGTH(uniqueLevels); ++i)
   {
     SEXP vec = VECTOR_ELT(uniqueLevels, i);
@@ -340,6 +381,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       mappers.push_back( MapperPtr(
         new BreakMapper<RType>( breaks[i][0], breaks[i][1], 
           breaks[i][2], INTEGER_VALUE(useNA) > 0 ) ) );
+      isBreakMapper[i]=true;
     }
     else
     {
@@ -399,6 +441,9 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       TableSummaries(totalListSize, TableSummary(6, 0.)) );
   }
   // Get the indices for each of the column-value combinations.
+
+  std::vector<std::string> mapperNames( max(tis.size(), tiv.size()), 
+    string(""));
   for (i=0; i < m.nrow(); ++i)
   {
     int tableIndex=0;
@@ -422,10 +467,24 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
     {
       if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
+      {
         tis[tableIndex].push_back(i+1);
+        if (tis[tableIndex].size() == 1)
+        {
+          mapperNames[tableIndex] = MakeIndexLevelName<RType>( m, i, 
+            isBreakMapper, mappers, columns );
+        }
+      }
       else
+      {
         tiv[tableIndex].push_back( 
           m[static_cast<index_type>(NUMERIC_VALUE(splitcol))-1][i] );
+        if (tiv[tableIndex].size() == 1)
+        {
+          mapperNames[tableIndex] = MakeIndexLevelName<RType>( m, i, 
+            isBreakMapper, mappers, columns );
+        }
+      }
     }
     if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
     {
@@ -476,45 +535,68 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     SEXP mapRet;
     if ( LOGICAL_VALUE(splitlist) )
     {
+      // Find out how many of the possible unique level combinations 
+      // actually appear.
+      index_type numLevels=0;
+      
+      mapperNames.erase( std::remove_if(mapperNames.begin(), mapperNames.end(), 
+          zero_size<std::string>()), mapperNames.end() );
+
       SEXP vec;
       // Copy to a list of vectors that R can read.
+      j=0;
       if ( isna(NUMERIC_VALUE(splitcol)) )
       {
-        mapRet = PROTECT(NEW_LIST( tis.size() ));
+        mapRet = PROTECT(NEW_LIST( mapperNames.size() ));
         ++protectCount;
         for (i=0; i < static_cast<index_type>(tis.size()); ++i)
         {
-          Indices &ind = tis[i];
-          vec = NEW_NUMERIC(tis[i].size());
-          std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
-          SET_VECTOR_ELT( mapRet, i, vec );
+          if (tis[i].size() > 0)
+          {
+            Indices &ind = tis[i];
+            vec = NEW_NUMERIC(tis[i].size());
+            std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
+            SET_VECTOR_ELT( mapRet, j++, vec );
+          }
         }
       }
       else
       {
-        mapRet = PROTECT(NEW_LIST( tiv.size() ));
+        mapRet = PROTECT(NEW_LIST( mapperNames.size() ));
         ++protectCount;
         for (i=0; i < static_cast<index_type>(tiv.size()); ++i)
         {
-          Values &ind = tiv[i];
-          vec = RNew(tiv[i].size());
-          std::copy( ind.begin(), ind.end(), RData(vec) );
-          SET_VECTOR_ELT( mapRet, i, vec );
+          if (tiv[i].size())
+          {
+            Values &ind = tiv[i];
+            vec = RNew(tiv[i].size());
+            std::copy( ind.begin(), ind.end(), RData(vec) );
+            SET_VECTOR_ELT( mapRet, j++, vec );
+          }
         }
       }
+      SET_NAMES(mapRet, StringVec2RChar(mapperNames));
+      mapperNames.clear();
+      mapperNames.reserve(0);
     }
     else
     {
+      SEXP mn = PROTECT(allocVector(STRSXP, m.nrow()));
+      ++protectCount;
       mapRet = NEW_NUMERIC(m.nrow());
       double *pmr = NUMERIC_DATA(mapRet);
       for (i=0; i < static_cast<index_type>(tis.size()); ++i)
       {
+        SET_STRING_ELT(mn, i, mkChar(mapperNames[i].c_str()));
         Indices &inds = tis[i];
         for (j=0; j < static_cast<index_type>(inds.size()); ++j)
         {
           pmr[j] = i;
         }
       }
+      mapperNames.clear();
+      mapperNames.reserve(0);
+      SET_NAMES(mapRet, mn);
     }
     SET_VECTOR_ELT(ret, lmi[string("split")], mapRet);
   }
