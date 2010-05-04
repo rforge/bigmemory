@@ -91,20 +91,25 @@ bigtabulate <- function(x,
       splitcol <- as.numeric(splitcol)
     }
   }
-  splitlist <- FALSE
-  if (splitret=="list") splitlist <- TRUE
-  if (splitret!="list" && is.numeric(splitcol))
+
+  if (splitret!="vector" && splitret!="list" && splitret!="sparselist")
+    stop("splitret must be 'vector' or 'list' or 'sparselist'")
+  splitlist <- 0 # Was FALSE; this indicates vector return possibility
+  if (splitret=="list") splitlist <- 1 # Was TRUE
+  if (splitret=="sparselist") splitlist <- 2 # New option
+  if (splitret=="vector" && is.numeric(splitcol))
     stop("splitting a specified column must return a list")
-  #if (!splitlist) stop("Non-list splits not currently implemented.")
+  splitlist <- as.integer(splitlist)
 
   # splitcol=NULL	Don't return any map type of anything.
   # splitcol=NA		Essentially split 1:nrow(x)
   # splitcol=a column   Split this single column.
-  # splitlist=TRUE by default: the return is a list of either split 1:nrow(x) or col entries
-  # splitlist=FALSE: only valid if splitcol==NA, in which case a vector of as.numeric(factor) entries
+  # splitlist=2: an option for the sparse list representation.
+  # splitlist=1 by default: the return is a list of either split 1:nrow(x) or col entries
+  # splitlist=0: only valid if splitcol==NA, in which case a vector of as.numeric(factor) entries
   summary <- is.numeric(summary.cols)
-  if (is.numeric(splitcol) && !splitlist)
-    stop("non-list split is not allowed on a column")
+  if (is.numeric(splitcol) && splitlist==0)
+    stop("vector split structure is not allowed on a column")
 
   if (!is.matrix(x)) {
     ans <- .Call("BigMatrixTAPPLY", x@address, as.numeric(ccols), as.numeric(breakm),
