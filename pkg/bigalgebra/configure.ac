@@ -15,6 +15,7 @@ esac
 # Get fortran linker names of BLAS functions to check for.
 AC_F77_FUNC(sgemm)
 AC_F77_FUNC(dgemm)
+AC_F77_FUNC(acmlinfo)
 
 acx_blas_save_LIBS="$LIBS"
 LIBS="$LIBS $FLIBS"
@@ -58,15 +59,6 @@ if test $acx_blas_ok = no; then
 			[], [-lblas])])
 fi
 
-# BLAS in Alpha CXML library?
-if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(cxml, $sgemm, [acx_blas_ok=yes;BLAS_LIBS="-lcxml"])
-fi
-
-# BLAS in Alpha DXML library? (now called CXML, see above)
-if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(dxml, $sgemm, [acx_blas_ok=yes;BLAS_LIBS="-ldxml"])
-fi
 
 # BLAS in Sun Performance library?
 if test $acx_blas_ok = no; then
@@ -101,8 +93,6 @@ fi
 if test $acx_blas_ok = no; then
 	AC_CHECK_LIB(blas, $sgemm, [acx_blas_ok=yes; BLAS_LIBS="-lblas"])
 fi
-
-dnl ADD ACML AND INTEL MKL HERE!!!
 
 AC_SUBST(BLAS_LIBS)
 
@@ -177,6 +167,11 @@ else
 fi
 
 ACX_BLAS([LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS $FLIBS $RLIB"],[AC_MSG_NOTICE([could not find your BLAS library])])
+
+# Check for AMD ACML libary
+AC_MSG_CHECKING([for $acmlinfo in $BLAS_LIBS])
+AC_TRY_LINK_FUNC($acmlinfo, [ACML="#define ACMLBLAS"],[ACML=""])
+
 BM=`echo 'cat(file.path(.libPaths(), "bigmemory", "libs","bigmemory.so")[[1]])' | ${R_HOME}/bin/R --slave`
 BI=`echo 'cat(file.path(.libPaths(), "bigmemory", "include")[[1]])' | ${R_HOME}/bin/R --slave`
 BIGALGEBRA_CPPFLAGS="-I${BI} $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
@@ -185,12 +180,12 @@ LIBS="$BM $LIBS"
 echo "Using LAPACK_LIBS $LAPACK_LIBS"
 echo "Using BLAS_LIBS $BLAS_LIBS"
 
-
 AC_SUBST(BIGALGEBRA_CPPFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(BLASHEADER)
 AC_SUBST(LAPACKHEADER)
 AC_SUBST(INT64)
+AC_SUBST(ACML)
 AC_CONFIG_FILES([src/Makevars])
 AC_CONFIG_FILES([src/blas.hpp])
 AC_OUTPUT
