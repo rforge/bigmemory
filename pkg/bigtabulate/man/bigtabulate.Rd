@@ -59,7 +59,8 @@ bigsplit(x, ccols, breaks=vector("list", length=length(ccols)),
   \item{splitret}{if \code{"list"}, the \code{splitcol} value is returned
     as a list.  When \code{splitcol} is \code{NA}, \code{splitret} may
     be \code{"vector"}.  Finally, \code{"sparselist"} may be a useful option
-    when the full-blown splitting structure has many unrepresented "cells".}
+    when the full-blown splitting structure has many unrepresented "cells";
+    this is like using the \code{drop=TRUE} option to \code{\link{split}}.}
   \item{cols}{with \code{bigtsummary}, which column(s) should be conditionally
     summarized?  This (or these) will be passed on as \code{summary.cols}.}
   \item{na.rm}{on obvious option for summaries.}
