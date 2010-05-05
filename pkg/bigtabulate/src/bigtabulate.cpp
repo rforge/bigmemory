@@ -48,6 +48,18 @@ SEXP StringVec2RChar( const vector<string> &strVec )
   return ret;
 }
 
+std::vector<std::string> RDouble2StringVec( SEXP numerics)
+{
+  vector<string> ret( GET_LENGTH(numerics) );
+  vector<string>::size_type i;
+  for (i=0; i < ret.size(); ++i)
+  {
+    ret[i] = ttos(NUMERIC_DATA(numerics)[i]);
+  }
+  return ret;
+}
+
+
 template<typename T>
 class Mapper
 {
@@ -201,7 +213,7 @@ std::vector<ValueType> get_unique( const InputIter itStart,
 }
 
 template<typename RType, typename MatrixAccessorType>
-SEXP UniqueLevels( MatrixAccessorType m, SEXP columns, 
+SEXP UniqueGroups( MatrixAccessorType m, SEXP columns, 
   SEXP breakSexp, SEXP useNA )
 {
   double *pBreaks = NUMERIC_DATA(breakSexp);
@@ -317,7 +329,8 @@ std::string MakeIndexLevelName( MatrixAccessorType &m,
   {
     val = static_cast<RType>(
       (m[static_cast<index_type>(NUMERIC_DATA(columns)[j]-1)][i]));
-    ret += ":" + (isBreakMapper[j] ? ttos(mappers[j]->to_index(val)) : ttos(val));
+    ret += ":" + 
+      (isBreakMapper[j] ? ttos(mappers[j]->to_index(val)) : ttos(val));
   }
   return ret;
 }
@@ -328,7 +341,23 @@ struct zero_size : public std::unary_function<T, bool>
   bool operator()( const T &vec ) const {return vec.size() == 0;}
 };
 
-// For now, assume an index mapper.
+typedef std::vector<std::string> strings;
+
+strings interact( const strings &s1, SEXP s2 )
+{
+  std::vector<std::string> ret( s1.size() * GET_LENGTH(s2), string("") );
+  size_t i, j, k;
+  k=0;
+  for (i=0; i < s1.size(); ++i)
+  {
+    for (j=0; j < static_cast<size_t>(GET_LENGTH(s2)); ++j)
+    {
+      ret[k++] = ttos(NUMERIC_DATA(s2)[j]) + ":" + s1[i];
+    }
+  }
+  return ret;
+}
+
 template<typename RType, typename MatrixAccessorType>
 SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   SEXP returnTable, SEXP useNA, 
@@ -337,9 +366,18 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
 {
   std::vector<std::string> retNames;
   retNames.push_back(std::string("levels"));
-  SEXP uniqueLevels=PROTECT(UniqueLevels<RType>(m, columns, breakSexp, useNA));
-  std::map<std::string, int> lmi;
+  SEXP uniqueGroups=PROTECT(UniqueGroups<RType>(m, columns, breakSexp, useNA));
   int i, j, k;
+  strings groupNames;
+ 
+  groupNames = 
+    RDouble2StringVec(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1));
+  for (i=GET_LENGTH(uniqueGroups)-2; i >= 0; --i)
+  {
+    groupNames = interact( groupNames, VECTOR_ELT(uniqueGroups, i) );
+  }
+
+  std::map<std::string, int> lmi;
   i=0;
   lmi["levels"] = i++;
   if ( splitcol != NULL_USER_OBJECT )
@@ -359,7 +397,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   }
   SEXP ret = PROTECT(NEW_LIST(i));
   setAttrib( ret, R_NamesSymbol, StringVec2RChar( retNames ) );
-  SET_VECTOR_ELT( ret, lmi[string("levels")], uniqueLevels );
+  SET_VECTOR_ELT( ret, lmi[string("levels")], uniqueGroups );
   MatrixAccessor<double> breaks( NUMERIC_DATA(breakSexp), 3 );
   typedef boost::shared_ptr<Mapper<RType> > MapperPtr;
   typedef std::vector<MapperPtr> Mappers;
@@ -371,10 +409,10 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   std::vector<int> accMult;
   // Create the data structures that map values to indices for each of the
   // columns.
-  std::vector<bool> isBreakMapper(GET_LENGTH(uniqueLevels), false);
-  for (i=0; i < GET_LENGTH(uniqueLevels); ++i)
+  std::vector<bool> isBreakMapper(GET_LENGTH(uniqueGroups), false);
+  for (i=0; i < GET_LENGTH(uniqueGroups); ++i)
   {
-    SEXP vec = VECTOR_ELT(uniqueLevels, i);
+    SEXP vec = VECTOR_ELT(uniqueGroups, i);
     int vecLen = GET_LENGTH(vec);
     if (!isna(breaks[i][0]))
     {
@@ -442,8 +480,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   }
   // Get the indices for each of the column-value combinations.
 
-  std::vector<std::string> mapperNames( max(tis.size(), tiv.size()), 
-    string(""));
   for (i=0; i < m.nrow(); ++i)
   {
     int tableIndex=0;
@@ -469,21 +505,11 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
       {
         tis[tableIndex].push_back(i+1);
-        if (tis[tableIndex].size() == 1)
-        {
-          mapperNames[tableIndex] = MakeIndexLevelName<RType>( m, i, 
-            isBreakMapper, mappers, columns );
-        }
       }
       else
       {
         tiv[tableIndex].push_back( 
           m[static_cast<index_type>(NUMERIC_VALUE(splitcol))-1][i] );
-        if (tiv[tableIndex].size() == 1)
-        {
-          mapperNames[tableIndex] = MakeIndexLevelName<RType>( m, i, 
-            isBreakMapper, mappers, columns );
-        }
       }
     }
     if ( LOGICAL_VALUE(returnTable) || LOGICAL_VALUE(returnSummary) )
@@ -533,22 +559,59 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   if ( splitcol != NULL_USER_OBJECT )
   { 
     SEXP mapRet;
-    if ( LOGICAL_VALUE(splitlist) )
+    if ( INTEGER_VALUE(splitlist) == 1)
     {
-      // Find out how many of the possible unique level combinations 
-      // actually appear.
-      index_type numLevels=0;
-      
-      mapperNames.erase( std::remove_if(mapperNames.begin(), mapperNames.end(), 
-          zero_size<std::string>()), mapperNames.end() );
+      SEXP vec;
+      // Copy to a list of vectors that R can read.
+      mapRet = PROTECT(NEW_LIST( groupNames.size() ));
+      ++protectCount;
+      if ( isna(NUMERIC_VALUE(splitcol)) )
+      {
+        for (i=0; i < static_cast<index_type>(tis.size()); ++i)
+        {
+          Indices &ind = tis[i];
+          vec = NEW_NUMERIC(tis[i].size());
+          std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
+          SET_VECTOR_ELT( mapRet, i, vec );
+        }
+      }
+      else
+      {
+        for (i=0; i < static_cast<index_type>(tiv.size()); ++i)
+        {
+          Values &ind = tiv[i];
+          vec = RNew(tiv[i].size());
+          std::copy( ind.begin(), ind.end(), RData(vec) );
+          SET_VECTOR_ELT( mapRet, i, vec );
+        }
+      }
+      SET_NAMES(mapRet, StringVec2RChar(groupNames));
+      groupNames.clear();
+      groupNames.reserve(0);
+    }
+    else if ( INTEGER_VALUE(splitlist) == 2)
+    {
+      std::size_t zeroCount;
+      if (tis.size() > 0)
+      {
+        zeroCount=std::count_if( tis.begin(), tis.end(),
+          zero_size<typename TableIndices::value_type>() );
+      }
+      else
+      {
+        zeroCount=std::count_if( tiv.begin(), tiv.end(),
+          zero_size<typename TableIndexValues::value_type>() );
+      }
 
       SEXP vec;
       // Copy to a list of vectors that R can read.
+      mapRet = PROTECT(NEW_LIST( groupNames.size() - zeroCount ));
+      ++protectCount;
+      SEXP mapNames = PROTECT(allocVector(STRSXP, GET_LENGTH(mapRet)));
+      ++protectCount;
       j=0;
       if ( isna(NUMERIC_VALUE(splitcol)) )
       {
-        mapRet = PROTECT(NEW_LIST( mapperNames.size() ));
-        ++protectCount;
         for (i=0; i < static_cast<index_type>(tis.size()); ++i)
         {
           if (tis[i].size() > 0)
@@ -556,30 +619,33 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
             Indices &ind = tis[i];
             vec = NEW_NUMERIC(tis[i].size());
             std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
-            SET_VECTOR_ELT( mapRet, j++, vec );
+            SET_VECTOR_ELT( mapRet, j, vec );
+            SET_STRING_ELT( mapNames, j, mkChar(groupNames[i].c_str()) );
+            ++j;
           }
         }
       }
       else
       {
-        mapRet = PROTECT(NEW_LIST( mapperNames.size() ));
-        ++protectCount;
         for (i=0; i < static_cast<index_type>(tiv.size()); ++i)
         {
-          if (tiv[i].size())
+          if (tiv[i].size() > 0)
           {
             Values &ind = tiv[i];
             vec = RNew(tiv[i].size());
             std::copy( ind.begin(), ind.end(), RData(vec) );
-            SET_VECTOR_ELT( mapRet, j++, vec );
+            SET_VECTOR_ELT( mapRet, j, vec );
+            SET_STRING_ELT( mapNames, j, mkChar(groupNames[i].c_str()) );
+            ++j;
           }
         }
       }
-      SET_NAMES(mapRet, StringVec2RChar(mapperNames));
-      mapperNames.clear();
-      mapperNames.reserve(0);
+//      SET_NAMES(mapRet, StringVec2RChar(mapperNames));
+      SET_NAMES(mapRet, mapNames);
+      groupNames.clear();
+      groupNames.reserve(0);
     }
-    else
+    else // INTEGER_VALUE(splitlist) == 0 
     {
       SEXP mn = PROTECT(allocVector(STRSXP, m.nrow()));
       ++protectCount;
@@ -587,15 +653,15 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       double *pmr = NUMERIC_DATA(mapRet);
       for (i=0; i < static_cast<index_type>(tis.size()); ++i)
       {
-        SET_STRING_ELT(mn, i, mkChar(mapperNames[i].c_str()));
         Indices &inds = tis[i];
         for (j=0; j < static_cast<index_type>(inds.size()); ++j)
         {
-          pmr[j] = i;
+          SET_STRING_ELT(mn, inds[j]-1, mkChar(groupNames[i].c_str()));
+          pmr[static_cast<index_type>(inds[j])-1] = i+1;
         }
       }
-      mapperNames.clear();
-      mapperNames.reserve(0);
+      groupNames.clear();
+      groupNames.reserve(0);
       SET_NAMES(mapRet, mn);
     }
     SET_VECTOR_ELT(ret, lmi[string("split")], mapRet);
