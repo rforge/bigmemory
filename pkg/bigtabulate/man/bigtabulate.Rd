@@ -71,8 +71,11 @@ much like \code{\link{table}}, \code{\link{tapply}}, and \code{\link{split}}.
 The functions are juiced-up versions of the base \R functions;
 they work on both regular \R matrices and data frames, but are specialized
 for use with \pkg{bigmemory} and (for more advanced usage) \pkg{foreach}.
-They are particularly fast and
-memory-efficient. 
+They are particularly fast and memory-efficient.  We have found that
+\code{bigsplit} followed by \code{\link{lapply}} or \code{\link{sapply}}
+can be particularly effective, when the subsets produced by the split
+are of reasonable size.  For intensive calculations, subsequent use of
+\code{foreach} can be helpful (think: parallel apply-like behavior).
 
 When \code{x} is a \code{matrix} or a \code{data.frame}, some additional
 work may be required.  For example, a character column of a \code{data.frame}
@@ -144,11 +147,11 @@ ans4
 ans4 <- split(1:nrow(iris), iris[,2])
 ans4
 
-# Not currently implemented:
-#ans5 <- bigsplit(iris, 2, splitret="vector")
-#ans5
-#length(ans5)
-#cbind(iris, ans5)
+# Or an alternative return:
+ans5 <- bigsplit(iris, 2, splitret="vector")
+ans5
+length(ans5)
+cbind(iris, ans5)
 
 # Note that the $summary result, below, is an array/list of
 # non-scalar results of the summary.
