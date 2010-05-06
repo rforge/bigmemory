@@ -1,0 +1,84 @@
+# Windows 7 x64:
+
+> R.version
+              _
+platform       x86_64-pc-mingw32
+arch           x86_64
+os             mingw32
+system         x86_64, mingw32
+status         alpha
+major          2
+minor          11.0
+year           2010
+month          04
+day            02
+svn rev        51564
+language       R
+version.string R version 2.11.0 alpha (2010-04-02 r51564)
+> .Platform
+$OS.type
+[1] "windows"
+
+$file.sep
+[1] "/"
+
+$dynlib.ext
+[1] ".dll"
+
+$GUI
+[1] "Rgui"
+
+$endian
+[1] "little"
+
+$pkgType
+[1] "win64.binary"
+
+$path.sep
+[1] ";"
+
+$r_arch
+[1] "x64"
+
+# Standard Linux x86-64
+
+> R.version
+               _                            
+platform       x86_64-unknown-linux-gnu     
+arch           x86_64                       
+os             linux-gnu                    
+system         x86_64, linux-gnu            
+status                                      
+major          2                            
+minor          10.0                         
+year           2009                         
+month          10                           
+day            26                           
+svn rev        50208                        
+language       R                            
+version.string R version 2.10.0 (2009-10-26)
+> .Platform
+$OS.type
+[1] "unix"
+
+$file.sep
+[1] "/"
+
+$dynlib.ext
+[1] ".so"
+
+$GUI
+[1] "X11"
+
+$endian
+[1] "little"
+
+$pkgType
+[1] "source"
+
+$path.sep
+[1] ":"
+
+$r_arch
+[1] ""
+
