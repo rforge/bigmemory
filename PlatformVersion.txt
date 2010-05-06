@@ -104,4 +104,40 @@ $path.sep
 $r_arch
 [1] ""
 
+# REvo R Win 64:
 
+#Revolution Enterprise R 3.1 -64bit
+
+[1] ""> R.version
+               _                           
+platform       x86_64-pc-intel64           
+arch           x86_64                      
+os             intel64                     
+system         x86_64, intel64             
+status                                     
+major          2                           
+minor          9.2                         
+year           2009                        
+month          08                          
+day            24                          
+svn rev        49384                       
+language       R                           
+version.string R version 2.9.2 (2009-08-24)
+
+> .Platform
+$OS.type
+[1] "windows"
+$file.sep
+[1] "/"
+$dynlib.ext
+[1] ".dll"
+$GUI
+[1] "unknown"
+$endian
+[1] "little"
+$pkgType
+[1] "win64.binary"
+$path.sep
+[1] ";"
+$r_arch
+[1] ""
