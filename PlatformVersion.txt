@@ -141,3 +141,46 @@ $path.sep
 [1] ";"
 $r_arch
 [1] ""
+
+# Linux Sun Studio:
+
+> R.version
+               _                            
+platform       x86_64-unknown-linux-gnu     
+arch           x86_64                       
+os             linux-gnu                    
+system         x86_64, linux-gnu            
+status                                      
+major          2                            
+minor          11.0                         
+year           2010                         
+month          04                           
+day            22                           
+svn rev        51801                        
+language       R                            
+version.string R version 2.11.0 (2010-04-22)
+> .Platform
+$OS.type
+[1] "unix"
+
+$file.sep
+[1] "/"
+
+$dynlib.ext
+[1] ".so"
+
+$GUI
+[1] "X11"
+
+$endian
+[1] "little"
+
+$pkgType
+[1] "source"
+
+$path.sep
+[1] ":"
+
+$r_arch
+[1] ""
+
