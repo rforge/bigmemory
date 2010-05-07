@@ -1,1 +1,10 @@
+# Sadly, it seems that this isn't processed in the same way as
+# a Makefile.
+#
+#QQQ = $(strip $(WIN))
+#ifeq ($(QQQ),64)
+#DEFINES = -DINTERLOCKED_EXCHANGE_HACK
+#endif
+#PKG_CPPFLAGS = -I../inst/include $(DEFINES)
+
 PKG_CPPFLAGS = -I../inst/include -DINTERLOCKED_EXCHANGE_HACK

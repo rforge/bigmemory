@@ -1,2 +1,7 @@
 # This file does nothing but suppress a warning; we are handling
 # the Windows-specific configuration in src/Makevars.win.
+
+#echo $R_ARCH > foo
+#if $R_ARCH -eq '/x64'; then
+#  echo "SUCCESS!" >> foo
+#fi
