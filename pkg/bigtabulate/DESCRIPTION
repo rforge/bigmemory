@@ -4,9 +4,9 @@ Date: 2010-05-05
 Title: table-, tapply-, and split-like functionality for matrix and big.matrix objects.
 Author: Michael J. Kane <kaneplusplus@gmail.com> and John W. Emerson <jayemerson@gmail.com>
 Maintainer: Mike and Jay <bigmemoryauthors@gmail.com>
-Depends: methods
-Suggests: bigmemory (>= 4.0.0), biganalytics
-Description: This package extends the bigmemory package with table-, tapply-, and
+Depends: methods, bigmemory (>= 4.0.0)
+Suggests: biganalytics
+Description: This package extends the bigmemory package with table- and
   split-like support for big.matrix objects.  The functions may also be
   used with regular R matrices for improving speed and memory-efficiency.
 License: LGPL-3
