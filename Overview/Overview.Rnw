@@ -1,3 +1,6 @@
+% \VignetteIndexEntry{The Bigmemory Project Overview}
+% \VignetteDepends{bigmemory}
+% \VignettePackage{bigmemory}
 \documentclass[12pt]{article}
 
 \usepackage{graphics}

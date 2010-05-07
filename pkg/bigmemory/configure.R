@@ -8,14 +8,13 @@ if (Sys.info()[['sysname']] == 'Linux')
 }
 
 # Is it a REvo build?
-if (Sys.info()[['sysname']] == "Windows" & version$os == 'intel64')
-{
-  cppFlags <- paste(cppFlags, '-GX')
-}
-if (Sys.info()[['sysname']] == "Windows" & version$system == 'x86_64, mingw32')
-{
-  cppFlags <- paste(cppFlags, '-DINTERLOCKED_EXCHANGE_HACK')
-}
+# If we want to build in windows, we should simply modify the
+# src/Makevars.win file to include -GX and not include the
+# INTERLOCKED_EXCHANGEHACK thingy.
+#if (Sys.info()[['sysname']] == "Windows" & version$os == 'intel64')
+#{
+#  cppFlags <- paste(cppFlags, '-GX')
+#}
 
 configText <- paste(cppFlags, pkgLibs, sep="\n")
 write( configText, 'src/Makevars' )
