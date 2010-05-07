@@ -69,7 +69,7 @@ $path.sep
 $r_arch
 [1] ""
 
-# REvo R free version:
+# REvo R free version (32-bit), essentially same as RevoREnterprise 3.1.1 x86:
 
 > R.version
                _                           
@@ -162,25 +162,84 @@ version.string R version 2.11.0 (2010-04-22)
 > .Platform
 $OS.type
 [1] "unix"
-
 $file.sep
 [1] "/"
-
 $dynlib.ext
 [1] ".so"
-
 $GUI
 [1] "X11"
-
 $endian
 [1] "little"
-
 $pkgType
 [1] "source"
-
 $path.sep
 [1] ":"
-
 $r_arch
 [1] ""
+
+
+###  Redhat Enterprise Linux 5  ###
+###  Revolution R Enterprise 3.1.1  ###
+platform       x86_64-unknown-linux-gnu    
+arch           x86_64                      
+os             linux-gnu                   
+system         x86_64, linux-gnu           
+status                                     
+major          2                           
+minor          9.2                         
+year           2009                        
+month          08                          
+day            24                          
+svn rev        49384                       
+language       R                           
+version.string R version 2.9.2 (2009-08-24)
+$OS.type
+[1] "unix"
+$file.sep
+[1] "/"
+$dynlib.ext
+[1] ".so"
+$GUI
+[1] "X11"
+$endian
+[1] "little"
+$pkgType
+[1] "source"
+$path.sep
+[1] ":"
+$r_arch
+[1] ""
+
+# REvo
+#### MAC-OSX  10.5.7 Leopard  ###
+Revolution R Community, R Version 2.10.1
+platform       x86_64-apple-darwin9.8.0     
+arch           x86_64                       
+os             darwin9.8.0                  
+system         x86_64, darwin9.8.0          
+status                                      
+major          2                            
+minor          10.1                         
+year           2009                         
+month          12                           
+day            14                           
+svn rev        50720                        
+language       R                            
+version.string R version 2.10.1 (2009-12-14)
+$OS.type
+[1] "unix"
+$file.sep
+[1] "/"
+$dynlib.ext
+[1] ".so"
+$GUI
+[1] "AQUA"
+$endian
+[1] "little"
+$pkgType
+[1] "source"
+$path.sep
+[1] ":"
+$r_arch
+[1] "x86_64"
 
