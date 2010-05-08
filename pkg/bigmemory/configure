@@ -10,7 +10,7 @@
 FLAGS="PKG_CPPFLAGS=-I../inst/include"
 LIBS=""
 
-echo -n "  checking for suncc..."
+echo -n "  checking for Sun Studio compiler..."
 CC=`${R_HOME}/bin/R CMD config CC`
 cmd=`echo $CC | grep -E 'suncc'`
 if test -n "$cmd"; then

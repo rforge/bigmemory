@@ -1,0 +1,12 @@
+2010-05-08	Jay	<bigmemoryauthors@bigmemory.org>
+
+* The configuration process has been streamlined to avoid
+  warnings and allow for support of Sun Studio compilers
+  on Linux.
+
+2010-05-06	Jay and Mike	<bigmemoryauthors@bigmemory.org>
+
+* bigmemory >= 2.2.0 is accompanied by sister packages
+  biganalytics and bigtabulate; mutexes (locking) are
+  abstracted to package synchronicity, available now
+  on R-Forge and soon to be uploaded to CRAN. 
