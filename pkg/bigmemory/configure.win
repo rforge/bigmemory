@@ -1,7 +1,19 @@
-# This file does nothing but suppress a warning; we are handling
-# the Windows-specific configuration in src/Makevars.win.
+####################################################################
+# configure.win for package bigmemory
+# John W. Emerson and Michael Kane
+#
+# 64-bit Windows toolchain not completely BOOST-compatible (the
+# fault of BOOST, not R-Project).  There will be no locking
+# of the shared counters, but the chance of a problem is very
+# small.  Hopefully BOOST will catch up, soon.
 
-#echo $R_ARCH > foo
-#if $R_ARCH -eq '/x64'; then
-#  echo "SUCCESS!" >> foo
-#fi
+FLAGS="-I../inst/include"
+echo -n "  checking for Windows 64-bit..."
+if [ "${R_ARCH}" = "/x64" ]; then
+  echo "yes"
+  FLAGS="${FLAGS} -DINTERLOCKED_EXCHANGE_HACK"
+else
+  echo "no"
+fi
+
+echo "PKG_CPPFLAGS=${FLAGS}" > src/Makevars.win
