@@ -16,29 +16,20 @@ extern "C"
     double *pA = make_double_ptr (A, A_isBM);
     double *pB = make_double_ptr (B, B_isBM);
     double *pC = make_double_ptr (C, C_isBM) + j;
-#ifdef INT64
-    long MM = (long)*(DOUBLE_DATA (M));
-    long NN = (long)*(DOUBLE_DATA (N));
-    long KK = (long)*(DOUBLE_DATA (K));
-    long LDAA = (long)*(DOUBLE_DATA (LDA));
-    long LDBB = (long)*(DOUBLE_DATA (LDB));
-    long LDCC = (long)*(DOUBLE_DATA (LDC));
-#else
-    int MM = (int)*(INTEGER_DATA (AS_INTEGER (M)));
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER (N)));
-    int KK = (int)*(INTEGER_DATA (AS_INTEGER (K)));
-    int LDAA = (int)*(INTEGER_DATA (AS_INTEGER (LDA)));
-    int LDBB = (int)*(INTEGER_DATA (AS_INTEGER (LDB)));
-    int LDCC = (int)*(INTEGER_DATA (AS_INTEGER (LDC)));
-#endif
+    INT MM = (INT)*(DOUBLE_DATA (M));
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT KK = (INT)*(DOUBLE_DATA (K));
+    INT LDAA = (INT)*(DOUBLE_DATA (LDA));
+    INT LDBB = (INT)*(DOUBLE_DATA (LDB));
+    INT LDCC = (INT)*(DOUBLE_DATA (LDC));
 #ifdef ACMLBLAS
       dgemm_ ((char *)CHARACTER_VALUE (TRANSA), 
               (char *)CHARACTER_VALUE (TRANSB),
 	      &MM, &NN, &KK, NUMERIC_DATA (ALPHA), pA, &LDAA, pB,
 	      &LDBB, NUMERIC_DATA (BETA), pC, &LDCC, 1, 1);
 #else
-      dgemm_ (CHARACTER_VALUE (TRANSA), 
-              CHARACTER_VALUE (TRANSB),
+      dgemm_ ((char *)CHARACTER_VALUE (TRANSA), 
+              (char *)CHARACTER_VALUE (TRANSB),
 	      &MM, &NN, &KK, NUMERIC_DATA (ALPHA), pA, &LDAA, pB,
 	      &LDBB, NUMERIC_DATA (BETA), pC, &LDCC);
 #endif
@@ -49,28 +40,17 @@ extern "C"
   {
     double *pX = make_double_ptr (X, X_isBM);
     double *pY = make_double_ptr (Y, Y_isBM);
-#ifdef INT64
-    long NN = (long)*(DOUBLE_DATA (N));
-    long INCXX = (long)*(DOUBLE_DATA (INCX));
-    long INCYY = (long)*(DOUBLE_DATA (INCY));
-#else
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER (N)));
-    int INCXX = (long)*(INTEGER_DATA (AS_INTEGER (INCX)));
-    int INCYY = (long)*(INTEGER_DATA (AS_INTEGER (INCY)));
-#endif
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT INCXX = (INT)*(DOUBLE_DATA (INCX));
+    INT INCYY = (INT)*(DOUBLE_DATA (INCY));
     dcopy_ (&NN, pX, &INCXX, pY, &INCYY);
   }
 
   void dscal_wrapper (SEXP N, SEXP ALPHA, SEXP Y, SEXP INCY, SEXP Y_isBM)
   {
     double *pY = make_double_ptr (Y, Y_isBM);
-#ifdef INT64
-    long NN = (long)*(DOUBLE_DATA (N));
-    long INCYY = (long)*(DOUBLE_DATA (INCY));
-#else
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER (N)));
-    int INCYY = (long)*(INTEGER_DATA (AS_INTEGER (INCY)));
-#endif
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT INCYY = (INT)*(DOUBLE_DATA (INCY));
     dscal_ (&NN, NUMERIC_DATA (ALPHA), pY, &INCYY);
   }
 
@@ -79,15 +59,9 @@ extern "C"
   {
     double *pX = make_double_ptr (X, X_isBM);
     double *pY = make_double_ptr (Y, Y_isBM);
-#ifdef INT64
-    long NN = (long)*(DOUBLE_DATA (N));
-    long INCXX = (long)*(DOUBLE_DATA (INCX));
-    long INCYY = (long)*(DOUBLE_DATA (INCY));
-#else
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER(N)));
-    int INCXX = (long)*(INTEGER_DATA (AS_INTEGER(INCX)));
-    int INCYY = (long)*(INTEGER_DATA (AS_INTEGER(INCY)));
-#endif
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT INCXX = (INT)*(DOUBLE_DATA (INCX));
+    INT INCYY = (INT)*(DOUBLE_DATA (INCY));
     daxpy_ (&NN, NUMERIC_DATA (ALPHA), pX, &INCXX, pY, &INCYY);
   }
 
@@ -98,19 +72,11 @@ extern "C"
     double *pA = make_double_ptr (A, A_isBM);
     double *pTAU = make_double_ptr (TAU, TAU_isBM);
     double *pWORK = make_double_ptr (WORK, WORK_isBM);
-#ifdef INT64
-    long MM = (long)*(DOUBLE_DATA (M));
-    long NN = (long)*(DOUBLE_DATA (N));
-    long LDAA = (long)*(DOUBLE_DATA (LDA));
-    long LWORKK = (long)*(DOUBLE_DATA (LWORK));
-    long INFOO = (long)*(DOUBLE_DATA (INFO));
-#else
-    int MM = (int)*(INTEGER_DATA (AS_INTEGER (M)));
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER (N)));
-    int LDAA = (int)*(INTEGER_DATA (AS_INTEGER (LDA)));
-    int LWORKK = (int)*(INTEGER_DATA (AS_INTEGER (LWORK)));
-    int INFOO = (int)*(INTEGER_DATA (AS_INTEGER (INFO)));
-#endif
+    INT MM = (INT)*(DOUBLE_DATA (M));
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT LDAA = (INT)*(DOUBLE_DATA (LDA));
+    INT LWORKK = (INT)*(DOUBLE_DATA (LWORK));
+    INT INFOO = (INT)*(DOUBLE_DATA (INFO));
     dgeqrf_ (&MM, &NN, pA, &LDAA,
 	     pTAU, pWORK, &LWORKK, &INFOO);
   }
@@ -119,19 +85,13 @@ extern "C"
                        SEXP INFO, SEXP A_isBM)
   {
     double *pA = make_double_ptr (A, A_isBM);
-#ifdef INT64
-    long NN = (long)*(DOUBLE_DATA (N));
-    long LDAA = (long)*(DOUBLE_DATA (LDA));
-    long INFOO = (long)*(DOUBLE_DATA (INFO));
-#else
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER (N)));
-    int LDAA = (int)*(INTEGER_DATA (AS_INTEGER (LDA)));
-    int INFOO = (int)*(INTEGER_DATA (AS_INTEGER (INFO)));
-#endif
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT LDAA = (INT)*(DOUBLE_DATA (LDA));
+    INT INFOO = (INT)*(DOUBLE_DATA (INFO));
 #ifdef ACMLBLAS
     dpotrf_ ((char *)CHARACTER_VALUE (UPLO), &NN, pA, &LDAA, &INFOO, 1);
 #else
-    dpotrf_ (CHARACTER_VALUE (UPLO), &NN, pA, &LDAA, &INFOO);
+    dpotrf_ ((char *)CHARACTER_VALUE (UPLO), &NN, pA, &LDAA, &INFOO);
 #endif
   }
 
@@ -146,27 +106,18 @@ extern "C"
     double *pVL = make_double_ptr (VL, VL_isBM);
     double *pVR = make_double_ptr (VR, VR_isBM);
     double *pWORK = make_double_ptr (WORK, WORK_isBM);
-#ifdef INT64
-    long NN = (long)*(DOUBLE_DATA (N));
-    long LDAA = (long)*(DOUBLE_DATA (LDA));
-    long LDVLL = (long)*(DOUBLE_DATA (LDVL));
-    long LDVRR = (long)*(DOUBLE_DATA (LDVR));
-    long LWORKK = (long)*(DOUBLE_DATA (LWORK));
-    long INFOO = (long)*(DOUBLE_DATA (INFO));
-#else
-    int NN = (int)*(INTEGER_DATA (AS_INTEGER (N)));
-    int LDAA = (int)*(INTEGER_DATA (AS_INTEGER (LDA)));
-    int LDVLL = (int)*(INTEGER_DATA (AS_INTEGER (LDVL)));
-    int LDVRR = (int)*(INTEGER_DATA (AS_INTEGER (LDVR)));
-    int LWORKK = (int)*(INTEGER_DATA (AS_INTEGER (LWORK)));
-    int INFOO = (int)*(INTEGER_DATA (AS_INTEGER (INFO)));
-#endif
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT LDAA = (INT)*(DOUBLE_DATA (LDA));
+    INT LDVLL = (INT)*(DOUBLE_DATA (LDVL));
+    INT LDVRR = (INT)*(DOUBLE_DATA (LDVR));
+    INT LWORKK = (INT)*(DOUBLE_DATA (LWORK));
+    INT INFOO = (INT)*(DOUBLE_DATA (INFO));
 #ifdef ACMLBLAS
     dgeev_ ((char *)CHARACTER_VALUE (JOBVL), (char *)CHARACTER_VALUE (JOBVR),
 	    &NN, pA, &LDAA, pWR, pWI, pVL, &LDVLL, pVR, &LDVRR, pWORK,
 	    &LWORKK, &INFOO, 1, 1);
 #else
-    dgeev_ (CHARACTER_VALUE (JOBVL), CHARACTER_VALUE (JOBVR),
+    dgeev_ ((char *)CHARACTER_VALUE (JOBVL), (char *)CHARACTER_VALUE (JOBVR),
 	    &NN, pA, &LDAA, pWR, pWI, pVL, &LDVLL, pVR, &LDVRR, pWORK,
 	    &LWORKK, &INFOO);
 #endif

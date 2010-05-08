@@ -1,2 +1,3 @@
 rm -f src/Makevars src/blas.hpp .Rout config.log .RData config.status
+rm -f src/*.o src/*.so
 rm -rf autom4te.cache

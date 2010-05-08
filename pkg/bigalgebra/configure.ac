@@ -140,8 +140,8 @@ if test "${LAPACK_LIBS}" == "-l"; then
 fi
 
 AC_ARG_WITH(int64,
-  AC_HELP_STRING([--with-int64],[enable BLAS 64-bit integer indexing]),
-       [INT64="#define INT64"], [INT64="#undef INT64"])
+  AC_HELP_STRING([--with-int64=type],[Specify 64-bit integer indexing type]),
+       [INT64="#define INT ${with_int64}"], [INT64="#define INT int"])
 
 AC_ARG_WITH(incDir,
   [AC_HELP_STRING([--with-incDir=<dirs>], [Set extra include dirs])])
