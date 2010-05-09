@@ -123,25 +123,40 @@ extern "C"
 #endif
   }
 
-
-/*
   void dgesdd_wrapper (SEXP JOBZ, SEXP M, SEXP N, SEXP A, SEXP LDA, 
                SEXP S, SEXP U,
 	       SEXP LDU, SEXP VT, SEXP LDVT, SEXP WORK, SEXP LWORK,
-	       SEXP IWORK, SEXP INFO, SEXP A_isBM, SEXP S_isBM, SEXP U_isBM,
-	       SEXP VT_isBM, SEXP WORK_isBM, SEXP IWORK_isBM)
+	       SEXP INFO, SEXP A_isBM, SEXP S_isBM, SEXP U_isBM,
+	       SEXP VT_isBM, SEXP WORK_isBM)
   {
+    INT *pIWORK;
+    INT piworkdim;
     double *pA = make_double_ptr (A, A_isBM);
     double *pS = make_double_ptr (S, S_isBM);
     double *pU = make_double_ptr (U, U_isBM);
     double *pVT = make_double_ptr (VT, VT_isBM);
     double *pWORK = make_double_ptr (WORK, WORK_isBM);
-    int *pIWORK = make_int_ptr (IWORK, IWORK_isBM);
-    dgesdd_ (CHARACTER_VALUE (JOBZ), INDEX (M), INDEX (N), pA,
-	     INDEX (LDA), pS, pU, INDEX (LDU), pVT,
-	     INDEX (LDVT), pWORK, INDEX (LWORK), pIWORK,
-	     INDEX (INFO));
+    INT MM = (INT)*(DOUBLE_DATA (N));
+    INT NN = (INT)*(DOUBLE_DATA (N));
+    INT LDAA = (INT)*(DOUBLE_DATA (LDA));
+    INT LDUU = (INT)*(DOUBLE_DATA (LDU));
+    INT LDVTT = (INT)*(DOUBLE_DATA (LDVT));
+    INT LWORKK = (INT)*(DOUBLE_DATA (LWORK));
+    INT INFOO = (INT)*(DOUBLE_DATA (INFO));
+
+    piworkdim = 8*MM;
+    if(NN>MM) piworkdim = 8*NN;
+    pIWORK = (INT *)malloc(piworkdim*sizeof(INT));
+#ifdef ACMLBLAS
+    dgesdd_ ((char *)CHARACTER_VALUE (JOBZ), &MM, &NN, pA,
+	     &LDAA, pS, pU, &LDUU, pVT,
+	     &LDVTT, pWORK, &LWORKK, pIWORK, &INFOO, 1);
+#else
+    dgesdd_ ((char *)CHARACTER_VALUE (JOBZ), &MM, &NN, pA,
+	     &LDAA, pS, pU, &LDUU, pVT,
+	     &LDVTT, pWORK, &LWORKK, pIWORK, &INFOO);
+#endif
+    free(pIWORK);
   }
-*/
 
 }

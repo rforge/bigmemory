@@ -220,7 +220,7 @@ dgeev=function(JOBVL='V', JOBVR='V', N=NULL, A, LDA=NULL, WR, WI, VL,
 #          < 0 if INFO = -i had an illegal value
 #          > 0 if DBDSDC did not converge
 dgesdd = function( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL, 
-  VT, LDVT=NULL, WORK=NULL, LWORK=NULL, IWORK=NULL)
+  VT, LDVT=NULL, WORK=NULL, LWORK=NULL)
 {
   A.is.bm = check_matrix(A)
   S.is.bm = check_matrix(S)
@@ -276,16 +276,10 @@ dgesdd = function( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
   {
     WORK = as.matrix(rep(0.0, max(1, LWORK)))
   }
-  if (is.null(IWORK))
-  {
-    IWORK = as.matrix(( rep(0, 8*min(M,N)) ))
-  }
   WORK.is.bm = check_matrix(WORK)
-  IWORK.is.bm = check_matrix(IWORK, types='integer')
   INFO = 0
   .Call('dgesdd_wrapper', as.character(JOBZ), M, N, A, 
     LDA, S, U, LDU, VT, LDVT, WORK, 
-    LWORK, IWORK, INFO, A.is.bm,
-    S.is.bm, U.is.bm, VT.is.bm, WORK.is.bm, IWORK.is.bm)
+    LWORK, INFO, A.is.bm, S.is.bm, U.is.bm, VT.is.bm, WORK.is.bm)
   return(INFO)
 }

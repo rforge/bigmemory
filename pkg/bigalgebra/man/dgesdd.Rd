@@ -10,7 +10,7 @@ diagonal elemtns, and V is an N-by-N orthogonal matrix.
 }
 \usage{
 dgesdd( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
-  VT, LDVT=NULL, WORK=NULL, LWORK=NULL, IWORK=NULL)
+  VT, LDVT=NULL, WORK=NULL, LWORK=NULL)
 }
 \arguments{
   \item{JOBZ}{if \code{'A'}, all \code{M} columns of \code{U} and all \code{N} rows of \code{VT} are returned 
@@ -32,11 +32,10 @@ dgesdd( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
   \item{LDVT}{the number of rows in \code{VT}}
   \item{WORK}{an internal double vector to perform the SVD}
   \item{LWORK}{the length of the \code{WORK} vector}
-  \item{IWORK}{an internal integer vector to perform the SVD}
 }
 \details{
 If \code{JOBZ}, \code{M}, \code{N}, \code{LDA}, \code{LDU}, \code{LDVT}, \code{WORK},
-\code{LWORK}, or \code{IWORK} parameters are not 
+\code{LWORK} parameters are not 
 specified, appropriate defaults are supplied.
 }
 \value{
