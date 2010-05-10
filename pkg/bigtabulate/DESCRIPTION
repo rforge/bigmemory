@@ -1,6 +1,6 @@
 Package: bigtabulate
-Version: 1.0.9
-Date: 2010-05-08
+Version: 1.0.10
+Date: 2010-05-10
 Title: table-, tapply-, and split-like functionality for matrix and big.matrix objects.
 Author: Michael J. Kane <kaneplusplus@gmail.com> and John W. Emerson <jayemerson@gmail.com>
 Maintainer: Mike and Jay <bigmemoryauthors@gmail.com>
