@@ -172,10 +172,9 @@ ACX_BLAS([LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS $FLIBS $RLIB"],[AC_MSG_NOTICE([cou
 AC_MSG_CHECKING([for $acmlinfo in $BLAS_LIBS])
 AC_TRY_LINK_FUNC($acmlinfo, [ACML="#define ACMLBLAS"],[ACML=""])
 
-BM=`echo 'cat(file.path(.libPaths(), "bigmemory", "libs","bigmemory.so")[[1]])' | ${R_HOME}/bin/R --slave`
-BI=`echo 'cat(file.path(.libPaths(), "bigmemory", "include")[[1]])' | ${R_HOME}/bin/R --slave`
-BIGALGEBRA_CPPFLAGS="-I${BI} $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
-LIBS="$BM $LIBS"
+BM=`echo 'cat(system.file(package="bigmemory"))' | ${R_HOME}/bin/R --slave`
+BIGALGEBRA_CPPFLAGS="-I${BM}/include $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
+LIBS="${BM}/libs/bigmemory.so $LIBS"
 
 echo "Using LAPACK_LIBS $LAPACK_LIBS"
 echo "Using BLAS_LIBS $BLAS_LIBS"

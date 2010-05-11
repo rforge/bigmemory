@@ -1,0 +1,178 @@
+% \VignetteIndexEntry{rredis Manual}
+% \VignetteDepends{rredis}
+% \VignettePackage{rredis}
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage{color}
+\usepackage{xspace}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage[
+     colorlinks=true,
+     linkcolor=blue,
+     citecolor=blue,
+     urlcolor=blue]
+     {hyperref}
+\usepackage{lscape}
+\usepackage{Sweave}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{mdwlist}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% define new colors for use
+\definecolor{darkgreen}{rgb}{0,0.6,0}
+\definecolor{darkred}{rgb}{0.6,0.0,0}
+\definecolor{lightbrown}{rgb}{1,0.9,0.8}
+\definecolor{brown}{rgb}{0.6,0.3,0.3}
+\definecolor{darkblue}{rgb}{0,0,0.8}
+\definecolor{darkmagenta}{rgb}{0.5,0,0.5}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\bld}[1]{\mbox{\boldmath $#1$}}
+\newcommand{\shell}[1]{\mbox{$#1$}}
+\renewcommand{\vec}[1]{\mbox{\bf {#1}}}
+\newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
+\newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
+\def\tm{\leavevmode\hbox{$\rm {}^{TM}$}}
+
+
+\setlength{\oddsidemargin}{-.25 truein}
+\setlength{\evensidemargin}{0truein}
+\setlength{\topmargin}{-0.2truein}
+\setlength{\textwidth}{7 truein}
+\setlength{\textheight}{8.5 truein}
+\setlength{\parindent}{0.20truein}
+\setlength{\parskip}{0.10truein}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{fancy}
+\lhead{}
+\chead{The {\tt bigalgebra} Package}
+\rhead{}
+\lfoot{}
+\cfoot{}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Notes on the {\tt bigalgebra} Package}
+\author{Emmerson, Kane, Lewis} 
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section{Introduction}
+
+The \verb+bigalgebra+ package provides linear algebra operations for ``Big
+Matrices'' defined in the \verb+bigmemory+ package. The package includes matrix
+and vector arithmetic operations and several matrix factorizations.  Standard
+infix arithmetic operators are overloaded to use \verb+bigalgebra+ functions,
+keeping syntax familiar and simple.
+
+The \verb+bigalgebra+ package may be optionally compiled with high-performance,
+multithreaded numeric libraries, which may also provide large-index support.
+Large indices support linear algebra computation on matrices and vectors with
+up to $2^{51}$ total entries (the usual R limit constrains objects to less than
+$2^{31}$ total entries).  The package also supports computations on arrays that
+are larger than available RAM using \verb+bigmemory+'s file-backed big matrix
+objects. The \verb+bigalgebra+ package presently supports double-precision
+computation.
+
+
+\section{Installation}
+
+The default installation uses available system and R BLAS and LAPACK libraries.
+The \verb+bigalgebra+ package may be optionally compiled with alternate
+libraries that offer performance and threading optimizations as well as large
+index support.
+
+Installation assumes the standard R toolchain and GNU compiler suite, and
+requires setting one or more configuration options:
+\begin{itemize}
+\item[] \verb+--with-incDir+ 
+       Extra required include directories and compiler options.
+\item[] \verb+--with-blasHeader+ Alternate BLAS header file.
+\item[] \verb+--with-blas+ The BLAS library linker instructions.
+\item[] \verb+--with-lapcakHeader+ Alternate LAPACK header file.
+\item[] \verb+--with-lapack+ The LAPACK library linker instructions.
+\item[] \verb+--with-int64+ The integer index type (usually \verb+long+ or
+        \verb+long long+).
+\end{itemize}
+
+\subsection{Installation with Reference BLAS (with large index support)}\label{large}
+
+\subsection{Installation with Intel MKL}\label{mkl}
+
+The Intel{\textregistered} Math Kernel Library (MKL), available from
+\htmladdnormallink{http://software.intel.com/en-us/intel-mkl/}
+{http://software.intel.com/en-us/intel-mkl/},
+is a set of highly optimized and extensively threaded numeric routines for
+x86, x86-64, and Intel architecture (Itanium) processors.
+The library is available in standard and large-index versions.
+
+We assume below that the MKL is installed in the
+\verb+/opt/intel/mkl/10.2.5.035/+ directory--substitute your installation path
+as required. We illustrate the command-line installation procedure below.
+Installation from the R console with the \verb+install.packages+ command
+follows similarly. We outline dynamic linkage against MKL which requires that
+the MKL libraries lie in the system library path.
+
+\subsubsection{Example: MKL Large-index support on x86-64 systems using GNU Open MP}
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+R CMD INSTALL  --configure-args='
+                --with-incDir="-DMKL_ILP64 -I/opt/intel/mkl/10.2.5.035/include/"
+                --with-blasHeader="refblas64longlong.h" 
+                --with-blas="-L/opt/intel/mkl/10.2.5.035/lib/em64t/ 
+                             -lmkl_gf_ilp64 -lmkl_gnu_thread -lgomp -lmkl_core" 
+                --with-lapack="-L/opt/intel/mkl/10.2.5.035/lib/em64t/ 
+                              -lmkl_gf_ilp64 -lmkl_gnu_thread -lgomp -lmkl_core"
+                --with-lapackHeader="mkl.h" 
+                --with-int64="long long"' bigalgebra
+\end{lstlisting}
+Note that we use the ``refblas64longlong.h'' BLAS header file supplied with
+the \verb+bigalgebra+ package.
+Additional MKL compilation examples can be found in the Intel MKL
+documentation.
+
+\subsection{Installation with AMD ACML}\label{acml}
+The AMD{\textregistered} Core Math Library (ACML) is available from
+\htmladdnormallink{http://developer.amd.com/cpu/libraries/acml/pages/default.aspx}
+{http://developer.amd.com/cpu/libraries/acml/pages/default.aspx}. The ACML
+provides a highly-threaded set of numeric libraries optimized for performance
+on x86 and x86-64 processor architectures.
+The library is available in standard and large-index versions.
+
+We assume that the ACML is installed in the \verb+/opt/acml4.4.0/+
+directory.
+
+\subsubsection{Example: ACML Large-index support on x86-64 systems}
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+R CMD INSTALL  --configure-args='
+                --with-incDir="-I/opt/acml4.4.0/gfortran64_int64/include/" 
+                --with-blasHeader="acml.h" 
+                --with-blas="-L/opt/acml4.4.0/gfortran64_int64/lib -lacml -lacml_mv" 
+                --with-lapack="-lacml -lacml_mv" 
+                --with-lapackHeader="acml.h" 
+                --with-int64=long' bigalgebra
+\end{lstlisting}
+
+\subsection{Installation with GOTO BLAS}\label{GOTO}
+
+\section{Examples}
+
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+> library('bigalgebra')
+XXX
+\end{lstlisting}
+
+
+
+\end{document}
