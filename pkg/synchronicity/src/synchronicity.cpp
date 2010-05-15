@@ -29,12 +29,14 @@ class BoostMutexInfo
     {
       _name = newName;
       _counter.init(newName+"_counter");
+      return true;
     }
 
     bool init(const std::string &newName, const long timeout)
     {
       init(newName);
       _timeout = timeout;
+      return true;
     }
 
     // This function must be protected by a semaphore.
