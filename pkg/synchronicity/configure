@@ -1,7 +1,22 @@
 ####################################################################
-# configure for package bigmemory
+# configure for package synchronicity
 # John W. Emerson and Michael Kane
 #
-# We use R to detect the platform and tweak the Makevars
+# Sun Studio toolchain not completely BOOST-compatible (the
+# fault of BOOST, not R-Project).
+# Hopefully BOOST will catch up, soon.
 
-${R_HOME}/bin/R CMD BATCH configure.R
+FLAGS="PKG_CPPFLAGS=-I../include"
+LIBS=""
+
+echo -n "  checking for Darwin..."
+if test `uname` = "Linux" ; then
+  echo "no"
+  FLAGS="${FLAGS} -DLINUX"
+  LIBS="PKG_LIBS=-lrt"
+else
+  echo "yes"
+fi
+
+echo "${FLAGS}" > src/Makevars
+echo "${LIBS}" >> src/Makevars
