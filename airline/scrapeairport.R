@@ -68,7 +68,13 @@ x <- x[order(x$code),]
 codes <- codes[order(codes[,1]),]
 x$index <- codes$index
 x <- x[,-c(2,3)]
-x$GMT[x$GMT == 0] <- -5            # Fix up CBM
+x$GMToffset[x$GMT == 0] <- -5            # Fix up CBM
+x <- x[,-1]
+
+names(x) <- c("GMT", "lon", "lat", "airport")
+x <- x[,c(4,1,2,3)]
+x <- x[order(x$airport),]
+rownames(x) <- NULL
 
 dput(x, "ContinentalUSAirportInfo.txt")
 
