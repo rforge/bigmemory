@@ -725,7 +725,7 @@ setMethod('mwhich',
 setMethod('mwhich',
   signature(x='big.matrix', op='missing'),
   function(x, cols, vals, comps)
-    return(mwhich.internal(x, cols, vals, comps, op='OR', 
+    return(mwhich.internal(x, cols, vals, comps, op='AND', 
                            whichFuncName='MWhichBigMatrix')))
 
 setMethod('mwhich',
@@ -733,10 +733,10 @@ setMethod('mwhich',
   function(x, cols, vals, comps)
   {
     if (is.integer(x))
-      return(mwhich.internal(x, cols, vals, comps, op='OR', 
+      return(mwhich.internal(x, cols, vals, comps, op='AND', 
                              whichFuncName='MWhichRIntMatrix'))
     if (is.numeric(x))
-      return(mwhich.internal(x, cols, vals, comps, op='OR', 
+      return(mwhich.internal(x, cols, vals, comps, op='AND', 
                              whichFuncName='MWhichRNumericMatrix'))
     stop("Unsupported matrix type given to mwhich")
   })
