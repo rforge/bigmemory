@@ -9,6 +9,10 @@
 # Mike Kane <michael.kane@yale.edu>
 #
 
+2010-05-16	Jay	<bigmemoryauthors@bigmemory.org>
+
+* Set proper default value op='AND' for mwhich()
+
 2010-05-08	Jay	<bigmemoryauthors@bigmemory.org>
 
 * The configuration process has been streamlined to avoid
