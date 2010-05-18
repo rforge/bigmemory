@@ -105,6 +105,16 @@ requires setting one or more configuration options:
 \end{itemize}
 
 \subsection{Installation with Reference BLAS (with large index support)}\label{large}
+The \verb+bigalgebra+ package includes reference BLAS and LAPACK libraries
+from Netlib with large index support. The libraries are not tuned for
+performance--use high-performance libraries instead when possible.
+
+The following example illustrates installation with the 
+reference large-index BLAS and LAPACK libraries:
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+R CMD INSTALL  --configure-args='--with-blas=refblas64'
+\end{lstlisting}
 
 \subsection{Installation with Intel MKL}\label{mkl}
 
