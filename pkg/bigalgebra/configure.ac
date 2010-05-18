@@ -5,6 +5,11 @@ acx_blas_ok=no
 
 AC_ARG_WITH(blas,
 	[AC_HELP_STRING([--with-blas=<lib>], [use BLAS library <lib>])])
+if test "$with_blas" == "refblas64"; then
+  with_blas="-L. -L./src/ -L./src/refblas64/ -L./refblas64/ -lrefblas64"
+  make  -C src/refblas64
+fi
+
 case $with_blas in
 	yes | "") ;;
 	no) acx_blas_ok=disable ;;
@@ -13,7 +18,6 @@ case $with_blas in
 esac
 
 # Get fortran linker names of BLAS functions to check for.
-AC_F77_FUNC(sgemm)
 AC_F77_FUNC(dgemm)
 AC_F77_FUNC(acmlinfo)
 
@@ -24,8 +28,8 @@ LIBS="$LIBS $FLIBS"
 if test $acx_blas_ok = no; then
 if test "x$BLAS_LIBS" != x; then
 	save_LIBS="$LIBS"; LIBS="$BLAS_LIBS $LIBS"
-	AC_MSG_CHECKING([for $sgemm in $BLAS_LIBS])
-	AC_TRY_LINK_FUNC($sgemm, [acx_blas_ok=yes], [BLAS_LIBS=""])
+	AC_MSG_CHECKING([for $dgemm in $BLAS_LIBS])
+	AC_TRY_LINK_FUNC($dgemm, [acx_blas_ok=yes], [BLAS_LIBS=""])
 	AC_MSG_RESULT($acx_blas_ok)
 	LIBS="$save_LIBS"
 fi
@@ -34,14 +38,14 @@ fi
 # BLAS linked to by default?  (happens on some supercomputers)
 if test $acx_blas_ok = no; then
 	save_LIBS="$LIBS"; LIBS="$LIBS"
-	AC_CHECK_FUNC($sgemm, [acx_blas_ok=yes])
+	AC_CHECK_FUNC($dgemm, [acx_blas_ok=yes])
 	LIBS="$save_LIBS"
 fi
 
 # BLAS in ATLAS library? (http://math-atlas.sourceforge.net/)
 if test $acx_blas_ok = no; then
 	AC_CHECK_LIB(atlas, ATL_xerbla,
-		[AC_CHECK_LIB(f77blas, $sgemm,
+		[AC_CHECK_LIB(f77blas, $dgemm,
 		[AC_CHECK_LIB(cblas, cblas_dgemm,
 			[acx_blas_ok=yes
 			 BLAS_LIBS="-lcblas -lf77blas -latlas"],
@@ -49,22 +53,11 @@ if test $acx_blas_ok = no; then
 			[], [-latlas])])
 fi
 
-# BLAS in PhiPACK libraries? (requires generic BLAS lib, too)
-if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(blas, $sgemm,
-		[AC_CHECK_LIB(dgemm, $dgemm,
-		[AC_CHECK_LIB(sgemm, $sgemm,
-			[acx_blas_ok=yes; BLAS_LIBS="-lsgemm -ldgemm -lblas"],
-			[], [-lblas])],
-			[], [-lblas])])
-fi
-
-
 # BLAS in Sun Performance library?
 if test $acx_blas_ok = no; then
 	if test "x$GCC" != xyes; then # only works with Sun CC
 		AC_CHECK_LIB(sunmath, acosp,
-			[AC_CHECK_LIB(sunperf, $sgemm,
+			[AC_CHECK_LIB(sunperf, $dgemm,
         			[BLAS_LIBS="-xlic_lib=sunperf -lsunmath"
                                  acx_blas_ok=yes],[],[-lsunmath])])
 	fi
@@ -72,26 +65,26 @@ fi
 
 # BLAS in SCSL library?  (SGI/Cray Scientific Library)
 if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(scs, $sgemm, [acx_blas_ok=yes; BLAS_LIBS="-lscs"])
+	AC_CHECK_LIB(scs, $dgemm, [acx_blas_ok=yes; BLAS_LIBS="-lscs"])
 fi
 
 # BLAS in SGIMATH library?
 if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(complib.sgimath, $sgemm,
+	AC_CHECK_LIB(complib.sgimath, $dgemm,
 		     [acx_blas_ok=yes; BLAS_LIBS="-lcomplib.sgimath"])
 fi
 
 # BLAS in IBM ESSL library? (requires generic BLAS lib, too)
 if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(blas, $sgemm,
-		[AC_CHECK_LIB(essl, $sgemm,
+	AC_CHECK_LIB(blas, $dgemm,
+		[AC_CHECK_LIB(essl, $dgemm,
 			[acx_blas_ok=yes; BLAS_LIBS="-lessl -lblas"],
 			[], [-lblas $FLIBS])])
 fi
 
 # Generic BLAS library?
 if test $acx_blas_ok = no; then
-	AC_CHECK_LIB(blas, $sgemm, [acx_blas_ok=yes; BLAS_LIBS="-lblas"])
+	AC_CHECK_LIB(blas, $dgemm, [acx_blas_ok=yes; BLAS_LIBS="-lblas"])
 fi
 
 AC_SUBST(BLAS_LIBS)
@@ -138,6 +131,9 @@ esac
 if test "${LAPACK_LIBS}" == "-l"; then
   LAPACK_LIBS=`"${R_HOME}/bin/R" CMD config LAPACK_LIBS`
 fi
+if test "$with_blas" == "refblas64"; then
+  LAPACK_LIBS="-L. -L./src/ -L./src/refblas64/ -L./refblas64/ -lrefblas64"
+fi
 
 AC_ARG_WITH(int64,
   AC_HELP_STRING([--with-int64=type],[Specify 64-bit integer indexing type]),
@@ -172,12 +168,15 @@ ACX_BLAS([LIBS="$LAPACK_LIBS $BLAS_LIBS $LIBS $FLIBS $RLIB"],[AC_MSG_NOTICE([cou
 AC_MSG_CHECKING([for $acmlinfo in $BLAS_LIBS])
 AC_TRY_LINK_FUNC($acmlinfo, [ACML="#define ACMLBLAS"],[ACML=""])
 
-BM=`echo 'cat(system.file(package="bigmemory"))' | ${R_HOME}/bin/R --slave`
-BIGALGEBRA_CPPFLAGS="-I${BM}/include $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
-LIBS="${BM}/libs/bigmemory.so $LIBS"
+BM=`echo 'cat(file.path(.libPaths(), "bigmemory", "libs","bigmemory.so")[[1]])' | ${R_HOME}/bin/R --slave`
+BI=`echo 'cat(file.path(.libPaths(), "bigmemory", "include")[[1]])' | ${R_HOME}/bin/R --slave`
+BIGALGEBRA_CPPFLAGS="-I${BI} $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
+LIBS="$BM $LIBS"
 
 echo "Using LAPACK_LIBS $LAPACK_LIBS"
 echo "Using BLAS_LIBS $BLAS_LIBS"
+
+REFBLAS64=
 
 AC_SUBST(BIGALGEBRA_CPPFLAGS)
 AC_SUBST(LIBS)
@@ -185,6 +184,7 @@ AC_SUBST(BLASHEADER)
 AC_SUBST(LAPACKHEADER)
 AC_SUBST(INT64)
 AC_SUBST(ACML)
+AC_SUBST(REFBLAS64)
 AC_CONFIG_FILES([src/Makevars])
 AC_CONFIG_FILES([src/blas.hpp])
 AC_OUTPUT
