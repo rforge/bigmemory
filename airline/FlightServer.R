@@ -10,7 +10,7 @@ updateSpan <- 5 # Update (at most) every 5 seconds.
 # If no new flights occur in this time period we still have to send the
 # client a tick.
 tickString <- paste('<?xml version="1.0" encoding="UTF-8"?>',
-# The next line will be uncommented when esperr is used.
+# The next line will be uncommented if esperr is used.
 #  '<Flight xmlns="FlightSchema">',
   '<Flight>',
   '<IsTick>TRUE</IsTick>',
