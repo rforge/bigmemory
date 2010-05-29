@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs=="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Flight">
+    <xs:complexType>
+      <xs:element name="Year" type="xs:string">
+      <xs:element name="Month" type="xs:string">
+      <xs:element name="DayofMonth" type="xs:string">
+      <xs:element name="DayOfWeek" type="xs:string">
+      <xs:element name="DepTime" type="xs:string">
+      <xs:element name="CRSDepTime" type="xs:string">
+      <xs:element name="ArrTime" type="xs:string">
+      <xs:element name="CRSArrTime" type="xs:string">
+      <xs:element name="UniqueCarrier" type="xs:string">
+      <xs:element name="FlightNum" type="xs:string">
+      <xs:element name="TailNum" type="xs:string">
+      <xs:element name="ActualElapsedTime" type="xs:string">
+      <xs:element name="CRSElapsedTime" type="xs:string">
+      <xs:element name="AirTime" type="xs:string">
+      <xs:element name="ArrDelay" type="xs:string">
+      <xs:element name="DepDelay" type="xs:string">
+      <xs:element name="Origin" type="xs:string">
+      <xs:element name="Dest" type="xs:string">
+      <xs:element name="Distance" type="xs:string">
+      <xs:element name="TaxiIn" type="xs:string">
+      <xs:element name="TaxiOut" type="xs:string">
+      <xs:element name="Cancelled" type="xs:string">
+      <xs:element name="CancellationCode" type="xs:string">
+      <xs:element name="Diverted" type="xs:string">
+      <xs:element name="CarrierDelay" type="xs:string">
+      <xs:element name="WeatherDelay" type="xs:string">
+      <xs:element name="NASDelay" type="xs:string">
+      <xs:element name="SecurityDelay" type="xs:string">
+      <xs:element name="LateAircraftDelay" type="xs:string">
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
