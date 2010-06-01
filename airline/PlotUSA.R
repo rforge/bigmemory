@@ -1,4 +1,6 @@
 
+setwd("/home/jay/Desktop/BigmemoryProject/bigmemory/airline")
+
 x <- dget("ContinentalUSAirportInfo.txt")
 states <- read.table("16096.dat", header=FALSE)
 intl <- read.table("16109.dat", header=FALSE)

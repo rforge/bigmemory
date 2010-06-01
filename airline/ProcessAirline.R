@@ -1,13 +1,25 @@
-
+setwd("/home/jay/Desktop/Data")
 library(bigmemory)
 library(biganalytics)
 
-setwd("/home/jay/Desktop/Data")
-xdesc <- dget("airline.desc")
+if (FALSE) {
+system.time({
+x <- read.big.matrix("airline.csv", header=TRUE,
+                     backingfile="airlinestreammaster.bin",
+                     descriptorfile="airlinestreammaster.desc",
+                     type="integer",
+                     extraCols=c("EventType", "CurrTime",
+                                 "OriginLon", "OriginLat",
+                                 "DestLon", "DestLat"))
+})
+}
+
+
+xdesc <- dget("airlinestream.desc")
 x <- attach.big.matrix(xdesc)
 refreshFromMaster <- TRUE
 
-mdesc <- dget("airline.master.desc")
+mdesc <- dget("airlinestreammaster.desc")
 m <- attach.big.matrix(mdesc)
 
 if (refreshFromMaster) {
@@ -139,17 +151,21 @@ gethourmin <- function(times) {
 # airports which we aren't considering).
 ToSecondsAfter1970 <- function(x, these, i, air) {
   temp <- gethourmin(x[these,i])
+  #cat(i, sum(temp[,1]>23, na.rm=TRUE), "\n")
+  #temp[temp[,1]>23,] <- NA
   gc()
   a <- ISOdatetime(x[these,'Year'], x[these,'Month'], x[these,'DayofMonth'],
                    temp[,1], temp[,2], sec=0, tz="")
   thiscol <- 'Dest'
   if (i=='DepTime' || i=='CRSDepTime') thiscol <- 'Origin'
   gc()
-  a <- as.integer(a) - as.integer((air[as.character(x[these,thiscol]),'GMT']+5)*360)
+  a <- as.integer(a) - as.integer((air[as.character(x[these,thiscol]),'GMT']+5)*3600)
     # NOW Eastern Standard Time, in seconds after Jan 1, 1970.
   gc()
   return(a)
 }
+
+system.time({
 
 pb <- txtProgressBar(style=3)
 for (day in 1:31) {
@@ -164,9 +180,25 @@ for (day in 1:31) {
   setTxtProgressBar(pb, day/31)
 }
 
+})
+
+
 ###
 ### Cleaning up now
 ###
+
+# 1. if ArrTime < DepTime, adjust by 24 hours:
+
+these <- which(x[,'ArrTime'] < x[,'DepTime'])
+x[these,'ArrTime'] <- x[these,'ArrTime'] + as.integer(24*3600)
+
+these <- which(x[,'CRSArrTime'] < x[,'CRSDepTime'])
+x[these,'CRSArrTime'] <- x[these,'CRSArrTime'] + as.integer(24*3600)
+
+# This might not have taken care of all of them, if some delays were 2 days?
+# Odd.
+
+
 
 # 1. Missing DepTime (or other times) are for airports that are not in our
 # ContinentalUSAirportInfo.txt file.  Check this.
@@ -181,11 +213,21 @@ for (day in 1:31) {
 
 these <- mwhich(x, c('Year', 'Origin', 'Dest'),
                    list(2005, 29, 2),
-                   list('eq', 'eq', 'eq'), op='AND')
+                   'eq', op='AND')
 
 a <- x[these,]
-a[,'ArrTime'] - a[,'DepTime']
 hist(a[,'ArrTime'] - a[,'DepTime'], breaks=100) # 5*60*60
+plot(a[,'ActualElapsedTime']*60, a[,'ArrTime'] - a[,'DepTime'])
+plot(a[,'CRSElapsedTime']*60, a[,'CRSArrTime'] - a[,'CRSDepTime'])
+plot(a[,'CRSElapsedTime'], a[,'ActualElapsedTime'])
+
+plot(a[,'CRSArrTime'] - a[,'CRSDepTime'], a[,'ArrTime'] - a[,'DepTime'])
+abline(0,1)
+
+hist(a[,'CRSDepTime'] - a[,'DepTime'])
+plot(a[,'CRSDepTime'] - a[,'DepTime'], a[,'DepDelay'])
+
+ISOdatetime(a[1,'Year'], a[1,'Month'], a[1,'DayofMonth'], 17, 21, sec=0, tz="")
 
 #
 # 3. Drop any flights leaving more than 30 minutes early.
@@ -197,6 +239,114 @@ hist(a[,'ArrTime'] - a[,'DepTime'], breaks=100) # 5*60*60
 # possible a "clock event" without flight into.  This will give us ultimate
 # synchronous vs asynchronous flexibility I think.  Sort on CurrentTime.  Use all
 # variables in case something else is desired.
+# OH: and originlat, originlon, destlat, destlon
+# Will need to multiple lat/lon values by 1000 or something to make them integer.
+
+#################################################################################
+# Extract a little subset
+
+
+air <- dget("/home/jay/Desktop/BigmemoryProject/bigmemory/airline/ContinentalUSAirportInfo.txt")
+rownames(air) <- air$airport
+
+these <- mwhich(x, c('Year', 'Month', 'DayofMonth'),
+                   list(2005, 1, 2),
+                   list('eq', 'eq', 'le'), op='AND')
+
+y <- x[these,]
+
+y <- y[!is.na(y[,'ArrTime']),]
+y <- y[!is.na(y[,'DepTime']),]
+
+hist(y[,'ArrTime'] - y[,'DepTime'], breaks=100) # 5*60*60
+plot(y[,'ActualElapsedTime']*60, y[,'ArrTime'] - y[,'DepTime'])
+sum(y[,'ActualElapsedTime']*60 > y[,'ArrTime'] - y[,'DepTime'])
+y <- y[y[,'ActualElapsedTime']*60 == y[,'ArrTime'] - y[,'DepTime'],]
+y <- y[y[,'CRSElapsedTime']*60 == y[,'CRSArrTime'] - y[,'CRSDepTime'],]
+
+plot(y[,'CRSElapsedTime']*60, y[,'CRSArrTime'] - y[,'CRSDepTime'])
+plot(y[,'CRSElapsedTime'], y[,'ActualElapsedTime'])
+abline(0,1)
+
+# Duplicate of previous:
+#plot(y[,'CRSArrTime'] - y[,'CRSDepTime'], y[,'ArrTime'] - y[,'DepTime'])
+#abline(0,1)
+
+hist(y[,'CRSDepTime'] - y[,'DepTime'])
+hist(y[,'CRSArrTime'] - y[,'ArrTime'])
+plot(y[,'CRSDepTime'] - y[,'DepTime'], y[,'DepDelay'])
+
+#######################################################################
+#######################################################################
+
+
+air <- dget("/home/jay/Desktop/BigmemoryProject/bigmemory/airline/ContinentalUSAirportInfo.txt")
+rownames(air) <- air$airport
+
+these <- mwhich(x, c('Year', 'Month', 'DayofMonth'),
+                   list(2005, 1, 2),
+                   list('eq', 'eq', 'le'), op='AND')
+
+y <- x[these,]
+
+y <- y[!is.na(y[,'ArrTime']),]
+y <- y[!is.na(y[,'DepTime']),]
+
+y <- y[y[,'ActualElapsedTime']*60 == y[,'ArrTime'] - y[,'DepTime'],]
+y <- y[y[,'CRSElapsedTime']*60 == y[,'CRSArrTime'] - y[,'CRSDepTime'],]
+
+##################
+# Fill in lat/lon:
+
+y[,'OriginLon'] <- air[y[,'Origin'], 'lon']
+y[,'OriginLat'] <- air[y[,'Origin'], 'lat']
+y[,'DestLon'] <- air[y[,'Dest'], 'lon']
+y[,'DestLat'] <- air[y[,'Dest'], 'lat']
+
+y <- y[!is.na(y[,'OriginLon']) & !is.na(y[,'DestLon']),]
+
+isdup <- duplicated(y)
+y <- y[!isdup,]
+
+#######################
+# Create event matrix
+
+z <- y                  # z arrival copy
+                        # y departure copy
+y[,c('ArrTime', 'ActualElapsedTime', 'ArrDelay', 'TaxiIn')] <- NA
+y[,'EventType'] <- 1
+z[,'EventType'] <- 2
+y[,'CurrTime'] <- y[,'DepTime']
+z[,'CurrTime'] <- z[,'ArrTime']
+
+y <- rbind(y,z)
+y <- y[order(y[,'CurrTime']),]
+
+ticks <- unique(y[,'CurrTime'])
+length(ticks)
+unique( (ticks - min(ticks)) / 60 )
+
+for (i in c('DepTime', 'ArrTime', 'CurrTime')) {
+  y[,i] <- 1 + ( y[,i] - min(ticks) ) / 60
+}
+
+ticks <- unique(y[,'CurrTime'])
+needthese <- setdiff(1:max(ticks), ticks)
+z <- y[1:length(needthese),]
+z[,'CurrTime'] <- needthese
+z[,'EventType'] <- 3
+z[,-c(30:31)] <- NA
+
+y <- rbind(y, z)
+y <- y[order(y[,'CurrTime']),]
+
+dput(y, "StreamOfFlights.Jan.1.2.2005.txt")
+write.table(y, "StreamOfFlights.Jan.1.2.2005.csv", row.names=F, col.names=T, sep=",")
+
+
+plot(y[,'OriginLon'], y[,'OriginLat'])
+
+
 
 
 
