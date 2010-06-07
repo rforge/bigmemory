@@ -59,6 +59,17 @@ std::vector<std::string> RDouble2StringVec( SEXP numerics)
   return ret;
 }
 
+std::vector<std::string> RInteger2StringVec( SEXP numerics)
+{
+  vector<string> ret( GET_LENGTH(numerics) );
+  vector<string>::size_type i;
+  for (i=0; i < ret.size(); ++i)
+  {
+    ret[i] = ttos(INTEGER_DATA(numerics)[i]);
+  }
+  return ret;
+}
+
 
 template<typename T>
 class Mapper
@@ -369,9 +380,16 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   SEXP uniqueGroups=PROTECT(UniqueGroups<RType>(m, columns, breakSexp, useNA));
   int i, j, k;
   strings groupNames;
- 
-  groupNames = 
-    RDouble2StringVec(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1));
+  if (isInteger(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1)))
+  {
+    groupNames = 
+      RInteger2StringVec(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1));
+  }
+  else
+  {
+    groupNames = 
+      RDouble2StringVec(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1));
+  }
   for (i=GET_LENGTH(uniqueGroups)-2; i >= 0; --i)
   {
     groupNames = interact( groupNames, VECTOR_ELT(uniqueGroups, i) );
