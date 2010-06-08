@@ -1,4 +1,6 @@
 import(methods)
-export(listfunctionshere)
+export(probecamera, probemovie, testcamera, videobuffer,
+       read.movie, record.video, plotframe, plotpixels)
+S3method(print, videobuffer)
 useDynLib(bigvideo)
 

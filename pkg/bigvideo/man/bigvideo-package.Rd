@@ -5,8 +5,7 @@
 Bigvideo.
 }
 \description{
-See \code{\link{bigvideo}}, \code{\link{bigtable}}, \code{\link{bigsplit}},
-and \code{\link{bigtsummary}}.
+Short description.
 }
 \details{
 \tabular{ll}{
@@ -20,20 +19,18 @@ URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
 
-The \pkg{bigmemory} package contains the core support and basic summary
-functions; \pkg{bigvideo} contains extended tabulation functionality.
+More details.
 
 }
 \author{
-Michael J. Kane and John W. Emerson
+John W. Emerson, Taylor Arnold, and Michael J. Kane
 
 Maintainers: Mike and Jay <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}
 \seealso{For example, see
-\code{\link[bigmemory]{big.matrix}}, \code{\link[biglm]{biglm}},
-\code{\link[biganalytics]{bigkmeans}}, \code{\link[biganalytics]{binit}}, \code{\link{tapply}}.
+\code{\link[bigmemory]{big.matrix}}.
 }
 \examples{
 # None provided here.
