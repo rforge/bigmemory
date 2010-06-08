@@ -4,3 +4,6 @@
 # We'll expand support to Windows as soon as these have been
 # resolved.
 #
+# If you want to use this package with 32-bit Windows, it may be
+# possible (comment out the OS_type line in DESCRIPTION).
+#

@@ -9,6 +9,16 @@
 FLAGS="PKG_CPPFLAGS=-I../include"
 LIBS=""
 
+echo -n "  checking for Sun Studio compiler..."
+CC=`${R_HOME}/bin/R CMD config CC`
+cmd=`echo $CC | grep -E 'suncc'`
+if test -n "$cmd"; then
+  echo "yes"
+  echo "  ERROR: BOOST is not fully Sun Studio compatible as of 6/1/2010."
+else
+  echo "no"
+fi
+
 echo -n "  checking for Darwin..."
 if test `uname` = "Linux" ; then
   echo "no"
