@@ -119,9 +119,15 @@ record.video <- function(vb=NULL, frames=100, frame.start=1) {
 print.videobuffer <- function(vb) {
   cat("Object of class 'videobuffer':\n")
   cat("\tdata:\n")
-  cat("\t\tmin  =", min(colmin(vb$data, na.rm=TRUE)), "\n")
-  cat("\t\tmax  =", max(colmax(vb$data, na.rm=TRUE)), "\n")
-  cat("\t\tmean =", mean(colmean(vb$data, na.rm=TRUE)), "\n")
+  if (vb$structure=="big.matrix") {
+    cat("\t\tmin  =", min(colmin(vb$data, na.rm=TRUE)), "\n")
+    cat("\t\tmax  =", max(colmax(vb$data, na.rm=TRUE)), "\n")
+    cat("\t\tmean =", mean(colmean(vb$data, na.rm=TRUE)), "\n")
+  } else {
+    cat("\t\tmin  =", min(vb$data, na.rm=TRUE), "\n")
+    cat("\t\tmax  =", max(vb$data, na.rm=TRUE), "\n")
+    cat("\t\tmean =", mean(vb$data, na.rm=TRUE), "\n")
+  }
   cat("\tstructure:", vb$structure, "\n")
   cat("\ttype:", vb$type, "\n")
   cat("\twidth:", vb$width, "\n")
