@@ -173,6 +173,7 @@ SEXP CPPrecordvideoBigMatrix(SEXP addr, SEXP width, SEXP height,
   return R_NilValue;
 }
 
+/*
 SEXP CPPinitcamera(SEXP color, SEXP T) {
   SEXP ret = PROTECT(NEW_LOGICAL(1));
   LOGICAL_DATA(ret)[0] = (Rboolean) 1;
@@ -204,6 +205,7 @@ SEXP CPPinitcamera(SEXP color, SEXP T) {
   UNPROTECT(1);
   return ret;
 }
+*/
 
 } // End extern
      

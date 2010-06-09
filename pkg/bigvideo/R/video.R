@@ -119,10 +119,9 @@ record.video <- function(vb=NULL, frames=100, frame.start=1) {
 print.videobuffer <- function(vb) {
   cat("Object of class 'videobuffer':\n")
   cat("\tdata:\n")
-  cat("\t\tmin  =", min(vb$data[,], na.rm=TRUE), "\n")
-  cat("\t\tmax  =", max(vb$data[,], na.rm=TRUE), "\n")
-  cat("\t\tmean =", mean(vb$data[,], na.rm=TRUE), "\n")
-  cat("\t\tsd =", sd(vb$data[,], na.rm=TRUE), "\n")
+  cat("\t\tmin  =", min(colmin(vb$data, na.rm=TRUE)), "\n")
+  cat("\t\tmax  =", max(colmax(vb$data, na.rm=TRUE)), "\n")
+  cat("\t\tmean =", mean(colmean(vb$data, na.rm=TRUE)), "\n")
   cat("\tstructure:", vb$structure, "\n")
   cat("\ttype:", vb$type, "\n")
   cat("\twidth:", vb$width, "\n")
@@ -131,13 +130,15 @@ print.videobuffer <- function(vb) {
   cat("\tcolor:", vb$color, "\n")
 }
 
-plotframe <- function(vb, frame=1) {
+plot.videobuffer <- function(vb, ...) {
+  plotframe(vb, 1, ...)
+}
+
+plotframe <- function(vb, frame=1, ...) {
   a <- matrix(vb$data[,frame], vb$width, vb$height)
   a <- cbind(as.vector(row(a)), as.vector(col(a)), as.vector(a))
   a <- a[!is.na(a[,3]),]
-  plot(a[,1], a[nrow(a):1,2], col=gray(a[,3]/256), pch=".",
-       xlab="Left/Right", ylab="Up/Down", 
-       main="Interface 2010\n(640x480, one frame, grayscale)")
+  plot(a[,1], a[nrow(a):1,2], col=gray(a[,3]/256), pch=".", ...)
 }
 
 plotpixels <- function(vb, pixels=1, ...) {
@@ -145,31 +146,31 @@ plotpixels <- function(vb, pixels=1, ...) {
   x <- 1:ncol(vb$data)
   ylim <- range(vb$data[pixels,], na.rm=TRUE)
   par(mar=c(1,1,1,1))
-  plot(x, vb$data[pixels[1],], pch="", xaxs="n", yaxs="n",
-       xlab="", ylab="")
-  for (i in 1:pixels) {
+  plot(x, vb$data[pixels[1],], pch="", xaxt="n", yaxt="n",
+       xlab="", ylab="", ylim=ylim)
+  for (i in pixels) {
     lines(x, vb$data[i,], ...)
   }
 }
 
-init.camera <- function(vb, initframes=100) {
+#init.camera <- function(vb, initframes=100) {
+#
+#  ans <- .Call("CPPinitcamera", as.logical(vb$color), as.integer(initframes))
+#  if (!ans) stop("Error in initialization.\n")
+#
+#}
 
-  ans <- .Call("CPPinitcamera", as.logical(vb$color), as.integer(initframes))
-  if (!ans) stop("Error in initialization.\n")
-
-}
-
-get.frame <- function(vb, frames=1000) {
-
-  # Hmm... need to keep cap as an external ptr I think?
-
-  init.camera(vb)
-  for (i in 1:frames) {
-    ans <- .Call("CPPinitcamera", as.logical(vb$color), as.integer(1))
-    if (!ans) stop("Error in initialization.\n")
-  }
-
-}
+#get.frame <- function(vb, frames=1000) {
+#
+#  # Hmm... need to keep cap as an external ptr I think?
+#
+#  init.camera(vb)
+#  for (i in 1:frames) {
+#    ans <- .Call("CPPinitcamera", as.logical(vb$color), as.integer(1))
+#    if (!ans) stop("Error in initialization.\n")
+#  }
+#
+#}
 
 # Note to Jay: when ... is used, look up how to see if something
 # was provided.
