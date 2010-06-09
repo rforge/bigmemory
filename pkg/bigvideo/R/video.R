@@ -1,4 +1,4 @@
-probecamera <- function() {
+probe.camera <- function() {
 
   # First is bw, second is color.
   # Other useful things?
@@ -14,11 +14,11 @@ probecamera <- function() {
   return(ans)
 }
 
-probemovie <- function(filename) {
+probe.movie <- function(filename) {
   stop("Not yet implemented.")
 }
 
-testcamera <- function(x, color=TRUE, frames=100) {
+test.camera <- function(x, color=TRUE, frames=100) {
 
   # OPTIONS include grayscale vs color, blurring, etc...
   # Check out available opencv options that might be nice.
@@ -41,9 +41,9 @@ videobuffer <- function(frames=100, color=FALSE,
   if (frames<1) stop("frames must be a positive integer")
 
   if (!is.null(moviefile)) {
-    v <- probemovie(moviefile)
+    v <- probe.movie(moviefile)
   } else {
-    v <- probecamera()
+    v <- probe.camera()
   }
   if (structure=="big.matrix") {
     if (is.null(type)) {
@@ -140,17 +140,38 @@ plotframe <- function(vb, frame=1) {
        main="Interface 2010\n(640x480, one frame, grayscale)")
 }
 
-plotpixels <- function(vb, pixels=1) {
+plotpixels <- function(vb, pixels=1, ...) {
+  #... should be options to lines only.
+  x <- 1:ncol(vb$data)
+  ylim <- range(vb$data[pixels,], na.rm=TRUE)
+  par(mar=c(1,1,1,1))
+  plot(x, vb$data[pixels[1],], pch="", xaxs="n", yaxs="n",
+       xlab="", ylab="")
+  for (i in 1:pixels) {
+    lines(x, vb$data[i,], ...)
+  }
+}
+
+init.camera <- function(vb, initframes=100) {
+
+  ans <- .Call("CPPinitcamera", as.logical(vb$color), as.integer(initframes))
+  if (!ans) stop("Error in initialization.\n")
 
 }
 
-get.frame <- function(vb, frame) {
-  # Fill the specified frame column of the buffer
-  # This has side effects!
+get.frame <- function(vb, frames=1000) {
 
-  # Caution: remember the wait somethingorother that is
-  # necessary in C with opencv.
+  # Hmm... need to keep cap as an external ptr I think?
+
+  init.camera(vb)
+  for (i in 1:frames) {
+    ans <- .Call("CPPinitcamera", as.logical(vb$color), as.integer(1))
+    if (!ans) stop("Error in initialization.\n")
+  }
+
 }
 
+# Note to Jay: when ... is used, look up how to see if something
+# was provided.
 
 

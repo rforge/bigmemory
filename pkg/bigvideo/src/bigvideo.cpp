@@ -173,6 +173,37 @@ SEXP CPPrecordvideoBigMatrix(SEXP addr, SEXP width, SEXP height,
   return R_NilValue;
 }
 
+SEXP CPPinitcamera(SEXP color, SEXP T) {
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = (Rboolean) 1;
+
+  int i;
+  Mat frame, edges;
+  VideoCapture cap(0); // open the default camera
+  namedWindow("Camera", 1);
+  if(!cap.isOpened()) {
+    printf("opencv: unable to open camera device.\n");
+    LOGICAL_DATA(ret)[0] = (Rboolean) 0;
+  } else {
+    if (LOGICAL_VALUE(color)==FALSE) {
+      for (i=0; i<INTEGER_VALUE(T); i++) {
+        cap >> frame; // get a frame from camera
+        cvtColor(frame, edges, CV_BGR2GRAY); // for grayscale
+        imshow("Camera", edges);
+        if(waitKey(5) >= 0) break;
+      }
+    } else {
+      for (i=0; i<INTEGER_VALUE(T); i++) {
+        cap >> frame; // get a frame from camera
+        imshow("Camera", frame);
+        if(waitKey(1) >= 0) break;
+      }
+    }
+  }
+
+  UNPROTECT(1);
+  return ret;
+}
 
 } // End extern
      

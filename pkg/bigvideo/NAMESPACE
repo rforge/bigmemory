@@ -1,6 +1,7 @@
 import(methods)
-export(probecamera, probemovie, testcamera, videobuffer,
-       read.movie, record.video, plotframe, plotpixels)
+export(probe.camera, probe.movie, test.camera, videobuffer,
+       read.movie, record.video, plotframe, plotpixels,
+       init.camera)
 S3method(print, videobuffer)
 useDynLib(bigvideo)
 
