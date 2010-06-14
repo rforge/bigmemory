@@ -15,7 +15,7 @@ and \code{\link{bigtsummary}}.
 Package: \tab bigtabulate\cr
 Type: \tab Package\cr
 Version: \tab 1.0.11\cr
-Date: \tab 2010-06-06\cr
+Date: \tab 2010-06-08\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 Michael J. Kane and John W. Emerson\cr
 URL: \tab http://www.bigmemory.org\cr
