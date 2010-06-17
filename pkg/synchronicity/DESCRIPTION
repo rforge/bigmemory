@@ -1,6 +1,6 @@
 Package: synchronicity
-Version: 1.0.7
-Date: 2010-06-06
+Version: 1.0.8
+Date: 2010-06-17
 Title: Boost mutex functionality for R.
 Author: Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
