@@ -27,34 +27,46 @@ using namespace std;
 
 template<typename T, typename MatrixAccessorType>
 SEXP recordvideo(MatrixAccessorType m, SEXP width, SEXP height,
-                 SEXP frames, SEXP start, SEXP color)
+                 SEXP frames, SEXP start, SEXP color, SEXP loop,
+                 SEXP delay)
 {
-  SEXP ret = PROTECT(NEW_LOGICAL(1));
-  LOGICAL_DATA(ret)[0] = (Rboolean) 1;
+  SEXP ret = PROTECT(NEW_INTEGER(1));
   int i, j, k;
+  int looper = 1;
   Mat frame, edges;
   uchar *pRow;
   VideoCapture cap(0); // open the default camera
   namedWindow("Camera", 1);
   if(!cap.isOpened()) {
     printf("opencv: unable to open camera device.\n");
-    LOGICAL_DATA(ret)[0] = (Rboolean) 0;
+    INTEGER_DATA(ret)[0] = 0;
     UNPROTECT(1);
     return ret;
   } else {
     if (LOGICAL_VALUE(color)==0) {
-      for (i=0; i<INTEGER_VALUE(frames); i++) {
-        cap >> frame; // get a frame from camera
-        cvtColor(frame, edges, CV_BGR2GRAY); // for grayscale
-        imshow("Camera", edges);
-        for (j=0; j < INTEGER_VALUE(height); ++j) {
-          pRow = edges.ptr(j);
-          for (k=0; k < INTEGER_VALUE(width); ++k) {
-            m[INTEGER_VALUE(start)-1+i][j*INTEGER_VALUE(width)+k] =
-              (T) pRow[k];
+      // This potentially infinite loop is broken by a keypress
+      // while the video window has been selected.
+  
+      // Not yet handling looping with start != 1 correctly.  Sorry.
+      while (looper==1) {
+        for (i=0; i<INTEGER_VALUE(frames); i++) {
+          cap >> frame; // get a frame from camera
+          cvtColor(frame, edges, CV_BGR2GRAY); // for grayscale
+          imshow("Camera", edges);
+          for (j=0; j < INTEGER_VALUE(height); ++j) {
+            pRow = edges.ptr(j);
+            for (k=0; k < INTEGER_VALUE(width); ++k) {
+              m[INTEGER_VALUE(start)-1+i][j*INTEGER_VALUE(width)+k] =
+                (T) pRow[k];
+            }
+          }
+          INTEGER_DATA(ret)[0] = i+1;
+          if (waitKey(INTEGER_VALUE(delay)) >= 0) {
+            looper = 0;
+            break;
           }
         }
-        if(waitKey(20) >= 0) break;
+        if (LOGICAL_VALUE(loop)==0) { looper = 0; }
       }
     } else {
       /*                  // COLOR DATA STRUCTURE???
@@ -130,7 +142,8 @@ void Ctestcamera(int *color, int *T) {
 // The following handles the type templating for big.matrix
 // objects.
 SEXP CPPrecordvideoBigMatrix(SEXP addr, SEXP width, SEXP height,
-                    SEXP frames, SEXP start, SEXP color)
+                    SEXP frames, SEXP start, SEXP color, SEXP loop,
+                    SEXP delay)
 {
   BigMatrix *pMat = reinterpret_cast<BigMatrix*>(
     R_ExternalPtrAddr(addr));
@@ -140,16 +153,16 @@ SEXP CPPrecordvideoBigMatrix(SEXP addr, SEXP width, SEXP height,
     {
       case 1:
         return recordvideo<char>(SepMatrixAccessor<char>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
       case 2:
         return recordvideo<short>(SepMatrixAccessor<short>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
       case 4:
         return recordvideo<int>(SepMatrixAccessor<int>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
       case 8:
         return recordvideo<double>(SepMatrixAccessor<double>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
     }
   }
   else
@@ -158,16 +171,16 @@ SEXP CPPrecordvideoBigMatrix(SEXP addr, SEXP width, SEXP height,
     {
       case 1:
         return recordvideo<char>(MatrixAccessor<char>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
       case 2:
         return recordvideo<short>(MatrixAccessor<short>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
       case 4:
         return recordvideo<int>(MatrixAccessor<int>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
       case 8:
         return recordvideo<double>(MatrixAccessor<double>(*pMat), 
-          width, height, frames, start, color);
+          width, height, frames, start, color, loop, delay);
     }
   }
   return R_NilValue;

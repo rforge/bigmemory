@@ -4,8 +4,9 @@ Date: 2010-06-07
 Title: Video camera streaming, and more, via opencv.
 Author: John W. Emerson <jayemerson@gmail.com> and Taylor Arnold <taylor.arnold@yale.edu> and Michael J. Kane <kaneplusplus@gmail.com> 
 Maintainer: Jay and Taylor and Mike <bigmemoryauthors@gmail.com>
-Depends: methods, bigmemory (>= 4.0.0), biganalytics
+Depends: methods
 LinkingTo: bigmemory
+Suggets: bigmemory (>= 4.0.0), biganalytics
 Description: This package provides video support via opencv.
 License: LGPL-3
 Copyright: (C) 2010 John W. Emerson, Taylor Arnold, and Michael J. Kane

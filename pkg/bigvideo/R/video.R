@@ -29,7 +29,7 @@ test.camera <- function(x, color=TRUE, frames=100) {
 
 }
 
-videobuffer <- function(frames=100, color=FALSE,
+videobuffer <- function(frames=100, color=FALSE, delay=20,
                         structure=c("big.matrix", "matrix"),
                         init=NULL, type=NULL, dimnames=NULL,
                         separated=FALSE,
@@ -46,6 +46,9 @@ videobuffer <- function(frames=100, color=FALSE,
     v <- probe.camera()
   }
   if (structure=="big.matrix") {
+    suppressPackageStartupMessages(hasbigmem <- require(bigmemory))
+    if (!hasbigmem) stop("package bigmemory is required for a big.matrix")
+    require(biganalytics)
     if (is.null(type)) {
       if (v$elemSize[1+color]/v$channelSize[1+color] <= 2) type <- "short"
       if (v$elemSize[1+color]/v$channelSize[1+color] > 2) type <- "integer"
@@ -56,6 +59,8 @@ videobuffer <- function(frames=100, color=FALSE,
                     dimnames=dimnames, separated=separated,
                     backingfile=backingfile, descriptorfile=descriptorfile,
                     shared=shared)
+    ans <- list(data=x, structure=structure)
+    ans$type <- bigmemory::typeof(x)
   } else {
     if (structure=="matrix") {
       if (is.null(init)) {
@@ -70,14 +75,15 @@ videobuffer <- function(frames=100, color=FALSE,
     } else {
       stop("structure must be 'matrix' or 'big.matrix'.")
     }
+    ans <- list(data=x, structure=structure)
+    ans$type <- typeof(x)
   }
-  ans <- list(data=x, structure=structure)
-  ans$type <- bigmemory::typeof(x)
   ans$width <- v$Width[1+color]
   ans$height <- v$Height[1+color]
   ans$frames <- frames
   ans$color <- color
-
+  ans$delay <- delay
+  ans$lastrecorded <- NA
   class(ans) <- "videobuffer"
   return(ans)
 }
@@ -86,34 +92,54 @@ read.movie <- function(moviefile, ...) {
   vb <- videobuffer(..., moviefile=moviefile)
 }
 
-record.video <- function(vb=NULL, frames=100, frame.start=1) {
+record.video <- function(vb=NULL, frames=NULL, frame.start=1, loop=FALSE,
+                         delay=NULL) {
 
-  # record frames of video starting at frame.start
-  # loop in C as we've already done.
-  # This may have side effects, in which case there is
-  # no return; or it may return a new video buffer.
+  # record frames of video starting at frame.start.
+  # This will have side effects (modifying the specified
+  # videobuffer), in which case there is no return;
+  # or it may return a new video buffer if none was provided.
+  # delay is in milliseconds.
 
+  if (loop) cat("Click in the video window and press any key to stop.\n")
   if (is.null(vb)) {
     doret <- TRUE
-    vb <- videobuffer(frames=frames)
+    frames <- 100
+    if (is.null(delay)) delay <- 20
+    vb <- videobuffer(frames=frames, delay=delay)
     warning(paste("No video buffer (vb) was provided, so using\n",
                   "\tthe default from a call to videobuffer()."))
+  } else {
+    doret <- FALSE
+    if (is.null(frames)) frames <- vb$frames
   }
+  if (is.null(delay)) delay <- vb$delay
   if (vb$structure=="matrix") {
     stop("not yet implemented.")
   } else {
     ans <- .Call("CPPrecordvideoBigMatrix", (vb$data)@address,
                  as.integer(vb$width), as.integer(vb$height),
                  as.integer(frames), as.integer(frame.start),
-                 as.logical(vb$color))
-    if (!ans) stop("Error in recording.\n")
+                 as.logical(vb$color), as.logical(loop), as.integer(delay))
+    if (is.na(ans)) stop("Error in recording.\n")
   }
 
   if (doret) {
     warning(paste("Returning a videobuffer: make sure you did an",
                   "assignment if you care.\n"))
+    vb$lastrecorded <- ans
     return(vb)
   }
+
+  return(ans)
+
+}
+
+shift.buffer <- function(vb) {
+  if (is.na(vb$lastrecorded)) stop("lastrecorded must be set to do shift.")
+  
+  stop("Not yet implemented.")
+
 }
 
 print.videobuffer <- function(vb) {
@@ -133,6 +159,7 @@ print.videobuffer <- function(vb) {
   cat("\twidth:", vb$width, "\n")
   cat("\theight:", vb$height, "\n")
   cat("\tframes:", vb$frames, "\n")
+  cat("\tdelay:", vb$delay, "\n")
   cat("\tcolor:", vb$color, "\n")
 }
 
@@ -149,13 +176,15 @@ plotframe <- function(vb, frame=1, ...) {
 
 plotpixels <- function(vb, pixels=1, ...) {
   #... should be options to lines only.
-  x <- 1:ncol(vb$data)
+  x <- 1:vb$frames
   ylim <- range(vb$data[pixels,], na.rm=TRUE)
+  xlim <- c(-20, vb$frames)
   par(mar=c(1,1,1,1))
-  plot(x, vb$data[pixels[1],], pch="", xaxt="n", yaxt="n",
-       xlab="", ylab="", ylim=ylim)
+  plot(x, vb$data[pixels[1],], pch="",
+       xaxt="n", yaxt="n", xlab="", ylab="", ylim=ylim, xlim=xlim)
   for (i in pixels) {
     lines(x, vb$data[i,], ...)
+    text(-10, vb$data[i,1], i)
   }
 }
 
