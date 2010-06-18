@@ -1,5 +1,5 @@
 \name{synchronicity-package}
-\Rdversion{1.0.8}
+\Rdversion{1.0.9}
 \alias{synchronicity-package}
 \alias{synchronicity}
 \docType{package}
@@ -15,7 +15,7 @@ support interprocess communication (ipc) and message passing.
 \tabular{ll}{
 Package: \tab synchronicity\cr
 Type: \tab Package\cr
-Version: \tab 1.0.8\cr
+Version: \tab 1.0.9\cr
 Date: \tab 2010-06-17\cr
 License: \tab LGPL-3\cr
 OS_type: \tab unix\cr
