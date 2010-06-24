@@ -61,6 +61,7 @@ videobuffer <- function(frames=100, color=FALSE, delay=20,
                     shared=shared)
     ans <- list(data=x, structure=structure)
     ans$type <- bigmemory::typeof(x)
+    ans$descriptorfile <- descriptorfile
   } else {
     if (structure=="matrix") {
       if (is.null(init)) {
@@ -144,17 +145,21 @@ shift.buffer <- function(vb) {
 
 print.videobuffer <- function(vb) {
   cat("Object of class 'videobuffer':\n")
-  cat("\tdata:\n")
+  cat("\tdata:")
   if (vb$structure=="big.matrix") {
-    cat("\t\tmin  =", min(colmin(vb$data, na.rm=TRUE)), "\n")
-    cat("\t\tmax  =", max(colmax(vb$data, na.rm=TRUE)), "\n")
-    cat("\t\tmean =", mean(colmean(vb$data, na.rm=TRUE)), "\n")
+    cat(" (random 100 frames maximum):\n")
+    if (vb$frames>100) these <- sample(vb$frames, 5)
+    else these <- 1:vb$frames
+    cat("\t\tmin  =", min(colmin(vb$data, these, na.rm=TRUE)), "\n")
+    cat("\t\tmax  =", max(colmax(vb$data, these, na.rm=TRUE)), "\n")
+    cat("\t\tmean =", mean(colmean(vb$data, these, na.rm=TRUE)), "\n")
   } else {
-    cat("\t\tmin  =", min(vb$data, na.rm=TRUE), "\n")
+    cat("\n\t\tmin  =", min(vb$data, na.rm=TRUE), "\n")
     cat("\t\tmax  =", max(vb$data, na.rm=TRUE), "\n")
     cat("\t\tmean =", mean(vb$data, na.rm=TRUE), "\n")
   }
   cat("\tstructure:", vb$structure, "\n")
+  if (vb$structure=="big.matrix") cat("\tdescriptorfile:", vb$descriptorfile, "\n")
   cat("\ttype:", vb$type, "\n")
   cat("\twidth:", vb$width, "\n")
   cat("\theight:", vb$height, "\n")
@@ -178,13 +183,13 @@ plotpixels <- function(vb, pixels=1, ...) {
   #... should be options to lines only.
   x <- 1:vb$frames
   ylim <- range(vb$data[pixels,], na.rm=TRUE)
-  xlim <- c(-20, vb$frames)
+  xlim <- c(round(-0.1*vb$frames), vb$frames)
   par(mar=c(1,1,1,1))
   plot(x, vb$data[pixels[1],], pch="",
        xaxt="n", yaxt="n", xlab="", ylab="", ylim=ylim, xlim=xlim)
   for (i in pixels) {
     lines(x, vb$data[i,], ...)
-    text(-10, vb$data[i,1], i)
+    text(round(-0.05*vb$frames), vb$data[i,1], i)
   }
 }
 
