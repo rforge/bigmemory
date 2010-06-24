@@ -278,9 +278,12 @@ plot(y[,'CRSDepTime'] - y[,'DepTime'], y[,'DepDelay'])
 
 #######################################################################
 #######################################################################
+# MERGING IN LAT/LON
 
+#y <- attach.big.matrix("airlinestreammaster.desc")
+x <- attach.big.matrix("airlinestream.desc")
 
-air <- dget("/home/jay/Desktop/BigmemoryProject/bigmemory/airline/ContinentalUSAirportInfo.txt")
+air <- dget("/home/jay/Desktop/BigmemoryProject/bigmemory/airline/ContinentalUSAirportInfo2.txt")
 rownames(air) <- air$airport
 
 these <- mwhich(x, c('Year', 'Month', 'DayofMonth'),
@@ -298,10 +301,10 @@ y <- y[y[,'CRSElapsedTime']*60 == y[,'CRSArrTime'] - y[,'CRSDepTime'],]
 ##################
 # Fill in lat/lon:
 
-y[,'OriginLon'] <- air[y[,'Origin'], 'lon']
-y[,'OriginLat'] <- air[y[,'Origin'], 'lat']
-y[,'DestLon'] <- air[y[,'Dest'], 'lon']
-y[,'DestLat'] <- air[y[,'Dest'], 'lat']
+y[,'OriginLon'] <- air[as.character(y[,'Origin']), 'lon']
+y[,'OriginLat'] <- air[as.character(y[,'Origin']), 'lat']
+y[,'DestLon'] <- air[as.character(y[,'Dest']), 'lon']
+y[,'DestLat'] <- air[as.character(y[,'Dest']), 'lat']
 
 y <- y[!is.na(y[,'OriginLon']) & !is.na(y[,'DestLon']),]
 
@@ -340,8 +343,8 @@ z[,-c(30:31)] <- NA
 y <- rbind(y, z)
 y <- y[order(y[,'CurrTime']),]
 
-dput(y, "StreamOfFlights.Jan.1.2.2005.txt")
-write.table(y, "StreamOfFlights.Jan.1.2.2005.csv", row.names=F, col.names=T, sep=",")
+dput(y, "StreamOfFlights.Jan.1.2.2005NEW.txt")
+write.table(y, "StreamOfFlights.Jan.1.2.2005NEW.csv", row.names=F, col.names=T, sep=",")
 
 
 plot(y[,'OriginLon'], y[,'OriginLat'])

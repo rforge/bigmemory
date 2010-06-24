@@ -69,18 +69,18 @@ codes <- codes[order(codes[,1]),]
 x$index <- codes$index
 x <- x[,-c(2,3)]
 x$GMToffset[x$GMT == 0] <- -5            # Fix up CBM
-x <- x[,-1]
+#x <- x[,-1]
 
-names(x) <- c("GMT", "lon", "lat", "airport")
-x <- x[,c(4,1,2,3)]
+names(x) <- c("code", "GMT", "lon", "lat", "airport")
+x <- x[,c(1,5,2,3,4)]
 x <- x[order(x$airport),]
 rownames(x) <- NULL
 
-dput(x, "ContinentalUSAirportInfo.txt")
+dput(x, "ContinentalUSAirportInfo2.txt")# We think we were correct.
 
 #######################################################
 
-x <- dget("ContinentalUSAirportInfo.txt")
+x <- dget("ContinentalUSAirportInfo2.txt")
 states <- read.table("16096.dat", header=FALSE)
 intl <- read.table("16109.dat", header=FALSE)
 coast <- read.table("16226.dat", header=TRUE)
@@ -91,7 +91,8 @@ plotmap <- function(s=TRUE, i=TRUE, c=TRUE) {
   if (c) lines(coast[,1], coast[,2])
 }
 
-plot(x$lon, x$lat, pch=19, cex=0.5)
+plot(x$lon, x$lat, pch="")
+text(x$lon, x$lat, x$code)
 plotmap(FALSE, TRUE, TRUE)
 
 
