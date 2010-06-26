@@ -398,12 +398,10 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     groupNames = 
       RDouble2StringVec(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1));
   }
-  cout << "getting here" << endl; 
   for (i=GET_LENGTH(uniqueGroups)-2; i >= 0; --i)
   {
     groupNames = interact( groupNames, VECTOR_ELT(uniqueGroups, i) );
   }
-  cout << "not here" << endl; 
 
   std::map<std::string, int> lmi;
   i=0;
