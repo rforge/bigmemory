@@ -16,8 +16,6 @@
 #include <R.h>
 #include <Rdefines.h>
 
-#include <iostream>
-
 template<typename T>
 string ttos(T i)
 {
@@ -361,9 +359,19 @@ strings interact( const strings &s1, SEXP s2 )
   k=0;
   for (i=0; i < s1.size(); ++i)
   {
-    for (j=0; j < static_cast<size_t>(GET_LENGTH(s2)); ++j)
+    if (isInteger(s2))
     {
-      ret[k++] = ttos(NUMERIC_DATA(s2)[j]) + ":" + s1[i];
+      for (j=0; j < static_cast<size_t>(GET_LENGTH(s2)); ++j)
+      {
+        ret[k++] = ttos(INTEGER_DATA(s2)[j]) + ":" + s1[i];
+      }
+    }
+    else
+    {
+      for (j=0; j < static_cast<size_t>(GET_LENGTH(s2)); ++j)
+      {
+        ret[k++] = ttos(NUMERIC_DATA(s2)[j]) + ":" + s1[i];
+      }
     }
   }
   return ret;
@@ -390,10 +398,12 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     groupNames = 
       RDouble2StringVec(VECTOR_ELT(uniqueGroups, GET_LENGTH(uniqueGroups)-1));
   }
+  cout << "getting here" << endl; 
   for (i=GET_LENGTH(uniqueGroups)-2; i >= 0; --i)
   {
     groupNames = interact( groupNames, VECTOR_ELT(uniqueGroups, i) );
   }
+  cout << "not here" << endl; 
 
   std::map<std::string, int> lmi;
   i=0;
@@ -469,7 +479,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   
   typedef std::vector<index_type> ProcessColumns;
   ProcessColumns procCols;
- 
+
   if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
   {
     if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
