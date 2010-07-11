@@ -183,7 +183,6 @@ std::vector<ValueType> get_unique( const InputIter itStart,
   bool naAdded=false;
   NAMaker<ValueType> make_na;
   Values v;
-  bool valueAdded=false;
   if (itStart == itEnd)
     return v;
   for (it = itStart; it != itEnd; ++it)
@@ -198,20 +197,12 @@ std::vector<ValueType> get_unique( const InputIter itStart,
     }
     else
     {
-      if (!valueAdded)
+      typename Values::iterator cit = std::lower_bound( v.begin(), 
+        v.end()- static_cast<std::size_t>(naAdded), *it );
+      // If we can't find it, we need to add it.
+      if (cit == v.end() || *cit != *it) 
       {
-        v.insert(v.begin(), *it);
-        valueAdded=true;
-      }
-      else
-      {
-        typename Values::iterator cit = std::lower_bound( v.begin(), 
-          v.end()- static_cast<std::size_t>(naAdded), *it );
-        // If we can't find it, we need to add it.
-        if (*cit != *it) 
-        {
-          v.insert(cit, *it);
-        }
+        v.insert(cit, *it);
       }
     }
   }
@@ -436,6 +427,8 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   // Create the data structures that map values to indices for each of the
   // columns.
   std::vector<bool> isBreakMapper(GET_LENGTH(uniqueGroups), false);
+  accMult.resize(GET_LENGTH(uniqueGroups));
+  int lastVecLen=0;
   for (i=0; i < GET_LENGTH(uniqueGroups); ++i)
   {
     SEXP vec = VECTOR_ELT(uniqueGroups, i);
@@ -456,15 +449,14 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     totalListSize = (totalListSize == 0 ? vecLen : totalListSize*vecLen);
     if (i==0)
     {
-      accMult.push_back( vecLen );
-//      cout << vecLen << " ";
+      accMult[i] = 1;
+      lastVecLen = vecLen;
     }
     else
     {
-      accMult.push_back( mappers[i]->size() * accMult[i-1]);
-//      cout << mappers[i]->size() << " ";
+      accMult[i] = accMult[i-1] * lastVecLen;
+      lastVecLen = vecLen;
     }
-//    cout << endl;
   }
   typedef std::vector<double> Indices;
   typedef std::vector<Indices> TableIndices;
@@ -475,7 +467,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   TableIndexValues tiv;
 
   Indices tvs(totalListSize, 0);
-//  cout << "total list size is " << totalListSize << endl;
   
   typedef std::vector<double> TableSummary;
   typedef std::vector<TableSummary> TableSummaries;
@@ -519,33 +510,25 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     {
       mapperVal = mappers[j]->to_index( static_cast<RType>(
           (m[static_cast<index_type>(NUMERIC_DATA(columns)[j]-1)][i])) );
-//      cout << accMult[j-1] << "*" << mapperVal << "+ ";
       if (mapperVal == -1)
       {
         tableIndex = -1;
         break;
       }
-      tableIndex += accMult[j-1] * mapperVal;
+      tableIndex += accMult[j] * mapperVal;
     }
     mapperVal = mappers[0]->to_index( static_cast<RType>(
         (m[static_cast<index_type>(NUMERIC_DATA(columns)[0]-1)][i])) );
-//    cout << mapperVal << endl;
     if (tableIndex == -1 || mapperVal == -1)
     {
-//cout << "continuing" << endl;
       continue;
     }
     tableIndex += mapperVal;
-// cout << "table index is " << tableIndex << endl;
     if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
     {
       if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
       {
-// cout << "begin assign" << endl;
-// cout << "tis size is " << tis.size() << endl;
-// cout << "total list size is " << totalListSize << endl;
         tis[tableIndex].push_back(i+1);
-// cout << "end assign" << endl;
       }
       else
       {
@@ -597,7 +580,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       }
     }
   }
-//cout << "making the splitcol" << endl;
   if ( splitcol != NULL_USER_OBJECT )
   { 
     SEXP mapRet;
@@ -612,7 +594,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         for (i=0; i < static_cast<index_type>(tis.size()); ++i)
         {
           Indices &ind = tis[i];
-          vec = NEW_NUMERIC(tis[i].size());
+          vec = NEW_NUMERIC(ind.size());
           std::copy( ind.begin(), ind.end(), NUMERIC_DATA(vec) );
           SET_VECTOR_ELT( mapRet, i, vec );
         }
