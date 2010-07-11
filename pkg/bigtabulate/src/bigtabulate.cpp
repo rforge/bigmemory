@@ -97,6 +97,7 @@ class IndexMapper : public Mapper<T>
       _begin = pFirst;
       _end = pLast;
       _useNA = useNA;
+      Mapper<T>::_size = distance(_begin, _end);
     } 
 
     virtual int to_index( const T value ) const
@@ -126,6 +127,9 @@ class BreakMapper : public Mapper<T>
       _breakWidth = _width / (numBreaks-1);
       _totalBreaks= numBreaks-1;
       _naIndex = static_cast<index_type>(_totalBreaks+1);
+      Mapper<T>::_size = static_cast<std::size_t>(_totalBreaks) +
+        static_cast<std::size_t>(_useNA);
+
     }
 
     virtual int to_index( const T value ) const
@@ -453,11 +457,14 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     if (i==0)
     {
       accMult.push_back( vecLen );
+//      cout << vecLen << " ";
     }
     else
     {
       accMult.push_back( mappers[i]->size() * accMult[i-1]);
+//      cout << mappers[i]->size() << " ";
     }
+//    cout << endl;
   }
   typedef std::vector<double> Indices;
   typedef std::vector<Indices> TableIndices;
@@ -468,6 +475,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   TableIndexValues tiv;
 
   Indices tvs(totalListSize, 0);
+//  cout << "total list size is " << totalListSize << endl;
   
   typedef std::vector<double> TableSummary;
   typedef std::vector<TableSummary> TableSummaries;
@@ -511,6 +519,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     {
       mapperVal = mappers[j]->to_index( static_cast<RType>(
           (m[static_cast<index_type>(NUMERIC_DATA(columns)[j]-1)][i])) );
+//      cout << accMult[j-1] << "*" << mapperVal << "+ ";
       if (mapperVal == -1)
       {
         tableIndex = -1;
@@ -520,16 +529,23 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     }
     mapperVal = mappers[0]->to_index( static_cast<RType>(
         (m[static_cast<index_type>(NUMERIC_DATA(columns)[0]-1)][i])) );
+//    cout << mapperVal << endl;
     if (tableIndex == -1 || mapperVal == -1)
     {
+//cout << "continuing" << endl;
       continue;
     }
     tableIndex += mapperVal;
+// cout << "table index is " << tableIndex << endl;
     if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
     {
       if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
       {
+// cout << "begin assign" << endl;
+// cout << "tis size is " << tis.size() << endl;
+// cout << "total list size is " << totalListSize << endl;
         tis[tableIndex].push_back(i+1);
+// cout << "end assign" << endl;
       }
       else
       {
@@ -581,6 +597,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       }
     }
   }
+//cout << "making the splitcol" << endl;
   if ( splitcol != NULL_USER_OBJECT )
   { 
     SEXP mapRet;
