@@ -133,11 +133,11 @@ table(iris[,2], iris[,5])
 
 # Here, our formulation is simpler than split's, and is faster and
 # more memory-efficient:
-ans2 <- bigsplit(iris, c(2,3, 5), splitcol=1)
+ans2 <- bigsplit(iris, c(2, 5), splitcol=1)
 ans2[1:3]
 split(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]))[1:3]
 
-ans3 <- bigtsummary(iris, c(2,3, 5), cols=1)
+ans3 <- bigtsummary(iris, c(2, 5), cols=1)
 ans3[1:3]
 by(iris[,1], list(col2=factor(iris[,2]), col5=iris[,5]),
    summary)[1:3]
