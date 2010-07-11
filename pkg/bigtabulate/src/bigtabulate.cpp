@@ -402,7 +402,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   {
     groupNames = interact( groupNames, VECTOR_ELT(uniqueGroups, i) );
   }
-
+cout << "got the group names" << endl;
   std::map<std::string, int> lmi;
   i=0;
   lmi["levels"] = i++;
@@ -453,9 +453,13 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
         new IndexMapper<RType>( RData(vec), 
           RData(vec) + vecLen, INTEGER_VALUE(useNA) > 0 ) ) );
     }
+cout << "Created the mapper" << endl;
     totalListSize = (totalListSize == 0 ? vecLen : totalListSize*vecLen);
     if (i==0)
+    {
       accMult.push_back( vecLen );
+      cout << vecLen << endl;
+    }
     else
     {
       accMult.push_back( mappers[i]->size() * accMult[i-1]);
@@ -470,6 +474,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   TableIndexValues tiv;
 
   Indices tvs(totalListSize, 0);
+  cout << "total list size is " << totalListSize << endl;
   
   typedef std::vector<double> TableSummary;
   typedef std::vector<TableSummary> TableSummaries;
@@ -505,7 +510,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       TableSummaries(totalListSize, TableSummary(6, 0.)) );
   }
   // Get the indices for each of the column-value combinations.
-
   for (i=0; i < m.nrow(); ++i)
   {
     int tableIndex=0;
@@ -514,6 +518,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     {
       mapperVal = mappers[j]->to_index( static_cast<RType>(
           (m[static_cast<index_type>(NUMERIC_DATA(columns)[j]-1)][i])) );
+      cout << mapperVal << " ";
       if (mapperVal == -1)
       {
         tableIndex = -1;
@@ -523,14 +528,23 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
     }
     mapperVal = mappers[0]->to_index( static_cast<RType>(
         (m[static_cast<index_type>(NUMERIC_DATA(columns)[0]-1)][i])) );
+    cout << mapperVal << endl;
     if (tableIndex == -1 || mapperVal == -1)
+    {
+cout << "continuing" << endl;
       continue;
-    tableIndex += mapperVal;
+    }
+    tableIndex += mapperVal-1;
+ cout << "table index is " << tableIndex << endl;
     if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
     {
       if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
       {
+ cout << "begin assign" << endl;
+ cout << "tis size is " << tis.size() << endl;
+ cout << "total list size is " << totalListSize << endl;
         tis[tableIndex].push_back(i+1);
+ cout << "end assign" << endl;
       }
       else
       {
@@ -582,6 +596,7 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
       }
     }
   }
+cout << "making the splitcol" << endl;
   if ( splitcol != NULL_USER_OBJECT )
   { 
     SEXP mapRet;
