@@ -96,7 +96,6 @@ class IndexMapper : public Mapper<T>
     {
       _begin = pFirst;
       _end = pLast;
-      Mapper<T>::_size = distance(_begin, _end);
       _useNA = useNA;
     } 
 
@@ -127,8 +126,6 @@ class BreakMapper : public Mapper<T>
       _breakWidth = _width / (numBreaks-1);
       _totalBreaks= numBreaks-1;
       _naIndex = static_cast<index_type>(_totalBreaks+1);
-      Mapper<T>::_size = static_cast<std::size_t>(_totalBreaks) + 
-        static_cast<std::size_t>(_useNA);
     }
 
     virtual int to_index( const T value ) const
@@ -402,7 +399,6 @@ SEXP TAPPLY( MatrixAccessorType m, SEXP columns, SEXP breakSexp,
   {
     groupNames = interact( groupNames, VECTOR_ELT(uniqueGroups, i) );
   }
-cout << "got the group names" << endl;
   std::map<std::string, int> lmi;
   i=0;
   lmi["levels"] = i++;
@@ -453,12 +449,10 @@ cout << "got the group names" << endl;
         new IndexMapper<RType>( RData(vec), 
           RData(vec) + vecLen, INTEGER_VALUE(useNA) > 0 ) ) );
     }
-cout << "Created the mapper" << endl;
     totalListSize = (totalListSize == 0 ? vecLen : totalListSize*vecLen);
     if (i==0)
     {
       accMult.push_back( vecLen );
-      cout << vecLen << endl;
     }
     else
     {
@@ -474,7 +468,6 @@ cout << "Created the mapper" << endl;
   TableIndexValues tiv;
 
   Indices tvs(totalListSize, 0);
-  cout << "total list size is " << totalListSize << endl;
   
   typedef std::vector<double> TableSummary;
   typedef std::vector<TableSummary> TableSummaries;
@@ -518,7 +511,6 @@ cout << "Created the mapper" << endl;
     {
       mapperVal = mappers[j]->to_index( static_cast<RType>(
           (m[static_cast<index_type>(NUMERIC_DATA(columns)[j]-1)][i])) );
-      cout << mapperVal << " ";
       if (mapperVal == -1)
       {
         tableIndex = -1;
@@ -528,23 +520,16 @@ cout << "Created the mapper" << endl;
     }
     mapperVal = mappers[0]->to_index( static_cast<RType>(
         (m[static_cast<index_type>(NUMERIC_DATA(columns)[0]-1)][i])) );
-    cout << mapperVal << endl;
     if (tableIndex == -1 || mapperVal == -1)
     {
-cout << "continuing" << endl;
       continue;
     }
-    tableIndex += mapperVal-1;
- cout << "table index is " << tableIndex << endl;
+    tableIndex += mapperVal;
     if ( splitcol != NULL_USER_OBJECT || LOGICAL_VALUE(returnSummary) )
     {
       if ( isna(NUMERIC_VALUE(splitcol)) || LOGICAL_VALUE(returnSummary) )
       {
- cout << "begin assign" << endl;
- cout << "tis size is " << tis.size() << endl;
- cout << "total list size is " << totalListSize << endl;
         tis[tableIndex].push_back(i+1);
- cout << "end assign" << endl;
       }
       else
       {
@@ -596,7 +581,6 @@ cout << "continuing" << endl;
       }
     }
   }
-cout << "making the splitcol" << endl;
   if ( splitcol != NULL_USER_OBJECT )
   { 
     SEXP mapRet;
