@@ -9,6 +9,12 @@
 # Mike Kane <michael.kane@yale.edu>
 #
 
+2010-10-30      Jay     <bigmemoryauthors@bigmemory.org>
+
+* Modified configure to handle a Solaris problem.
+* Added definition of __C99FEATURES__ to isna.hpp; hopefully
+  won't break anything.
+
 2010-05-16	Jay	<bigmemoryauthors@bigmemory.org>
 
 * Set proper default value op='AND' for mwhich()
