@@ -5,6 +5,11 @@ acx_blas_ok=no
 
 AC_ARG_WITH(blas,
 	[AC_HELP_STRING([--with-blas=<lib>], [use BLAS library <lib>])])
+
+if test "$with_blas" == ""; then
+  with_blas="refblas64"
+fi
+
 if test "$with_blas" == "refblas64"; then
   with_blas="-L. -L./src/ -L./src/refblas64/ -L./refblas64/ -lrefblas64"
   make  -C src/refblas64
