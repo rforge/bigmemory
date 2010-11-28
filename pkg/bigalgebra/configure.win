@@ -1,0 +1,12 @@
+# This is the Windows configuration script for the bigalgebra source package.
+# The script sets up a reference BLAS/LAPACK library with 64-bit integer
+# indexing. You can modify this script to alternatively use another library
+# with 64-bit integer indexing, for example, the Intel MKL or AMD ACML library.
+#
+# The script creates two files in the src directory: blas.hpp and, optionally,
+# Makevars.win.
+# The blas.hpp header file must include the appropriate BLAS/LAPACK header file
+# and must define INT to be the integer type used for 64-bit indexing.
+
+echo "#include \"refblas64longlong.h\"" > src/blas.hpp
+echo "#define INT long long" >> src/blas.hpp

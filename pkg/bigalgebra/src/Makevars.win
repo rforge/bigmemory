@@ -1,0 +1,8 @@
+
+PKG_LIBS = -lrefblas64
+
+.PHONY: all
+all: refblas $(SHLIB)
+
+refblas:
+	make -C refblas64
