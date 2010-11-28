@@ -79,10 +79,12 @@ AC_F77_FUNC(acmlinfo)
 AC_MSG_CHECKING([for $acmlinfo in $BLAS_LIBS])
 AC_TRY_LINK_FUNC($acmlinfo, [ACML="#define ACMLBLAS"],[ACML=""])
 
-BM=`echo 'cat(file.path(.libPaths(), "bigmemory", "libs","bigmemory.so")[[1]])' | ${R_HOME}/bin/R --slave`
-BI=`echo 'cat(file.path(.libPaths(), "bigmemory", "include")[[1]])' | ${R_HOME}/bin/R --slave`
-BIGALGEBRA_CPPFLAGS="-I${BI} $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
-LIBS="$BM $LIBS"
+#BM=`echo 'cat(file.path(.libPaths(), "bigmemory", "libs","bigmemory.so")[[1]])' | ${R_HOME}/bin/R --slave`
+#BI=`echo 'cat(file.path(.libPaths(), "bigmemory", "include")[[1]])' | ${R_HOME}/bin/R --slave`
+#BIGALGEBRA_CPPFLAGS="-I${BI} $CXXFLAGS $BIGALGEBRA_CPPFLAGS"
+#LIBS="$BM $LIBS"
+BIGALGEBRA_CPPFLAGS="$CXXFLAGS $BIGALGEBRA_CPPFLAGS"
+LIBS="$LIBS"
 
 AC_SUBST(BIGALGEBRA_CPPFLAGS)
 AC_SUBST(LIBS)
