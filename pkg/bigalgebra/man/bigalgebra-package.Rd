@@ -1,5 +1,5 @@
 \name{bigalgebra-package}
-\Rdversion{1.1}
+\Rdversion{0.7}
 \alias{bigalgebra-package}
 \alias{bigalgebra}
 \docType{package}
@@ -15,7 +15,7 @@ BLAS and LAPACK functionality for native \R matrices and
 \tabular{ll}{
 Package: \tab bigalgebra\cr
 Type: \tab Package\cr
-Version: \tab 0.6\cr
+Version: \tab 0.7\cr
 Date: \tab 2010-04-30\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2010 Michael J. Kane, John W. Emerson, and Bryan Lewis\cr
