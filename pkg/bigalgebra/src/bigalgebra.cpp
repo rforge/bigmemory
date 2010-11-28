@@ -1,8 +1,6 @@
-#include <iostream>
 #include "ptr_util.hpp"
 #include "blas.hpp"
 
-using namespace std;
 // Wrappers for miscellaneous BLAS and LAPACK routines.
 
 extern "C"

@@ -34,7 +34,7 @@ dcopy = function(N=NULL, X, INCX=1, Y, INCY=1)
   {
     N = nrow(X)*ncol(X)
   }
-  .Call('dcopy_wrapper', N, X, INCX, Y, INCY,
+  .Call('dcopy_wrapper', N, X, as.double(INCX), Y, as.double(INCY),
     X.is.bm, Y.is.bm)
   return(0)
 }
@@ -48,7 +48,7 @@ dscal = function(N=NULL, ALPHA, Y, INCY=1)
   {
     N = nrow(Y)*ncol(Y)
   } 
-  .Call('dscal_wrapper', N, as.double(ALPHA), Y, INCY, Y.is.bm)
+  .Call('dscal_wrapper', N, as.double(ALPHA), Y, as.double(INCY), Y.is.bm)
   return(0)
 }
 
@@ -62,8 +62,8 @@ daxpy = function(N=NULL, ALPHA=1, X, INCX=1, Y, INCY=1)
   {
     N = nrow(X)*ncol(X)
   }
-  .Call('daxpy_wrapper', N, as.double(ALPHA), X, INCX,
-    Y, INCY, X.is.bm, Y.is.bm)
+  .Call('daxpy_wrapper', as.double(N), as.double(ALPHA), X, as.double(INCX),
+    Y, as.double(INCY), X.is.bm, Y.is.bm)
   return(0)
 }
 
