@@ -21,12 +21,12 @@ extern "C"
     INT LDBB = (INT)*(DOUBLE_DATA (LDB));
     INT LDCC = (INT)*(DOUBLE_DATA (LDC));
 #ifdef ACMLBLAS
-      dgemm_ ((char *)CHARACTER_VALUE (TRANSA), 
-              (char *)CHARACTER_VALUE (TRANSB),
-	      &MM, &NN, &KK, NUMERIC_DATA (ALPHA), pA, &LDAA, pB,
-	      &LDBB, NUMERIC_DATA (BETA), pC, &LDCC, 1, 1);
+      dgemm (*((char *)CHARACTER_VALUE (TRANSA)),
+              *((char *)CHARACTER_VALUE (TRANSB)),
+	      MM, NN, KK, *(NUMERIC_DATA (ALPHA)), pA, LDAA, pB,
+	      LDBB, *(NUMERIC_DATA (BETA)), pC, LDCC);
 #else
-      dgemm_ ((char *)CHARACTER_VALUE (TRANSA), 
+      dgemm ((char *)CHARACTER_VALUE (TRANSA), 
               (char *)CHARACTER_VALUE (TRANSB),
 	      &MM, &NN, &KK, NUMERIC_DATA (ALPHA), pA, &LDAA, pB,
 	      &LDBB, NUMERIC_DATA (BETA), pC, &LDCC);
@@ -41,7 +41,11 @@ extern "C"
     INT NN = (INT)*(DOUBLE_DATA (N));
     INT INCXX = (INT)*(DOUBLE_DATA (INCX));
     INT INCYY = (INT)*(DOUBLE_DATA (INCY));
-    dcopy_ (&NN, pX, &INCXX, pY, &INCYY);
+#ifdef ACMLBLAS
+    dcopy (NN, pX, INCXX, pY, INCYY);
+#else
+    dcopy (&NN, pX, &INCXX, pY, &INCYY);
+#endif
   }
 
   void dscal_wrapper (SEXP N, SEXP ALPHA, SEXP Y, SEXP INCY, SEXP Y_isBM)
@@ -49,7 +53,11 @@ extern "C"
     double *pY = make_double_ptr (Y, Y_isBM);
     INT NN = (INT)*(DOUBLE_DATA (N));
     INT INCYY = (INT)*(DOUBLE_DATA (INCY));
-    dscal_ (&NN, NUMERIC_DATA (ALPHA), pY, &INCYY);
+#ifdef ACMLBLAS
+    dscal (NN, *(NUMERIC_DATA (ALPHA)), pY, INCYY);
+#else
+    dscal (&NN, NUMERIC_DATA (ALPHA), pY, &INCYY);
+#endif
   }
 
   void daxpy_wrapper (SEXP N, SEXP ALPHA, SEXP X, SEXP INCX, SEXP Y, SEXP INCY,
@@ -60,7 +68,11 @@ extern "C"
     INT NN = (INT)*(DOUBLE_DATA (N));
     INT INCXX = (INT)*(DOUBLE_DATA (INCX));
     INT INCYY = (INT)*(DOUBLE_DATA (INCY));
-    daxpy_ (&NN, NUMERIC_DATA (ALPHA), pX, &INCXX, pY, &INCYY);
+#ifdef ACMLBLAS
+    daxpy (NN, *(NUMERIC_DATA (ALPHA)), pX, INCXX, pY, INCYY);
+#else
+    daxpy (&NN, NUMERIC_DATA (ALPHA), pX, &INCXX, pY, &INCYY);
+#endif
   }
 
   void dgeqrf_wrapper (SEXP M, SEXP N, SEXP A, SEXP LDA, SEXP TAU, SEXP WORK,
@@ -75,8 +87,11 @@ extern "C"
     INT LDAA = (INT)*(DOUBLE_DATA (LDA));
     INT LWORKK = (INT)*(DOUBLE_DATA (LWORK));
     INT INFOO = (INT)*(DOUBLE_DATA (INFO));
-    dgeqrf_ (&MM, &NN, pA, &LDAA,
-	     pTAU, pWORK, &LWORKK, &INFOO);
+#ifdef ACMLBLAS
+    dgeqrf (MM, NN, pA, LDAA, pTAU, &INFOO);
+#else
+    dgeqrf (&MM, &NN, pA, &LDAA, pTAU, pWORK, &LWORKK, &INFOO);
+#endif
   }
 
   void dpotrf_wrapper (SEXP UPLO, SEXP N, SEXP A, SEXP LDA, 
@@ -87,9 +102,9 @@ extern "C"
     INT LDAA = (INT)*(DOUBLE_DATA (LDA));
     INT INFOO = (INT)*(DOUBLE_DATA (INFO));
 #ifdef ACMLBLAS
-    dpotrf_ ((char *)CHARACTER_VALUE (UPLO), &NN, pA, &LDAA, &INFOO, 1);
+    dpotrf (*((char *)CHARACTER_VALUE (UPLO)), NN, pA, LDAA, &INFOO);
 #else
-    dpotrf_ ((char *)CHARACTER_VALUE (UPLO), &NN, pA, &LDAA, &INFOO);
+    dpotrf ((char *)CHARACTER_VALUE (UPLO), &NN, pA, &LDAA, &INFOO);
 #endif
   }
 
@@ -111,11 +126,11 @@ extern "C"
     INT LWORKK = (INT)*(DOUBLE_DATA (LWORK));
     INT INFOO = (INT)*(DOUBLE_DATA (INFO));
 #ifdef ACMLBLAS
-    dgeev_ ((char *)CHARACTER_VALUE (JOBVL), (char *)CHARACTER_VALUE (JOBVR),
-	    &NN, pA, &LDAA, pWR, pWI, pVL, &LDVLL, pVR, &LDVRR, pWORK,
-	    &LWORKK, &INFOO, 1, 1);
+    dgeev (*((char *)CHARACTER_VALUE (JOBVL)),
+           *((char *)CHARACTER_VALUE (JOBVR)),
+	   NN, pA, LDAA, pWR, pWI, pVL, LDVLL, pVR, LDVRR, &INFOO);
 #else
-    dgeev_ ((char *)CHARACTER_VALUE (JOBVL), (char *)CHARACTER_VALUE (JOBVR),
+    dgeev ((char *)CHARACTER_VALUE (JOBVL), (char *)CHARACTER_VALUE (JOBVR),
 	    &NN, pA, &LDAA, pWR, pWI, pVL, &LDVLL, pVR, &LDVRR, pWORK,
 	    &LWORKK, &INFOO);
 #endif
@@ -144,17 +159,16 @@ extern "C"
 
     piworkdim = 8*MM;
     if(NN>MM) piworkdim = 8*NN;
-    pIWORK = (INT *)malloc(piworkdim*sizeof(INT));
 #ifdef ACMLBLAS
-    dgesdd_ ((char *)CHARACTER_VALUE (JOBZ), &MM, &NN, pA,
-	     &LDAA, pS, pU, &LDUU, pVT,
-	     &LDVTT, pWORK, &LWORKK, pIWORK, &INFOO, 1);
+    dgesdd (*((char *)CHARACTER_VALUE (JOBZ)), MM, NN, pA,
+	     LDAA, pS, pU, LDUU, pVT, LDVTT, &INFOO);
 #else
-    dgesdd_ ((char *)CHARACTER_VALUE (JOBZ), &MM, &NN, pA,
+    pIWORK = (INT *)malloc(piworkdim*sizeof(INT));
+    dgesdd ((char *)CHARACTER_VALUE (JOBZ), &MM, &NN, pA,
 	     &LDAA, pS, pU, &LDUU, pVT,
 	     &LDVTT, pWORK, &LWORKK, pIWORK, &INFOO);
-#endif
     free(pIWORK);
+#endif
   }
 
 }

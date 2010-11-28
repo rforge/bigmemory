@@ -2,7 +2,4 @@ PKG_CPPFLAGS = @BIGALGEBRA_CPPFLAGS@
 PKG_LIBS = @LIBS@
 
 .PHONY: all
-all: @REFBLAS64@ $(SHLIB)
-
-refblas64:
-	cd refblas64; make; cp librefblas64.so ..
+all: $(SHLIB)

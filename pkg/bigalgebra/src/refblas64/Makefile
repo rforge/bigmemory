@@ -1,5 +1,5 @@
 FC = gfortran
-FFLAGS = -fPIC -fdefault-integer-8
+FFLAGS = -fPIC -fdefault-integer-8 -fno-underscoring
 
 all: compile link
 
