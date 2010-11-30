@@ -69,27 +69,31 @@
 \section{Introduction}
 
 The \verb+bigalgebra+ package provides linear algebra operations for ``Big
-Matrices'' defined in the \verb+bigmemory+ package. The package includes matrix
-and vector arithmetic operations and several matrix factorizations.  Standard
-infix arithmetic operators are overloaded to use \verb+bigalgebra+ functions,
-keeping syntax familiar and simple.
+Matrices'' defined in the \verb+bigmemory+ package. The \verb+bigalgebra+
+package presently only supports double-precision big matrices.
+The package includes matrix
+and vector arithmetic operations and several standard matrix factorizations.
+Infix arithmetic operators are overloaded to use \verb+bigalgebra+ functions,
+keeping the syntax familiar and simple.
 
 The \verb+bigalgebra+ package may be optionally compiled with high-performance,
-multithreaded numeric libraries, which may also provide large-index support.
+multithreaded numeric libraries, which also must provide large-index support.
 Large indices support linear algebra computation on matrices and vectors with
 up to $2^{51}$ total entries (the usual R limit constrains objects to less than
 $2^{31}$ total entries).  The package also supports computations on arrays that
 are larger than available RAM using \verb+bigmemory+'s file-backed big matrix
-objects. The \verb+bigalgebra+ package presently supports double-precision
-computation.
+objects.
 
 
 \section{Installation}
 
-The default installation uses available system and R BLAS and LAPACK libraries.
+The default installation uses a subset of the refererence BLAS and LAPACK
+libraries available from Netlib\footnote{
+\htmladdnormallink{http://netlib.org}
+{http://netlib.org}}
+with support for large indices.
 The \verb+bigalgebra+ package may be optionally compiled with alternate
-libraries that offer performance and threading optimizations as well as large
-index support.
+libraries that offer performance and threading optimizations.
 
 Installation assumes the standard R toolchain and GNU compiler suite, and
 requires setting one or more configuration options:
@@ -113,7 +117,7 @@ The following example illustrates installation with the
 reference large-index BLAS and LAPACK libraries:
 \lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
 \begin{lstlisting}
-R CMD INSTALL  --configure-args='--with-blas=refblas64' bigalgebra
+R CMD INSTALL bigalgebra
 \end{lstlisting}
 
 \subsection{Installation with Intel MKL}\label{mkl}
@@ -126,61 +130,83 @@ x86, x86-64, and Intel architecture (Itanium) processors.
 The library is available in standard and large-index versions.
 
 We assume below that the MKL is installed in the
-\verb+/opt/intel/mkl/10.2.5.035/+ directory--substitute your installation path
+\verb+/opt/intel/composerxe-2011.0.084/mkl/+ directory--substitute your
+installation path
 as required. We illustrate the command-line installation procedure below.
 Installation from the R console with the \verb+install.packages+ command
 follows similarly. We outline dynamic linkage against MKL which requires that
-the MKL libraries lie in the system library path.
+the MKL libraries lie in the system library path. That condition may be
+temporarily satisfied for the following installation example with:
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+export LD_LIBRARY_PATH=/opt/intel/composerxe-2011.0.084/mkl/lib/intel64/
+\end{lstlisting}
 
 \subsubsection{Example: MKL Large-index support on x86-64 systems using GNU Open MP}
 \lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
 \begin{lstlisting}
-R CMD INSTALL  --configure-args='
-                --with-incDir="-DMKL_ILP64 -I/opt/intel/mkl/10.2.5.035/include/"
-                --with-blasHeader="refblas64longlong.h" 
-                --with-blas="-L/opt/intel/mkl/10.2.5.035/lib/em64t/ 
-                             -lmkl_gf_ilp64 -lmkl_gnu_thread -lgomp -lmkl_core" 
-                --with-lapack="-L/opt/intel/mkl/10.2.5.035/lib/em64t/ 
-                              -lmkl_gf_ilp64 -lmkl_gnu_thread -lgomp -lmkl_core"
-                --with-lapackHeader="mkl.h" 
-                --with-int64="long long"' bigalgebra
+R CMD INSTALL --configure-args='
+               --with-incDir="-DMKL_ILP64 -I/opt/intel/composerxe/mkl/include"
+               --with-blasHeader="mkl.h"
+               --with-blas="-L/opt/intel/composerxe/mkl/lib/intel64/ 
+                            -lmkl_gf_ilp64 -lmkl_core -lmkl_def 
+                            -lmkl_gnu_thread -lgomp"
+               --with-lapack="-L/opt/intel/composerxe/mkl/lib/intel64/
+                              -lmkl_gf_ilp64 -lmkl_core -lmkl_def 
+                              -lmkl_gnu_thread -lgomp"
+               --with-lapackHeader="mkl.h"
+               --with-int64="long long"'
+               bigalgebra
 \end{lstlisting}
-Note that we use the ``refblas64longlong.h'' BLAS header file supplied with
-the \verb+bigalgebra+ package.
 Additional MKL compilation examples can be found in the Intel MKL
 documentation.
 
 \subsection{Installation with AMD ACML}\label{acml}
 The AMD{\textregistered} Core Math Library (ACML) is available from
+\break
 \htmladdnormallink{http://developer.amd.com/cpu/libraries/acml/pages/default.aspx}
 {http://developer.amd.com/cpu/libraries/acml/pages/default.aspx}. The ACML
 provides a highly-threaded set of numeric libraries optimized for performance
 on x86 and x86-64 processor architectures.
-The library is available in standard and large-index versions.
+The library is available in single and multi-threaded versions.
 
 We assume that the ACML is installed in the \verb+/opt/acml4.4.0/+
-directory.
+directory. As in the previous Intel MKL example, we assume that the AMD ACML
+libraries are available in the library path, for example with:
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+export LD_LIBRARY_PATH=/opt/acml4.4.0/gfortran_mp_int64/lib
+\end{lstlisting}
 
 \subsubsection{Example: ACML Large-index support on x86-64 systems}
 \lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
 \begin{lstlisting}
-R CMD INSTALL  --configure-args='
-                --with-incDir="-I/opt/acml4.4.0/gfortran64_int64/include/" 
-                --with-blasHeader="acml.h" 
-                --with-blas="-L/opt/acml4.4.0/gfortran64_int64/lib -lacml -lacml_mv" 
-                --with-lapack="-lacml -lacml_mv" 
-                --with-lapackHeader="acml.h" 
-                --with-int64=long' bigalgebra
+R CMD INSTALL --configure-args='
+               --with-incDir="-I/opt/acml4.4.0/gfortran64_mp_int64/include/"
+               --with-blasHeader="acml.h"
+               --with-blas="-L/opt/acml4.4.0/gfortran64_mp_int64/lib/
+                            -lacml_mp -lacml_mv"
+               --with-lapack="-L/opt/acml4.4.0/gfortran64_mp_int64/lib/
+                              -lacml_mp -lacml_mv"
+               --with-lapackHeader="acml.h"
+               --with-int64="long"'
+               bigalgebra
 \end{lstlisting}
 
-\subsection{Installation with GOTO BLAS}\label{GOTO}
-
 \section{Examples}
-
+The following trivial example sums two vectors with $2^{31}$ entries,
+larger than can be indexed by standard R operations. Note that the
+output vector $y$ will consume approximately 16\,GB of disk space.
 \lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
 \begin{lstlisting}
 > library('bigalgebra')
-XXX
+> x <- big.matrix(nrow=2^31, ncol=1, type='double', backingfile='x')
+> y <- big.matrix(nrow=2^31, ncol=1, type='double', backingfile='y')
+> x[5,1] <- 5
+> y[5,1] <- 5
+> daxpy(Y=y, X=x)
+> print(y[1:10,])
+ [1]  0  0  0  0 10  0  0  0  0  0
 \end{lstlisting}
 
 
