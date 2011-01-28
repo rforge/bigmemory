@@ -515,6 +515,7 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
   index_type offset = static_cast<index_type>(LOGICAL_VALUE(hasRowNames));
   double d;
   int charRead;
+  char *pEnd;
   for (i=0; i < nl; ++i)
   {
     // getline may be slow
@@ -550,8 +551,8 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
       {
         if (j-offset < pMat->ncol()+1)
         {
-          d = strtod(element.c_str(), NULL);
-          if (d != 0.0)
+          d = strtod(element.c_str(), &pEnd);
+          if (pEnd != element.c_str())
           {
             mat[j-offset][i] = static_cast<T>(d);
           }
