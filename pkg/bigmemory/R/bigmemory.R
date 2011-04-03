@@ -1128,7 +1128,7 @@ filebacked.big.matrix <- function(nrow, ncol,
     backingpath <- dirname(backingfile)
     backingfile <- basename(backingfile)
   }
-  if (is.null(descriptorfile)) 
+  if (is.null(descriptorfile) && !anon.backing) 
   {
     warning(paste("No descriptor file given, it will be named",
       paste(backingfile, '.desc', sep='')))
@@ -1268,7 +1268,10 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     if (!is.na(fi$isdir) && !fi$isdir)
       stop( paste(path, "is not a directory.") )
     path = file.path(path, '.')
-    path = substr(path, 1, nchar(path)-1)
+    path <- substr(path, 1, nchar(path)-1)
+    if (substr(path, nchar(path), nchar(path)) == "/") {
+      path <- substr(path, 1, nchar(path)-1)
+    }
     if (info$sharedType == 'SharedMemory')
     {
       address <- .Call('CAttachSharedBigMatrix', info$sharedName, 
@@ -1277,10 +1280,22 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     }
     else
     {
-      if (!file.exists(file.path(path, info$filename)))
-      {
-        stop(paste("The backing file", paste(path, info$filename, sep=''),
-          "could not be found"))
+      if (!info$separated) {
+        if (!file.exists(file.path(path, info$filename)))
+        {
+          stop(paste("The backing file", paste(path, info$filename, sep=''),
+            "could not be found"))
+        }
+      } else { 
+        # It's separated and we need to check for each column.
+        for (i in 1:info$ncol) {
+          fn <- paste(info$filename, "_column_", (i-1), sep='')
+          if (!file.exists(file.path(path, fn)))
+          {
+            stop(paste("The backing file", file.path(path, fn), 
+              "could not be found"))
+          }
+        }
       }
       address <- .Call('CAttachFileBackedBigMatrix', 
         info$filename, path, info$totalRows, info$totalCols, 
