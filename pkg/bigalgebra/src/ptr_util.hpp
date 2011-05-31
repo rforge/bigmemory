@@ -9,25 +9,33 @@
 
 double* make_double_ptr( SEXP matrix, SEXP isBigMatrix  )
 {
-  if (LOGICAL_VALUE(isBigMatrix) == (Rboolean)TRUE)
+  double *matrix_ptr;
+    
+  if (LOGICAL_VALUE(isBigMatrix) == (Rboolean)TRUE) // Big Matrix
   {
     SEXP address = GET_SLOT(matrix, install("address"));
     BigMatrix *pbm = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(address));
     if (!pbm)
+      return(NULL);
+    
+    // Check that have acceptable big.matrix
+    if (pbm->row_offset() > 0 && pbm->ncol() > 1)
     {
+      std::string errMsg = string("sub.big.matrix objects cannoth have row ") +
+        string("offset greater than zero and number of columns greater than 1");
+      Rf_error(errMsg.c_str());
       return(NULL);
     }
-//  Functionality to support big.sub.matrices
-//    if (pbm->row_offset() > 0 && pbm->num_columns() > 1)
-//    {
-//      std::string errMsg = string("big.sub.matrix objects cannoth have row ") +
-//        string("offset greater than zero and number of columns greater than 1");
-//      Rf_error(errMsg.c_str());
-//      return(NULL);
-//    }
-    return(reinterpret_cast<double*>(pbm->matrix()));
+    
+    index_type offset = pbm->nrow() * pbm->col_offset();
+    matrix_ptr = reinterpret_cast<double*>(pbm->matrix()) + offset;
   }
-  return(NUMERIC_DATA(matrix));
+  else  // Regular R Matrix
+  {
+    matrix_ptr = NUMERIC_DATA(matrix);
+  }
+  
+  return(matrix_ptr);
 };
 
 #endif //BIGALGEBRA_PTR_UTIL
