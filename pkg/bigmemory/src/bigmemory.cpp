@@ -850,7 +850,6 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
   return ret;
 }
 
-
 extern "C"
 {
 
