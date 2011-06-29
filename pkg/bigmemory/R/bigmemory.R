@@ -1067,7 +1067,7 @@ deepcopy <- function(x, cols=NULL, rows=NULL,
                   backingfile=backingfile, backingpath=backingpath,
                   descriptorfile=descriptorfile, shared)
   }
-  if (is.big.matrix(x))
+  if (is.big.matrix(x) && is.big.matrix(y))
     .Call("CDeepCopy", x@address, y@address, as.double(rows), as.double(cols), 
       getOption("bigmemory.typecast.warning"))
   else
