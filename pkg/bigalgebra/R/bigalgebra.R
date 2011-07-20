@@ -46,7 +46,7 @@ dscal = function(N=NULL, ALPHA, Y, INCY=1)
   Y.is.bm = check_matrix(Y)
   if (is.null(N))
   {
-    N = nrow(Y)*ncol(Y)
+    N = as.double(nrow(Y))*as.double(ncol(Y))
   } 
   .Call('dscal_wrapper', N, as.double(ALPHA), Y, as.double(INCY), Y.is.bm)
   return(0)
@@ -60,7 +60,7 @@ daxpy = function(N=NULL, ALPHA=1, X, INCX=1, Y, INCY=1)
   Y.is.bm = check_matrix(Y)
   if (is.null(N))
   {
-    N = nrow(X)*ncol(X)
+    N = as.double(nrow(X))*as.double(ncol(X))
   }
   .Call('daxpy_wrapper', as.double(N), as.double(ALPHA), X, as.double(INCX),
     Y, as.double(INCY), X.is.bm, Y.is.bm)
@@ -96,8 +96,9 @@ dgemm = function(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
   if ( is.null(LDC) ) LDC = nrow (C)
 
   .Call('dgemm_wrapper', as.character(TRANSA), as.character(TRANSB),
-    M, N, K, as.double(ALPHA), A, LDA, B, LDB,
-    as.double(BETA), C, LDC, as.logical(A.is.bm), 
+    as.double(M), as.double(N), as.double(K), as.double(ALPHA), A, 
+    as.double(LDA), B, as.double(LDB),
+    as.double(BETA), C, as.double(LDC), as.logical(A.is.bm), 
     as.logical(B.is.bm), as.logical(C.is.bm), COFF)
   return(invisible(C))
 }
@@ -135,8 +136,9 @@ dgeqrf=function(M=NULL, N=NULL, A, LDA=NULL, TAU=NULL, WORK=NULL,
   TAU.is.bm = check_matrix(TAU)
   WORK.is.bm = check_matrix(WORK)
   INFO = 0
-  .Call('dgeqrf_wrapper', M, N, A, LDA, 
-    TAU, WORK, LWORK, INFO, A.is.bm, TAU.is.bm, WORK.is.bm)
+  .Call('dgeqrf_wrapper', as.double(M), as.double(N), A, as.double(LDA), 
+    TAU, WORK, as.double(LWORK), as.double(INFO), A.is.bm, TAU.is.bm, 
+    WORK.is.bm)
   return(INFO) 
 }
 
@@ -155,8 +157,8 @@ dpotrf=function(UPLO='U', N=NULL, A, LDA=NULL)
   }
   A.is.bm = check_matrix(A)
   INFO = 0
-  .Call('dpotrf_wrapper', as.character(UPLO), N, A, LDA,
-    INFO, A.is.bm)
+  .Call('dpotrf_wrapper', as.character(UPLO), as.double(N), A, as.double(LDA),
+    as.double(INFO), A.is.bm)
   return(INFO)
 }
 
@@ -209,9 +211,8 @@ dgeev=function(JOBVL='V', JOBVR='V', N=NULL, A, LDA=NULL, WR, WI, VL,
   VR.is.bm = check_matrix(VR)
   WORK.is.bm = check_matrix(WORK)
   INFO=0
-  .Call('dgeev_wrapper', as.character(JOBVL), as.character(JOBVR), N, A,
-    LDA, WR, WI, VL, LDVL, VR, LDVR,
-    WORK, LWORK, INFO, A.is.bm, WR.is.bm, WI.is.bm, 
+  .Call('dgeev_wrapper', as.character(JOBVL), as.character(JOBVR), as.double(N),    A, as.double(LDA), WR, WI, VL, as.double(LDVL), VR, as.double(LDVR),
+    WORK, as.double(LWORK), as.double(INFO), A.is.bm, WR.is.bm, WI.is.bm, 
     VL.is.bm, VR.is.bm, WORK.is.bm)
   return(INFO)
 }
@@ -278,8 +279,9 @@ dgesdd = function( JOBZ='A', M=NULL, N=NULL, A, LDA=NULL, S, U, LDU=NULL,
   }
   WORK.is.bm = check_matrix(WORK)
   INFO = 0
-  .Call('dgesdd_wrapper', as.character(JOBZ), M, N, A, 
-    LDA, S, U, LDU, VT, LDVT, WORK, 
-    LWORK, INFO, A.is.bm, S.is.bm, U.is.bm, VT.is.bm, WORK.is.bm)
+  .Call('dgesdd_wrapper', as.character(JOBZ), as.double(M), as.double(N), A, 
+    as.double(LDA), S, U, as.double(LDU), VT, as.double(LDVT), WORK, 
+    as.double(LWORK), as.double(INFO), A.is.bm, S.is.bm, U.is.bm, VT.is.bm, 
+    WORK.is.bm)
   return(INFO)
 }
