@@ -32,7 +32,7 @@ dcopy = function(N=NULL, X, INCX=1, Y, INCY=1)
   Y.is.bm = check_matrix(Y)
   if (is.null(N))
   {
-    N = nrow(X)*ncol(X)
+    N = as.double(nrow(X))*as.double(ncol(X))
   }
   .Call('dcopy_wrapper', N, X, as.double(INCX), Y, as.double(INCY),
     X.is.bm, Y.is.bm)
