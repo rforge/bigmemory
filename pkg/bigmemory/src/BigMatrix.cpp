@@ -5,6 +5,7 @@
 #include <fcntl.h> // to remove files
 #include <unistd.h> // to truncate files
 #include <errno.h>
+#include <stdint.h>
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/file_mapping.hpp>
