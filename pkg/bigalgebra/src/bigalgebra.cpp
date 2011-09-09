@@ -1,3 +1,4 @@
+#include "bigalgebra/bigalgebra.h"
 #include "ptr_util.hpp"
 #include "blas.hpp"
 
