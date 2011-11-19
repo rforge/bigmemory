@@ -1,8 +1,7 @@
+PKG_CPPFLAGS=-I../inst/include -I.
+PKG_FFLAGS=-fdefault-integer-8 -fno-underscoring
+PKG_FCLAGS=-fdefault-integer-8 -fno-underscoring
+PKG_LIBS=-lgfortran
 
-PKG_LIBS = -lrefblas64
-
-.PHONY: all
-all: refblas $(SHLIB)
-
-refblas:
-	make -C refblas64
+OBJECTS=$(subst .f,.o,$(wildcard refblas64/*.f))
+OBJECTS+=bigalgebra.o
