@@ -1,5 +1,0 @@
-PKG_CPPFLAGS = @BIGALGEBRA_CPPFLAGS@-I../inst/include
-PKG_LIBS = @LIBS@
-
-.PHONY: all
-all: $(SHLIB)

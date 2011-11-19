@@ -1,5 +1,0 @@
-#include @BLASHEADER@
-#include @LAPACKHEADER@
-
-@INT64@
-@ACML@
