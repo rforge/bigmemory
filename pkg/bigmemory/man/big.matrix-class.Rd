@@ -6,6 +6,7 @@
 \alias{[<-,big.matrix,ANY,missing-method}
 \alias{[<-,big.matrix,missing,ANY-method}
 \alias{[<-,big.matrix,missing,missing-method}
+\alias{[<-,big.matrix,matrix,missing-method}
 \alias{[,big.matrix,ANY,ANY,missing-method}
 \alias{[,big.matrix,ANY,ANY,logical-method}
 \alias{[,big.matrix,ANY,missing,missing-method}
@@ -14,6 +15,7 @@
 \alias{[,big.matrix,missing,ANY,logical-method}
 \alias{[,big.matrix,missing,missing,missing-method}
 \alias{[,big.matrix,missing,missing,logical-method}
+\alias{[,big.matrix,matrix,missing,missing-method}
 \alias{describe,big.matrix-method}
 \alias{dim,big.matrix-method}
 \alias{length,big.matrix-method}
@@ -65,10 +67,12 @@ As you would expect:
     \item{[<-}{\code{signature(x = "big.matrix", i = "ANY", j = "missing")}: ... }
     \item{[<-}{\code{signature(x = "big.matrix", i = "missing", j = "ANY")}: ... }
     \item{[<-}{\code{signature(x = "big.matrix", i = "missing", j = "missing")}: ... }
+    \item{[<-}{\code{signature(x = "big.matrix", i = "matrix", j = "missing")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "ANY", j = "ANY", drop = "missing")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "ANY", j = "ANY", drop = "logical")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "ANY", j = "missing", drop = "missing")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "ANY", j = "missing", drop = "logical")}: ... }
+    \item{[}{\code{signature(x = "big.matrix", i = "matrix", j = "missing", drop = "logical")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "missing", j = "ANY", drop = "missing")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "missing", j = "ANY", drop = "logical")}: ... }
     \item{[}{\code{signature(x = "big.matrix", i = "missing", j = "missing", drop = "missing")}: ... }
