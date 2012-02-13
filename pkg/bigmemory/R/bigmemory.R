@@ -260,6 +260,33 @@ GetElements.bm <- function(x, i, j, drop=TRUE)
   return(retList[[1]])
 }
 
+# Function contributed by Peter Haverty at Genentech.
+GetIndivElements.bm <- function(x,i) {
+  # Check i
+  if (is.logical(i)) {
+    stop("Logical indices not allowed when subsetting by a matrix.")
+  }
+  if (ncol(i) != 2) {
+    stop("When subsetting with a matrix, it must have two columns.")
+  }
+  if (is.character(i)) {
+    if (is.null(rownames(x))) stop("row names do not exist.")
+    if (is.null(colnames(x))) stop("column names do not exist.")
+    i <- matrix(c(mmap(i[,1], rownames(x)), mmap(i[,2], colnames(x))), ncol=2)
+  }
+  tempi <- .Call("CCleanIndices", as.double(i[,1]), as.double(nrow(x)))
+  if (is.null(tempi[[1]])) stop("Illegal row index usage in assignment.\n")
+  if (tempi[[1]]) i[,1] <- tempi[[2]]
+  tempj <- .Call("CCleanIndices", as.double(i[,2]), as.double(ncol(x)))
+  if (is.null(tempj[[1]])) stop("Illegal column index usage in assignment.\n")
+  if (tempj[[1]]) i[,2] <- tempj[[2]]
+
+  # Call .Call C++
+  return(.Call("GetIndivMatrixElements", x@address, as.double(i[,2]),
+    as.double(i[,1])))
+}
+
+
 GetCols.bm <- function(x, j, drop=TRUE)
 {
   if (!is.numeric(j) & !is.character(j) & !is.logical(j))
@@ -379,6 +406,12 @@ setMethod("[",
   signature(x = "big.matrix", i="missing", j="missing", drop = "logical"),
   function(x, drop) return(GetAll.bm(x, drop)))
 
+# Function contributed by Peter Haverty at Genentech.
+setMethod('[',
+  signature(x = "big.matrix",i="matrix",j="missing",drop="missing"),
+  function(x, i) return(GetIndivElements.bm(x, i)))
+
+
 SetElements.bm <- function(x, i, j, value)
 {
   if (!is.numeric(i) & !is.character(i) & !is.logical(i))
@@ -456,6 +489,57 @@ SetElements.bm <- function(x, i, j, value)
   }
   return(x)
 }
+
+SetIndivElements.bm <- function(x,i,value) {
+  # Check i
+  if (is.logical(i)) {
+    stop("Logical indices not allowed when subsetting by a matrix.")
+  }
+  if (ncol(i) != 2) {
+    stop("When subsetting with a matrix, it must have two columns.")
+  }
+  if (is.character(i)) {
+    if (is.null(rownames(x))) stop("row names do not exist.")
+    if (is.null(colnames(x))) stop("column names do not exist.")
+    i <- matrix(c(mmap(i[,1], rownames(x)), mmap(i[,2], colnames(x))), ncol=2)
+  }
+  tempi <- .Call("CCleanIndices", as.double(i[,1]), as.double(nrow(x)))
+  if (is.null(tempi[[1]])) stop("Illegal row index usage in assignment.\n")
+  if (tempi[[1]]) i[,1] <- tempi[[2]]
+  tempj <- .Call("CCleanIndices", as.double(i[,2]), as.double(ncol(x)))
+  if (is.null(tempj[[1]])) stop("Illegal column index usage in assignment.\n")
+  if (tempj[[1]]) i[,2] <- tempj[[2]]
+
+  # Check value length, rep as necessary
+  if (length(value) > nrow(i) || nrow(i) %% length(value) != 0) {
+    stop("number of items to replace is not a multiple of replacement length")
+  }
+  if (length(value) < nrow(i)) {
+    value = rep(value, nrow(i) %/% length(value))
+  }
+
+  # Give typecast warning if necessary
+  if ( options()$bigmemory.typecast.warning &&
+       ((typeof(value) == "double") && (typeof(x) != "double") ||
+       (typeof(value) == "integer" &&
+        (typeof(x) != "double" && typeof(x) != "integer"))) )
+  {
+    warning(cat("Assignment will down cast from ", typeof(value), " to ",
+                typeof(x), "\nHint: To remove this warning type:  ",
+                "options(bigmemory.typecast.warning=FALSE)\n", sep=''))
+  }
+
+  # Call appropriate .Call C++
+  if (typeof(x) == 'double') {
+    .Call("SetIndivMatrixElements", x@address, as.double(i[,2]),
+      as.double(i[,1]), as.double(value))
+  } else {
+    .Call("SetIndivMatrixElements", x@address, as.double(i[,2]),
+      as.double(i[,1]), as.integer(value))
+  }
+  return(x)
+}
+
 
 SetCols.bm <- function(x, j, value)
 {
@@ -659,6 +743,11 @@ setMethod('[<-',
 setMethod('[<-',
   signature(x = "big.matrix", i="missing", j="missing"),
   function(x, value) return(SetAll.bm(x, value)))
+
+# Function contributed by Peter Haverty at Genentech.
+setMethod('[<-',
+  signature(x = "big.matrix",i="matrix",j="missing"),
+  function(x, i, value) return(SetIndivElements.bm(x, i, value)))
 
 setMethod('typeof', signature(x="big.matrix"),
   function(x) return(.Call('GetTypeString', x@address)))

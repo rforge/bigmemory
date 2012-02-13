@@ -72,6 +72,59 @@ void SetMatrixElements( BigMatrix *pMat, SEXP col, SEXP row, SEXP values,
   }
 }
 
+// Function contributed by Peter Haverty at Genentech.
+template<typename CType, typename RType, typename BMAccessorType>
+SEXP GetIndivMatrixElements( BigMatrix *pMat, double NA_C, double NA_R,
+  SEXP col, SEXP row, SEXPTYPE sxpType)
+{
+  VecPtr<RType> vec_ptr;
+  BMAccessorType mat(*pMat);
+  double *pCols = NUMERIC_DATA(col);
+  double *pRows = NUMERIC_DATA(row);
+  index_type numCols = GET_LENGTH(col);
+  int protectCount = 0;
+  SEXP retVec = PROTECT( Rf_allocVector(sxpType, numCols) );
+  ++protectCount;
+  RType *pRet = vec_ptr(retVec);
+  CType *pColumn;
+  index_type i;
+  for (i=0; i < numCols; ++i)
+  {
+    pColumn = mat[static_cast<index_type>(pCols[i])-1];
+    pRet[i] = (pColumn[static_cast<index_type>(pRows[i])-1] ==
+      static_cast<CType>(NA_C)) ?
+        static_cast<RType>(NA_R) :
+        (static_cast<RType>(pColumn[static_cast<index_type>(pRows[i])-1]));
+  }
+  UNPROTECT(protectCount);
+  return(retVec);
+}
+
+
+
+// Function contributed by Peter Haverty at Genentech.
+template<typename CType, typename RType, typename BMAccessorType>
+void SetIndivMatrixElements( BigMatrix *pMat, SEXP col, SEXP row, SEXP values,
+      double NA_C, double C_MIN, double C_MAX, double NA_R)
+{
+  BMAccessorType mat( *pMat );
+  double *pCols = NUMERIC_DATA(col);
+  index_type numCols = GET_LENGTH(col);
+  double *pRows = NUMERIC_DATA(row);
+  VecPtr<RType> vec_ptr;
+  RType *pVals = vec_ptr(values);
+  index_type i=0;
+  CType *pColumn;
+  for (i=0; i < numCols; ++i)
+  {
+    pColumn = mat[static_cast<index_type>(pCols[i])-1];
+    pColumn[static_cast<index_type>(pRows[i])-1] =
+      ((pVals[i] < C_MIN || pVals[i] > C_MAX) ?
+        static_cast<CType>(NA_C) :
+        static_cast<CType>(pVals[i]));
+  }
+}
+
 template<typename CType, typename RType, typename BMAccessorType>
 void SetMatrixAll( BigMatrix *pMat, SEXP values,
   double NA_C, double C_MIN, double C_MAX, double NA_R)
@@ -237,8 +290,8 @@ SEXP GetMatrixElements( BigMatrix *pMat, double NA_C, double NA_R,
         else
         {
           pRet[k] = (pColumn[static_cast<index_type>(pRows[j])-1] == 
-                     static_cast<CType>(NA_C)) ?  static_cast<RType>(NA_R) : 
-                     (static_cast<RType>(pColumn[static_cast<index_type>(pRows[j])-1]));
+            static_cast<CType>(NA_C)) ?  static_cast<RType>(NA_R) : 
+            (static_cast<RType>(pColumn[static_cast<index_type>(pRows[j])-1]));
         }
         ++k;
       }
@@ -274,6 +327,50 @@ SEXP GetMatrixElements( BigMatrix *pMat, double NA_C, double NA_R,
   }
   UNPROTECT(protectCount);
   return ret;
+}
+
+// Function contributed by Peter Haverty at Genentech.
+SEXP GetIndivMatrixElements(SEXP bigMatAddr, SEXP col, SEXP row)
+{
+  BigMatrix *pMat =
+    reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
+  if (pMat->separated_columns())
+  {
+    switch(pMat->matrix_type())
+    {
+      case 1:
+        return GetIndivMatrixElements<char, int, SepMatrixAccessor<char> >(
+          pMat, NA_CHAR, NA_INTEGER, col, row, INTSXP);
+      case 2:
+        return GetIndivMatrixElements<short,int, SepMatrixAccessor<short> >(
+          pMat, NA_SHORT, NA_INTEGER, col, row, INTSXP);
+      case 4:
+        return GetIndivMatrixElements<int, int, SepMatrixAccessor<int> >(
+          pMat, NA_INTEGER, NA_INTEGER, col, row, INTSXP);
+      case 8:
+        return GetIndivMatrixElements<double,double,SepMatrixAccessor<double> >(
+          pMat, NA_REAL, NA_REAL, col, row, REALSXP);
+    }
+  }
+  else
+  {
+    switch(pMat->matrix_type())
+    {
+      case 1:
+        return GetIndivMatrixElements<char, int, MatrixAccessor<char> >(
+          pMat, NA_CHAR, NA_INTEGER, col, row, INTSXP);
+      case 2:
+        return GetIndivMatrixElements<short, int, MatrixAccessor<short> >(
+          pMat, NA_SHORT, NA_INTEGER, col, row, INTSXP);
+      case 4:
+        return GetIndivMatrixElements<int, int, MatrixAccessor<int> >(
+          pMat, NA_INTEGER, NA_INTEGER, col, row, INTSXP);
+      case 8:
+        return GetIndivMatrixElements<double, double, MatrixAccessor<double> >(
+          pMat, NA_REAL, NA_REAL, col, row, REALSXP);
+    }
+  }
+  return R_NilValue;
 }
 
 template<typename CType, typename RType, typename BMAccessorType>
@@ -851,6 +948,7 @@ SEXP get_order( MatrixAccessorType m, SEXP columns, SEXP naLast,
   UNPROTECT(1);
   return ret;
 }
+
 
 extern "C"
 {
@@ -1961,6 +2059,55 @@ void SetMatrixElements(SEXP bigMatAddr, SEXP col, SEXP row, SEXP values)
     }
   }
 }
+
+// Function contributed by Peter Haverty at Genentech.
+void SetIndivMatrixElements(SEXP bigMatAddr, SEXP col, SEXP row, SEXP values)
+{
+  BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
+  if (pMat->separated_columns())
+  {
+    switch (pMat->matrix_type())
+    {
+    case 1:
+      SetIndivMatrixElements<char, int, SepMatrixAccessor<char> >(
+        pMat, col, row, values, NA_CHAR, R_CHAR_MIN, R_CHAR_MAX, NA_INTEGER);
+      break;
+    case 2:
+      SetIndivMatrixElements<short, int, SepMatrixAccessor<short> >(
+        pMat, col, row, values, NA_SHORT, R_SHORT_MIN, R_SHORT_MAX, NA_INTEGER);
+      break;
+    case 4:
+      SetIndivMatrixElements<int, int, SepMatrixAccessor<int> >(
+        pMat, col, row, values, NA_INTEGER, R_INT_MIN, R_INT_MAX, NA_INTEGER);
+      break;
+    case 8:
+      SetIndivMatrixElements<double, double, SepMatrixAccessor<double> >(
+        pMat, col, row, values, NA_REAL, R_DOUBLE_MIN, R_DOUBLE_MAX, NA_REAL);
+    }
+  }
+  else
+  {
+    switch (pMat->matrix_type())
+    {
+    case 1:
+      SetIndivMatrixElements<char, int, MatrixAccessor<char> >(
+        pMat, col, row, values, NA_CHAR, R_CHAR_MIN, R_CHAR_MAX, NA_INTEGER);
+      break;
+    case 2:
+      SetIndivMatrixElements<short, int, MatrixAccessor<short> >(
+        pMat, col, row, values, NA_SHORT, R_SHORT_MIN, R_SHORT_MAX, NA_INTEGER);
+      break;
+    case 4:
+      SetIndivMatrixElements<int, int, MatrixAccessor<int> >(
+        pMat, col, row, values, NA_INTEGER, R_INT_MIN, R_INT_MAX, NA_INTEGER);
+      break;
+    case 8:
+      SetIndivMatrixElements<double, double, MatrixAccessor<double> >(
+        pMat, col, row, values, NA_REAL, R_DOUBLE_MIN, R_DOUBLE_MAX, NA_REAL);
+    }
+  }
+}
+
 
 void SetMatrixAll(SEXP bigMatAddr, SEXP values)
 {
