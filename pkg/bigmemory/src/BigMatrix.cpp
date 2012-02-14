@@ -328,9 +328,10 @@ void* ConnectSharedSepMatrix(const std::string &uuid,
     {
       shared_memory_object shm(open_only,
         (uuid + "_column_" + ttos(i)).c_str(),
-        (!readOnly ? read_write : read_only));
+        (readOnly ? read_only : read_write));
       dataRegionPtrs.push_back(
-        MappedRegionPtr(new MappedRegion(shm, read_write)));
+        MappedRegionPtr(new MappedRegion(shm, 
+          (readOnly ? read_only : read_write))));
       pMat[i] = reinterpret_cast<T*>(dataRegionPtrs[i]->get_address());
     }
     return reinterpret_cast<void*>(pMat);
@@ -353,9 +354,11 @@ void* ConnectSharedMatrix( const std::string &sharedName,
   using namespace boost::interprocess;
   try 
   {
-    shared_memory_object shm(open_only, sharedName.c_str(), read_write);
+    shared_memory_object shm(open_only, sharedName.c_str(), 
+      (readOnly ? read_only : read_write));
     dataRegionPtrs.push_back(
-      MappedRegionPtr(new MappedRegion(shm, read_write)));
+      MappedRegionPtr(new MappedRegion(shm, 
+        (readOnly ? read_only : read_write))));
     return reinterpret_cast<void*>(dataRegionPtrs[0]->get_address());
   }
   catch(boost::interprocess::bad_alloc &e)
@@ -631,8 +634,10 @@ void* ConnectFileBackedSepMatrix( const std::string &sharedName,
     // Map the file to this process.
     try
     {
-      file_mapping mFile(columnName.c_str(), read_write);
-      dataRegionPtrs[i] = MappedRegionPtr(new MappedRegion(mFile, read_write));
+      file_mapping mFile(columnName.c_str(), 
+        (readOnly ? read_only : read_write));
+      dataRegionPtrs[i] = MappedRegionPtr(new MappedRegion(mFile, 
+        (readOnly ? read_only : read_write)));
       pMat[i] = reinterpret_cast<T*>(dataRegionPtrs[i]->get_address());
     }
     catch (std::exception &e)
@@ -700,9 +705,11 @@ void* ConnectFileBackedMatrix( const std::string &fileName,
 {
   try
   {
-    file_mapping mFile((filePath+"/"+fileName).c_str(), read_write);
+    file_mapping mFile((filePath+"/"+fileName).c_str(), 
+      (readOnly ? read_only : read_write));
     dataRegionPtrs.push_back(
-      MappedRegionPtr(new MappedRegion(mFile, read_write)));
+      MappedRegionPtr(new MappedRegion(mFile, 
+        (readOnly ? read_only : read_write))));
   }
   catch (std::exception &e)
   {
