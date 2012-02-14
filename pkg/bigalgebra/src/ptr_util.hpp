@@ -1,6 +1,6 @@
 #ifndef BIGALGEBRA_PTR_UTIL
 #define BIGALGEBRA_PTR_UTIL
-#include "bigalgebra/bigalgebra.h"
+#include "../inst/include/bigalgebra/bigalgebra.h"
 
 double* make_double_ptr( SEXP matrix, SEXP isBigMatrix  )
 {

@@ -1,6 +1,6 @@
-#include "bigalgebra/bigalgebra.h"
+#include "../inst/include/bigalgebra/bigalgebra.h"
 #include "ptr_util.hpp"
-#include "blas.hpp"
+//#include "blas.hpp"
 
 // Wrappers for miscellaneous BLAS and LAPACK routines.
 

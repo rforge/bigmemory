@@ -1268,6 +1268,15 @@ void SetRowNames(SEXP address, SEXP rowNames)
   pMat->row_names(rn);
 }
 
+SEXP IsReadOnly(SEXP bigMatAddr)
+{
+  BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
+  SEXP ret = PROTECT(NEW_LOGICAL(1));
+  LOGICAL_DATA(ret)[0] = (pMat->read_only() ? (Rboolean) 1 : (Rboolean) 0);
+  UNPROTECT(1);
+  return ret;
+}
+
 SEXP CIsSubMatrix(SEXP bigMatAddr)
 {
   BigMatrix *pMat = reinterpret_cast<BigMatrix*>(R_ExternalPtrAddr(bigMatAddr));
