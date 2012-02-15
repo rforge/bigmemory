@@ -386,6 +386,7 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
     _matType=matrixType;
     _sepCols=sepCols;
     _readOnly=readOnly;
+
 #ifndef INTERLOCKED_EXCHANGE_HACK
     // Attach to the associated mutex and counter;
     named_mutex mutex(open_or_create, (_sharedName+"_counter_mutex").c_str());

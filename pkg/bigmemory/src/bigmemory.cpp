@@ -2422,7 +2422,8 @@ SEXP CreateFileBackedBigMatrix(SEXP fileName, SEXP filePath, SEXP row,
 }
 
 SEXP CAttachSharedBigMatrix(SEXP sharedName, SEXP rows, SEXP cols, 
-  SEXP rowNames, SEXP colNames, SEXP typeLength, SEXP separated)
+  SEXP rowNames, SEXP colNames, SEXP typeLength, SEXP separated,
+  SEXP readOnly)
 {
   SharedMemoryBigMatrix *pMat = new SharedMemoryBigMatrix();
   bool connected = pMat->connect( 
@@ -2430,7 +2431,8 @@ SEXP CAttachSharedBigMatrix(SEXP sharedName, SEXP rows, SEXP cols,
     static_cast<index_type>(NUMERIC_VALUE(rows)),
     static_cast<index_type>(NUMERIC_VALUE(cols)),
     INTEGER_VALUE(typeLength),
-    static_cast<bool>(LOGICAL_VALUE(separated)));
+    static_cast<bool>(LOGICAL_VALUE(separated)),
+    static_cast<bool>(LOGICAL_VALUE(readOnly)));
   if (!connected)
   {
     delete pMat;

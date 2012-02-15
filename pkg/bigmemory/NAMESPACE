@@ -26,7 +26,8 @@ exportMethods("[", "[<-",
               is.filebacked,
               is.sub.big.matrix,
               flush,
-              is.shared)
+              is.shared,
+              is.readonly)
 
 useDynLib(bigmemory)
 

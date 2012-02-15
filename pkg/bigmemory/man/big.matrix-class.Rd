@@ -29,6 +29,7 @@
 \alias{is.separated,big.matrix-method}
 \alias{is.sub.big.matrix,big.matrix-method}
 \alias{is.shared,big.matrix-method}
+\alias{is.readonly,big.matrix-method}
 \alias{ncol,big.matrix-method}
 \alias{nrow,big.matrix-method}
 \alias{print,big.matrix-method}

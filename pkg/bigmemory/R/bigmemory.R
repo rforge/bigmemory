@@ -11,6 +11,13 @@ mmap = function(x, y) {
   return(ans)
 }
 
+checkReadOnly <- function(x)
+{
+  if (is.readonly(x)) {
+    stop("you may not modify a read only big.matrix object")
+  }
+}
+
 #############################################################################
 
 setClass('big.matrix', representation(address='externalptr'))
@@ -166,6 +173,7 @@ rownames.bm <- function(x)
 
 assign('colnames.bm<-', 
   function(x, value) {
+      checkReadOnly(x)
       if (is.character(value)) {
         if (any(value=="")) {
           stop("empty strings prohibited in column names")
@@ -184,6 +192,7 @@ assign('colnames.bm<-',
 
 assign('rownames.bm<-',
   function(x,value) {
+      checkReadOnly(x)
       if (is.character(value)) {
         if (any(value=="")) {
           stop("empty strings prohibited in row names")
@@ -414,6 +423,7 @@ setMethod('[',
 
 SetElements.bm <- function(x, i, j, value)
 {
+  checkReadOnly(x)
   if (!is.numeric(i) & !is.character(i) & !is.logical(i))
     stop("row indices must be numeric, logical, or character vectors.")
   if (!is.numeric(j) & !is.character(j) & !is.logical(j))
@@ -490,8 +500,9 @@ SetElements.bm <- function(x, i, j, value)
   return(x)
 }
 
-SetIndivElements.bm <- function(x,i,value) {
+SetIndivElements.bm <- function(x, i, value) {
   # Check i
+  checkReadOnly(x)
   if (is.logical(i)) {
     stop("Logical indices not allowed when subsetting by a matrix.")
   }
@@ -543,6 +554,7 @@ SetIndivElements.bm <- function(x,i,value) {
 
 SetCols.bm <- function(x, j, value)
 {
+  checkReadOnly(x)
   if (!is.numeric(j) & !is.character(j) & !is.logical(j))
     stop("column indices must be numeric, logical, or character vectors.")
   if (is.character(j))
@@ -608,6 +620,7 @@ SetCols.bm <- function(x, j, value)
 
 SetRows.bm <- function(x, i, value) 
 {
+  checkReadOnly(x)
   if (!is.numeric(i) & !is.character(i) & !is.logical(i))
     stop("row indices must be numeric, logical, or character vectors.")
   if (is.character(i))
@@ -678,6 +691,7 @@ SetRows.bm <- function(x, i, value)
 
 SetAll.bm <- function(x, value) 
 {
+  checkReadOnly(x)
   if ( options()$bigmemory.typecast.warning &&
        ((typeof(value) == "double") && (typeof(x) != "double") ||
        (typeof(value) == "integer" &&
@@ -1392,11 +1406,18 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
     if (substr(path, nchar(path), nchar(path)) == "/") {
       path <- substr(path, 1, nchar(path)-1)
     }
+
+    readOnly <- ifelse( is.null(list(...)$readonly), FALSE, list(...)$readonly)
+    if (!is.logical(readOnly)) {
+      stop("The readOnly argument must be of type logical")
+    }
+    
     if (info$sharedType == 'SharedMemory')
     {
       address <- .Call('CAttachSharedBigMatrix', info$sharedName, 
         info$totalRows, info$totalCols, as.character(info$rowNames), 
-        as.character(info$colNames), as.integer(typeLength), info$separated)
+        as.character(info$colNames), as.integer(typeLength), info$separated,
+        readOnly)
     }
     else
     {
@@ -1420,19 +1441,24 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
       address <- .Call('CAttachFileBackedBigMatrix', 
         info$filename, path, info$totalRows, info$totalCols, 
         as.character(info$rowNames), as.character(info$colNames), 
-        as.integer(typeLength), info$separated)
+        as.integer(typeLength), info$separated, readOnly)
     }
     if (!is.null(address)) 
     {
       .Call("SetRowOffsetInfo", address, info$rowOffset, info$nrow)
       .Call("SetColumnOffsetInfo", address, info$colOffset, info$ncol)
-      ans <- new('big.matrix', address=address)
+      ret <- new('big.matrix', address=address)
+      # If the user did not specify read only but the big matrix could 
+      # only be opened read only then issue a warning.
+      if (readOnly != is.readonly(ret)) {
+        warning("big.matrix object could only be opened read only.")
+      }
     }
     else 
     {
       stop("Fatal error in attach: big.matrix could not be attached.")
     }
-    return(ans)  
+    return(ret)  
   })
 
 setGeneric('is.filebacked', function(x) standardGeneric('is.filebacked'))
@@ -1573,4 +1599,9 @@ is.nil <- function(address) {
   ans <- .Call("isnil", address)
   return(ans)
 }
+
+setGeneric('is.readonly', function(x) standardGeneric('is.readonly'))
+
+setMethod('is.readonly', signature(x='big.matrix'),
+  function(x) .Call("IsReadOnly", x@address))
 
