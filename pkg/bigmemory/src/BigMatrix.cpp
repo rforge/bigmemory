@@ -641,7 +641,7 @@ void* ConnectFileBackedSepMatrix( const std::string &sharedName,
         (readOnly ? read_only : read_write)));
       pMat[i] = reinterpret_cast<T*>(dataRegionPtrs[i]->get_address());
     }
-    catch (std::exception &e)
+    catch (std::bad_alloc &e)
     {
       printf("%s\n", e.what());
       printf("%s line %d\n", __FILE__, __LINE__);
@@ -664,6 +664,11 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
   {
     std::string columnName = filePath + fileName + "_column_" + ttos(i);
     FILE *fp = fopen( columnName.c_str(), "wb");
+    if (!fp)
+    {
+      printf( "Problem creating file %s.\n", columnName.c_str() );
+      return NULL;
+    }  
     if ( -1 == ftruncate( fileno(fp), nrow*sizeof(T) ) )
     {
       printf("Problem creating file %s.\n", columnName.c_str());
@@ -712,7 +717,7 @@ void* ConnectFileBackedMatrix( const std::string &fileName,
       MappedRegionPtr(new MappedRegion(mFile, 
         (readOnly ? read_only : read_write))));
   }
-  catch (std::exception &e)
+  catch (std::bad_alloc &e)
   {
     printf("%s\n", e.what());
     printf("%s line %d\n", __FILE__, __LINE__);

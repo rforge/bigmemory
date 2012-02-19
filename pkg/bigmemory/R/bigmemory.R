@@ -14,7 +14,7 @@ mmap = function(x, y) {
 checkReadOnly <- function(x)
 {
   if (is.readonly(x)) {
-    stop("you may not modify a read only big.matrix object")
+    stop("you may not modify a read-only big.matrix object")
   }
 }
 
@@ -1448,10 +1448,10 @@ setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
       .Call("SetRowOffsetInfo", address, info$rowOffset, info$nrow)
       .Call("SetColumnOffsetInfo", address, info$colOffset, info$ncol)
       ret <- new('big.matrix', address=address)
-      # If the user did not specify read only but the big matrix could 
-      # only be opened read only then issue a warning.
+      # If the user did not specify read-only but the big matrix could 
+      # only be opened read-only then issue a warning.
       if (readOnly != is.readonly(ret)) {
-        warning("big.matrix object could only be opened read only.")
+        warning("big.matrix object could only be opened read-only.")
       }
     }
     else 
