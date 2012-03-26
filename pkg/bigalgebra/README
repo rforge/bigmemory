@@ -1,0 +1,8 @@
+Notable changes:
+
+0.7.1 18-November-2011: Vastly simplified core linear algebra dependencies,
+focusing on provided reference BLAS and LAPACK routines. We removed all
+configure files and fancy configuration options for 3rd party libraries,
+as they are very difficult to uniformly support across platforms. Advanced
+users desiring 3rd party BLAS and LAPACK support can modify the package
+Makevars files, or include custom configure files as required.
