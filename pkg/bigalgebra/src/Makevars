@@ -1,0 +1,7 @@
+PKG_CPPFLAGS=-I../inst/include -I.
+PKG_FFLAGS=-fdefault-integer-8 -fno-underscoring
+PKG_FCLAGS=-fdefault-integer-8 -fno-underscoring
+PKG_LIBS=-lgfortran
+
+OBJECTS=$(subst .f,.o,$(wildcard refblas64/*.f))
+OBJECTS+=bigalgebra.o
