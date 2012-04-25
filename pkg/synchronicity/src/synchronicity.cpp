@@ -152,10 +152,10 @@ void DestroyBoostMutexInfo( SEXP mutexInfoAddr )
   BoostMutexInfo *pbmi = 
     reinterpret_cast<BoostMutexInfo*>(R_ExternalPtrAddr(mutexInfoAddr));
   std::string cmName = pbmi->name()+"_counter_mutex";
-  named_mutex mutex(open_or_create, cmName.c_str());
+  named_upgradable_mutex mutex(open_or_create, cmName.c_str());
   delete pbmi;
   R_ClearExternalPtr(mutexInfoAddr);
-  named_mutex::remove( cmName.c_str() );
+  named_upgradable_mutex::remove( cmName.c_str() );
 }
 
 SEXP CreateBoostMutexInfo( SEXP resourceName, SEXP timeout )
