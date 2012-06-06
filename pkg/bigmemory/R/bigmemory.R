@@ -1017,10 +1017,14 @@ setMethod('read.big.matrix', signature(filename='character'),
     }
 
     # Get the first line of data
-    firstLineVals <- unlist(strsplit(
-      scan(filename, what='character', skip=(skip+headerOffset), 
-           nlines=1, sep="\n", quiet=TRUE), split=sep))
+    firstLine <- scan(filename, what='character', skip=(skip+headerOffset),
+      nlines=1, sep="\n", quiet=TRUE)
+    numFields <- nchar(gsub("[^,]", "", "A,,B,"))+1
+    firstLineVals <- unlist(strsplit(firstLine, split=sep))
     firstLineVals[firstLineVals=="NA"] <- NA
+    if (length(firstLineVals) < numFields) {
+      firstLineVals <- c(firstLineVals, NA)
+    }
 
     # At this point, we assume there are length(colNames) columns of data if
     # available, otherwise, figure it out.
