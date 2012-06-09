@@ -366,7 +366,7 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
     index_type rowOffset=pMat->row_offset();                                 \
     index_type i=0;                                                          \
     for (i=0; i < nCols; ++i) {                                              \
-      fun(Mat[(index_type)pCols[i]-1+colOffset]+rowOffset, pMat->nrow(), &pRet[i], \
+      fun(&Mat[(index_type)pCols[i]-1][0], pMat->nrow(), &pRet[i], \
                   (Rboolean)LOGICAL_VALUE(narm), NA_VALUE);                  \
     }                                                                        \
   }                                                                          \
@@ -377,7 +377,7 @@ Rboolean tvar(T *x, index_type n, double *value, Rboolean narm, T NA_VALUE)
     index_type colOffset=pMat->col_offset();                                 \
     index_type rowOffset=pMat->row_offset();                                 \
     for (i=0; i < nCols; ++i) {                                              \
-      fun(Mat[(index_type)pCols[i]-1+colOffset]+rowOffset, pMat->nrow(), &pRet[i], \
+      fun(&Mat[(index_type)pCols[i]-1][0], pMat->nrow(), &pRet[i], \
                     (Rboolean)LOGICAL_VALUE(narm), NA_VALUE);                \
     }                                                                        \
   }
