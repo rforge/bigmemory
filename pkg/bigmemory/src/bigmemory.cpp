@@ -1556,11 +1556,11 @@ SEXP CreateRAMMatrix(SEXP row, SEXP col, SEXP colnames, SEXP rownames,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
+    Rprintf("%s\n", e.what());
   }
   catch(...)
   {
-    printf("Exception caught while trying to create shared matrix.");
+    Rprintf("Exception caught while trying to create shared matrix.");
   }
   delete(pMat); 
   error("The shared matrix could not be created\n");
@@ -2426,11 +2426,11 @@ SEXP CreateFileBackedBigMatrix(SEXP fileName, SEXP filePath, SEXP row,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
+    Rprintf("%s\n", e.what());
   }
   catch(...)
   {
-    printf("Unspecified problem trying to create big.matrix\n");
+    Rprintf("Unspecified problem trying to create big.matrix\n");
   }
   return R_NilValue;
 }

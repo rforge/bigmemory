@@ -20,8 +20,19 @@
   #include <boost/interprocess/sync/named_mutex.hpp>
 #endif
 
-
 #include "bigmemory/BigMatrix.h"
+
+#define COND_EXCEPTION_PRINT(bYes)                \
+  if (bYes)                                       \
+  {                                               \
+    printf("%s\n", e.what());                     \
+    printf("%s line %d\n", __FILE__, __LINE__);   \
+  }                                               \
+
+#define COND_PRINT(bYes, str, format) \
+  if (bYes) printf(str, format);
+    
+#define DEBUG true
 
 using namespace std;
 using namespace boost;
@@ -56,7 +67,7 @@ void* CreateLocalSepMatrix( const index_type &nrow,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
+    COND_EXCEPTION_PRINT(DEBUG);
     while(i > 1)
     {
       delete [] pRet[--i];
@@ -121,8 +132,7 @@ bool LocalBigMatrix::create(const index_type numRow,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -149,7 +159,7 @@ bool LocalBigMatrix::destroy()
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -167,8 +177,7 @@ bool SharedBigMatrix::create_uuid()
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -195,8 +204,7 @@ void* CreateSharedSepMatrix( const std::string &sharedName,
     }
     catch (interprocess_exception &e)
     {
-      printf("%s\n", e.what());
-      printf("%s line %d\n", __FILE__, __LINE__);
+      COND_EXCEPTION_PRINT(DEBUG);
       index_type j;
       for (j=0; j < i; ++j)
       {
@@ -222,11 +230,10 @@ void* CreateSharedMatrix( const std::string &sharedName,
     dataRegionPtrs.push_back(
       MappedRegionPtr(new MappedRegion(shm, read_write)));
   }
-  catch (interprocess_exception &ex)
+  catch (interprocess_exception &e)
   {
-    printf("%s\n", ex.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
-    shared_memory_object::remove( (sharedName.c_str() ) );
+    COND_EXCEPTION_PRINT(DEBUG);
+    shared_memory_object::remove(sharedName.c_str());
     return NULL;
   }
   return dataRegionPtrs[0]->get_address();
@@ -309,8 +316,7 @@ bool SharedMemoryBigMatrix::create(const index_type numRow,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -338,8 +344,7 @@ void* ConnectSharedSepMatrix(const std::string &uuid,
   }
   catch(boost::interprocess::bad_alloc &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     dataRegionPtrs.resize(0);
     delete pMat;
     return NULL;
@@ -363,8 +368,7 @@ void* ConnectSharedMatrix( const std::string &sharedName,
   }
   catch(boost::interprocess::bad_alloc &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     dataRegionPtrs.resize(0);
     return NULL;
   }
@@ -542,8 +546,7 @@ bool SharedMemoryBigMatrix::connect( const std::string &uuid,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -559,8 +562,7 @@ void DestroySharedSepMatrix( const std::string &uuid, const index_type ncol )
     }
     catch(std::exception &e)
     {
-      printf("%s\n", e.what());
-      printf("%s line %d\n", __FILE__, __LINE__);
+      COND_EXCEPTION_PRINT(DEBUG);
     }
   }
 }
@@ -608,8 +610,7 @@ bool SharedMemoryBigMatrix::destroy()
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
 #ifndef INTERLOCKED_EXCHANGE_HACK
     mutex.unlock();
     if (destroyThis)
@@ -643,8 +644,7 @@ void* ConnectFileBackedSepMatrix( const std::string &sharedName,
     }
     catch (std::bad_alloc &e)
     {
-      printf("%s\n", e.what());
-      printf("%s line %d\n", __FILE__, __LINE__);
+      COND_EXCEPTION_PRINT(DEBUG);
       dataRegionPtrs.resize(0);
       delete [] pMat;
       return NULL;
@@ -666,12 +666,12 @@ void* CreateFileBackedSepMatrix( const std::string &fileName,
     FILE *fp = fopen( columnName.c_str(), "wb");
     if (!fp)
     {
-      printf( "Problem creating file %s.\n", columnName.c_str() );
+      COND_PRINT(DEBUG, "Problem creating file %s.\n", columnName.c_str())
       return NULL;
     }  
     if ( -1 == ftruncate( fileno(fp), nrow*sizeof(T) ) )
     {
-      printf("Problem creating file %s.\n", columnName.c_str());
+      COND_PRINT(DEBUG, "Problem creating file %s.\n", columnName.c_str())
       index_type j;
       for (j=0; j < i; ++j)
       {
@@ -719,8 +719,7 @@ void* ConnectFileBackedMatrix( const std::string &fileName,
   }
   catch (std::bad_alloc &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     dataRegionPtrs.resize(0);
     return NULL;
   }
@@ -738,12 +737,12 @@ void* CreateFileBackedMatrix(const std::string &fileName,
   FILE *fp = fopen( fullFileName.c_str(), "wb");
   if (!fp)
   {
-    printf( "Problem creating file %s.\n", fullFileName.c_str() );
+    COND_PRINT(DEBUG, "Problem creating file %s.\n", fullFileName.c_str());
     return NULL;
   }  
   if (-1 == ftruncate( fileno(fp), nrow*ncol*sizeof(T) ) )
   {
-    printf( "Error: %s\n", strerror(errno) );
+    COND_PRINT(DEBUG, "Error: %s\n", strerror(errno));
     fclose(fp);
     return NULL;
   }
@@ -832,8 +831,7 @@ bool FileBackedBigMatrix::create(const std::string &fileName,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -999,8 +997,7 @@ bool FileBackedBigMatrix::connect( const std::string &fileName,
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -1017,8 +1014,7 @@ void DestroyFileBackedSepMatrix( const std::string &sharedName,
     }
     catch(std::exception &e)
     {
-      printf("%s\n", e.what());
-      printf("%s line %d\n", __FILE__, __LINE__);
+      COND_EXCEPTION_PRINT(DEBUG);
     }
   }
 }
@@ -1057,8 +1053,7 @@ bool FileBackedBigMatrix::destroy()
       }
       catch(std::exception &e)
       {
-        printf("%s\n", e.what());
-        printf("%s line %d\n", __FILE__, __LINE__);
+        COND_EXCEPTION_PRINT(DEBUG);
       }
     }
         // In all cases, do the following:
@@ -1069,8 +1064,7 @@ bool FileBackedBigMatrix::destroy()
   } // end of the try
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
-    printf("%s line %d\n", __FILE__, __LINE__);
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
 }
@@ -1087,7 +1081,7 @@ bool FileBackedBigMatrix::flush()
   }
   catch(std::exception &e)
   {
-    printf("%s\n", e.what());
+    COND_EXCEPTION_PRINT(DEBUG);
     return false;
   }
   return true;
