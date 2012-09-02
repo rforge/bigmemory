@@ -1,6 +1,6 @@
 Package: biganalytics
-Version: 1.0.16
-Date: 2012-06-09
+Version: 1.0.17
+Date: 2012-09-02
 Title: A library of utilities for big.matrix objects of package bigmemory.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
