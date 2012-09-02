@@ -237,7 +237,11 @@ Rboolean tprod(double *x, index_type n, double *value, Rboolean narm,
 
   for (i = 0; i < n; i++) {
     if (!ISNAN(x[i]) || !narm) {
-      if (!firstVal) s = x[i];
+      if (!firstVal) 
+      {
+        firstVal=true;
+        s = x[i];
+      }
       else s *= x[i];
     }
   }
@@ -439,7 +443,7 @@ extern "C"
 #define mainsetup()                                              \
   SEXP ret = R_NilValue;                                         \
   double *pCols = NUMERIC_DATA(col);                             \
-  index_type nCols = GET_LENGTH(col);                                  \
+  index_type nCols = GET_LENGTH(col);                            \
   int mt = INTEGER_VALUE(matType);
 
 #define casesetup(TYPE, NEW_TYPE, TYPE_DATA)                     \
@@ -524,16 +528,20 @@ SEXP CProdColmain(SEXP matType, SEXP bigMatrixAddr, SEXP col, SEXP narm)
   casesetup(double, NEW_NUMERIC, NUMERIC_DATA);
   switch (mt) {
     case 1: {
-        CProdCol<char, double>(bigMatrixAddr, pRet, pCols, nCols, narm, NA_CHAR);
+        CProdCol<char, double>(bigMatrixAddr, pRet, pCols, nCols, narm, 
+          NA_CHAR);
       } break;
     case 2: {
-        CProdCol<short, double>(bigMatrixAddr, pRet, pCols, nCols, narm, NA_SHORT);
+        CProdCol<short, double>(bigMatrixAddr, pRet, pCols, nCols, narm, 
+          NA_SHORT);
       } break;
     case 4: {
-        CProdCol<int, double>(bigMatrixAddr, pRet, pCols, nCols, narm, NA_INTEGER);
+        CProdCol<int, double>(bigMatrixAddr, pRet, pCols, nCols, narm, 
+          NA_INTEGER);
       } break;
     case 8: {
-        CProdCol<double, double>(bigMatrixAddr, pRet, pCols, nCols, narm, NA_REAL);
+        CProdCol<double, double>(bigMatrixAddr, pRet, pCols, nCols, narm, 
+          NA_REAL);
       } break;
   }
   UNPROTECT(1);
