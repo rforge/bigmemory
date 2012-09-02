@@ -4,7 +4,7 @@ Date: 2012-06-05
 Title: Manage massive matrices with shared memory and memory-mapped files
 Author: Michael J. Kane <kaneplusplus@gmail.com> and John W. Emerson <jayemerson@gmail.com>
 Maintainer: Jay and Mike <bigmemoryauthors@gmail.com>
-Depends: methods, utils
+Depends: methods, utils, bigmemory.sri
 Enhances: biganalytics, bigtabulate, bigalgebra, synchronicity
 Description: Create, store, access, and manipulate massive matrices.
   Matrices are allocated to shared memory and may use memory-mapped

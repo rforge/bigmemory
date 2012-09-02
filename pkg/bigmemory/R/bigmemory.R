@@ -30,6 +30,12 @@ setClass('big.matrix.descriptor', contains='descriptor')
 # the relevant data needed for the attach.
 setGeneric('description', function(x) standardGeneric('description'))
 
+setMethod('describe', signature(x='big.matrix'),
+  function(x)
+  {
+    return(new('big.matrix.descriptor', description=DescribeBigMatrix(x)))
+  })
+
 big.matrix <- function(nrow, ncol, type=options()$bigmemory.default.type,
                        init=NULL, dimnames=NULL, separated=FALSE,
                        backingfile=NULL, backingpath=NULL, descriptorfile=NULL,
@@ -1351,9 +1357,6 @@ attach.big.matrix = function(obj, ...)
     return(attach.resource(obj, path=list(...)[['backingpath']], ...))
   return(attach.resource(obj, ...))
 }
-
-setGeneric('attach.resource', 
-  function(obj, ...) standardGeneric('attach.resource'))
 
 setMethod('attach.resource', signature(obj='character'),
   function(obj, ...)
