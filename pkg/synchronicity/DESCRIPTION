@@ -4,7 +4,7 @@ Date: 2012-04-25
 Title: Boost mutex functionality for R.
 Author: Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
-Depends: methods
+Depends: methods, bigmemory.sri
 Description: This package provides Boost mutex functionality in R.
 OS_type: unix
 License: LGPL-3
