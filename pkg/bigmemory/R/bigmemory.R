@@ -1010,7 +1010,7 @@ setMethod('read.big.matrix', signature(filename='character'),
              quiet=TRUE), split=sep))
       colNames <- gsub("\"", "", colNames, perl=TRUE)
       colNames <- gsub("\'", "", colNames, perl=TRUE)
-      if (is.na(colNames[1]) | colNames[1]=="") colNames <- colNames[-1]
+      if (is.na(colNames[1])) colNames <- colNames[-1]
       if (is.character(col.names)) {
         warning("Using supplied column names and skipping the header row.\n")
         colNames <- col.names
@@ -1025,8 +1025,8 @@ setMethod('read.big.matrix', signature(filename='character'),
     # Get the first line of data
     firstLine <- scan(filename, what='character', skip=(skip+headerOffset),
       nlines=1, sep="\n", quiet=TRUE)
-    numFields <- nchar(gsub("[^,]", "", "A,,B,"))+1
     firstLineVals <- unlist(strsplit(firstLine, split=sep))
+    numFields <- length(firstLineVals)
     firstLineVals[firstLineVals=="NA"] <- NA
     if (length(firstLineVals) < numFields) {
       firstLineVals <- c(firstLineVals, NA)

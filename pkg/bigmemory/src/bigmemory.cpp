@@ -25,6 +25,7 @@ template<typename T>
 string ttos(T i)
 {
   stringstream s;
+  s.precision(16);
   s << i;
   return s.str();
 }
