@@ -173,6 +173,10 @@ bool SharedBigMatrix::create_uuid()
     boost::uuids::uuid u = gen();
     ss << u;
     _uuid = ss.str();
+    #ifdef DARWIN
+    // Darwin has a limit on the size of share memory names.
+    _uuid.resize(15)
+    #endif
     return true;
   }
   catch(std::exception &e)
