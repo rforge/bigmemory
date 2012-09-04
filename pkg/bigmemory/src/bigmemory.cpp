@@ -6,8 +6,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include <boost/lexical_cast.hpp>
-
 #include "bigmemory/BigMatrix.h"
 #include "bigmemory/MatrixAccessor.hpp"
 #include "bigmemory/util.h"
