@@ -12,7 +12,7 @@ This package provides a shared resource interface for the bigmemory and synchron
 Package: \tab bigmemory.sri\cr
 Type: \tab Package\cr
 Version: \tab 0.1\cr
-Date: \tab 2012-09-02\cr
+Date: \tab 2012-09-12\cr
 License: \tab LGPL-3\cr
 Depends: \tab methods\cr
 }
@@ -21,7 +21,7 @@ Both the bigmemory and synchronicity package use a common interface for using a 
 \author{
 Michael J. Kane
 
-Maintainer: Mike <bigmemoryauthors@gmail.com>
+Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 }
 \seealso{
 \code{\link[bigmemory:bigmemory-package]{bigmemory}, \link[synchronicity:synchronicity-package]{synchronicity}} 

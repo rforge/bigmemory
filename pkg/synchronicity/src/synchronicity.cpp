@@ -51,7 +51,7 @@ class BoostMutexInfo
         }
         catch(std::exception &e)
         {
-          printf("%s\n", e.what());
+          //printf("%s\n", e.what());
           return false;
         }
       }
@@ -94,7 +94,7 @@ SEXP boost_lock(const std::string &resourceName,
   catch (std::exception &e)
   {
     LOGICAL_DATA(ret)[0] = Rboolean(0);
-    printf("%s\n", e.what());
+    //printf("%s\n", e.what());
   }
   UNPROTECT(1);
   return ret;
@@ -113,7 +113,7 @@ SEXP boost_try_lock(const std::string &resourceName,
   catch (std::exception &e)
   {
     LOGICAL_DATA(ret)[0] = Rboolean(0);
-    printf("%s\n", e.what());
+    //printf("%s\n", e.what());
   }
   UNPROTECT(1);
   return ret;
@@ -133,7 +133,7 @@ SEXP boost_unlock(const std::string &resourceName,
   catch (std::exception &e)
   {
     LOGICAL_DATA(ret)[0] = Rboolean(0);
-    printf("%s\n", e.what());
+    //printf("%s\n", e.what());
   }
   UNPROTECT(1);
   return ret;

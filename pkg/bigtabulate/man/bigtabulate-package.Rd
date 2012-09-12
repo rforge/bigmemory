@@ -14,10 +14,10 @@ and \code{\link{bigtsummary}}.
 \tabular{ll}{
 Package: \tab bigtabulate\cr
 Type: \tab Package\cr
-Version: \tab 1.0.14\cr
-Date: \tab 2010-10-30\cr
+Version: \tab 1.1.0\cr
+Date: \tab 2012-09-12\cr
 License: \tab LGPL-3\cr
-Copyright: \tab (C) 2010 Michael J. Kane and John W. Emerson\cr
+Copyright: \tab (C) 2012 Michael J. Kane and John W. Emerson\cr
 URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }
@@ -29,7 +29,7 @@ functions; \pkg{bigtabulate} contains extended tabulation functionality.
 \author{
 Michael J. Kane and John W. Emerson
 
-Maintainers: Mike and Jay <bigmemoryauthors@gmail.com>
+Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}
