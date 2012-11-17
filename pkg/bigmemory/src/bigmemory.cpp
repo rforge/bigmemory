@@ -36,20 +36,11 @@ string ttos<char>(char i)
   return s.str();
 }
 
-#if defined(powl)
-# define HAVE_POWL
-#endif
-
-#if defined(HAVE_POWL)
-# define bm_powl(x,y) powl((x),(y))
-#else
-# define bm_powl(x,y) pow((double)(x), (double)(y))
-#endif
-
 bool TooManyRIndices( index_type val )
 {
-  return val > (bm_powl(2, 31)-1);
+  return double(val) > pow(2.0, 31.0)-1.0;
 }
+
 template<typename CType, typename RType, typename BMAccessorType>
 void SetMatrixElements( BigMatrix *pMat, SEXP col, SEXP row, SEXP values,
   double NA_C, double C_MIN, double C_MAX, double NA_R)
