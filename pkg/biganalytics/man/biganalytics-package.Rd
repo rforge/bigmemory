@@ -36,7 +36,7 @@ more advanced analytics on \code{big.matrix} objects.  Sister packages \pkg{sync
 \author{
 John W. Emerson and Michael J. Kane
 
-Maintainer: John W. Emerson <bigmemoryauthors@gmail.com>
+Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 }
 \keyword{package}
 \references{The Bigmemory Project: \url{http://www.bigmemory.org/}.}

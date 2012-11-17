@@ -3,7 +3,7 @@ Version: 1.1.0
 Date: 2012-09-12
 Title: A library of utilities for big.matrix objects of package bigmemory.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
-Maintainer: John W. Emerson <bigmemoryauthors@gmail.com>
+Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 Contact: Jay and Mike <bigmemoryauthors@gmail.com>
 Depends: methods, stats, utils, bigmemory (>= 4.0.0)
 LinkingTo: bigmemory
