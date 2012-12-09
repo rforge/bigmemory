@@ -32,7 +32,7 @@
 #define COND_PRINT(bYes, str, format) \
   if (bYes) printf(str, format);
     
-#define DEBUG true
+#define DEBUG false
 
 using namespace std;
 using namespace boost;
