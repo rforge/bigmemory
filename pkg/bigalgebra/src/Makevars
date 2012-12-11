@@ -1,7 +1,14 @@
-PKG_CPPFLAGS=-I../inst/include -I.
-PKG_FFLAGS=-fdefault-integer-8 -fno-underscoring
-PKG_FCLAGS=-fdefault-integer-8 -fno-underscoring
-PKG_LIBS=-lgfortran
+PKG_CPPFLAGS=-I. -I$(R_HOME)/include/R_ext/ $(R_XTRA_FFLAGS)
+PKG_LIBS=$(BLAS_LIBS) $(FLIBS)
 
-OBJECTS=$(subst .f,.o,$(wildcard refblas64/*.f))
+# Uncomment to use 64-bit reference BLAS -------------------------
+# Note, we use no-underscoring here to avoid conflict with native
+# R blas functions.
+#PKG_FFLAGS=-fdefault-integer-8 -fno-underscoring
+#PKG_FCLAGS=-fdefault-integer-8 -fno-underscoring
+#PKG_LIBS=-lgfortran
+#PKG_CPPFLAGS+=-DREFBLAS
+#OBJECTS=$(subst .f,.o,$(wildcard refblas64/*.f))
+# ----------------------------------------------------------------
+
 OBJECTS+=bigalgebra.o

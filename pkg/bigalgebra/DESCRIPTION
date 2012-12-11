@@ -1,6 +1,6 @@
 Package: bigalgebra
-Version: 0.7.1
-Date: 2011-11-18
+Version: 0.8.0
+Date: 2012-11-23
 Title: BLAS and LAPACK routines for native R matrices and big.matrix objects.
 Author: Michael J. Kane, Bryan Lewis, and John W. Emerson
 Maintainer: Mike <bigmemoryauthors@gmail.com>

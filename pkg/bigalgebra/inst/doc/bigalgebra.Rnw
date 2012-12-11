@@ -1,4 +1,4 @@
-% \VignetteIndexEntry{bigalgebra Manual}
+% \VignetteIndexEnt{bigalgebra Manual}
 % \VignetteDepends{bigalgebra}
 % \VignettePackage{bigalgebra}
 \documentclass[12pt]{article}
@@ -59,8 +59,8 @@
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\footrulewidth}{1pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{Notes on the {\tt bigalgebra} Package}
-\author{Emmerson, Kane, Lewis} 
+\title{The {\tt bigalgebra} Package}
+\author{Michael J. Kane, John W. Emerson, and Bryan W. Lewis} 
 
 \begin{document}
 \maketitle
@@ -68,54 +68,188 @@
 
 \section{Introduction}
 
-The \verb+bigalgebra+ package provides linear algebra operations for ``Big
-Matrices'' defined in the \verb+bigmemory+ package. The \verb+bigalgebra+
+The \verb+bigalgebra+ package provides basic linear algebra operations for
+``Big Matrices'' defined by the \verb+bigmemory+ package. The \verb+bigalgebra+
 package presently only supports double-precision big matrices.  The package
-includes matrix and vector arithmetic operations and several standard matrix
+includes matrix and vector arithmetic operations and a few matrix
 factorizations.  Infix arithmetic operators are overloaded to use
 \verb+bigalgebra+ functions, keeping the syntax familiar and simple.
 
-The package supports linear algebra computation supports object indices of up
-to $2^{51}$ in each dimension.  Note that the usual R limit constrains objects
-to less than $2^{31}$ total entries in an entire object. The package also
-supports computations on arrays that are larger than available RAM using
+The package can optionally support operations on matrices with indices of up to
+about $2^{51}$ in each dimension.  Note that the usual R limit constrains
+objects to less than $2^{31}$ total entries in an entire object. The package
+also supports computations on arrays that are larger than available RAM using
 \verb+bigmemory+'s file-backed big matrix objects.
 
 \section{Installation}
 
+The package uses the native R linear algebra libraries (BLAS, LAPACK) by
+default to simplify installation. Operations are limited to vectors of at most
+$2^{31}-1$ elements and matrices of at most $2^{31}-1$ rows and $2^{31}-1$
+columns. (Note the difference with standard R matrices, which are limited to
+at most $2^{31}-1$ total elements.)
+
+
+
+\subsection{Installation with Reference BLAS (with large index support)}\label{large}
+
 The default installation ships with a subset of the refererence BLAS and LAPACK
 libraries available from Netlib\footnote{ \htmladdnormallink{http://netlib.org}
 {http://netlib.org}} compiled at installation time with support for large
-indices.  The \verb+bigalgebra+ package may be optionally compiled with
-alternate libraries that offer performance and threading optimizations, but
-they must include large index support (usually 64 bit unsigned integer
-indices).
+indices.  But, the libraries are not tuned for performance--use
+high-performance libraries instead when possible.  Enabling large indices
+supports operations on vectors and matrices with up to $2^{52}-1$ elements in
+any dimension.
 
-\subsection{Installation with Reference BLAS (with large index support)}\label{large}
-The \verb+bigalgebra+ package includes reference BLAS and LAPACK libraries
-from Netlib with large index support. The libraries are not tuned for
-performance--use high-performance libraries instead when possible.
-
-The following example illustrates installation with the 
-reference large-index BLAS and LAPACK libraries:
+Enabling the Netlib BLAS with large integer support requires downloading
+the {\tt bigalgebra} source package and editing the {\tt Makevars}
+or {\tt Makevars.win} file. To enable support, edit the file and uncomment
+the lines (indicated by comments in the file):
 \lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
 \begin{lstlisting}
-R CMD INSTALL bigalgebra
+PKG_FFLAGS=-fdefault-integer-8 -fno-underscoring
+PKG_FCLAGS=-fdefault-integer-8 -fno-underscoring
+PKG_LIBS=-lgfortran
+PKG_CPPFLAGS+=-DREFBLAS
+OBJECTS=$(subst .f,.o,$(wildcard refblas64/*.f))
 \end{lstlisting}
+The package omits standard underscoring on Fortran BLAS functions
+to help differentiate them from those provided by R's BLAS library.
+
+\subsubsection{Note!}
+Some high-performance linear algebra libraries supply {\it both}
+underscored and non-underscored Fortran function names for the
+BLAS functions. In such cases, a different name decoration scheme
+must be used to avoid conflict with R BLAS function symbol names.
 
 \subsection{Installation with alternate linear algebra libraries}
 
-Consult the bigmemory r-forge project page wiki for examples and tips.
+Under construction...
 
-\section{Examples}
-The following trivial example sums two vectors with $2^{31}$ entries,
-larger than can be indexed by standard R operations. Note that the
-output vector $y$ will consume approximately 16\,GB of disk space.
+
+\section{Using the package}
+The {\tt bigalgebra} package is simple to use. Load the package
+with:
 \lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
 \begin{lstlisting}
-> library('bigalgebra')
-> x <- big.matrix(nrow=2^31, ncol=1, type='double', backingfile='x')
-> y <- big.matrix(nrow=2^31, ncol=1, type='double', backingfile='y')
+library("bigalgebra")
+\end{lstlisting}
+
+\subsection{List of available functions}
+We've been recently updating the package and have temporarily
+removed most functions. The package presently only supports
+matrix multiplication. Other arithmetic and matrix decomposition
+methods will be added back in by end of December, 2012.
+
+
+\subsection{Returned values}
+
+The package returns a new {\tt big.matrix} object, or set of {\tt big.matrix}
+objects for operations involving only {\tt big.matrix} objects.
+Operations that involve a mixture of standard R matrices or vectors and
+a {\tt big.matrix} may return either an R matrix or a {\tt big.matrix}
+depending on the setting of the package option
+\verb+bigalgebra.mixed_arithmetic_returns_R_matrix+. The default value
+of this option is \verb+TRUE+, which means that operations on mixed
+matrices will allocate and return an R matrix or vector. Set the option
+to \verb+FALSE+ to return results of operations on mixed matrices as
+new \verb+big.matrix+ objects.
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+# To obtain results as R matrices, set (the default):
+options(bigalgebra.mixed_arithmetic_returns_R_matrix=TRUE) 
+# Here is a tiny example:
+> set.seed(1)
+> A <- matrix(rnorm(6), nrow=3)
+> a <- as.big.matrix(A)
+> a %*% t(A)      # Returns an R matrix
+           [,1]       [,2]       [,3]
+[1,]  2.9373652  0.4106134 -0.7853947
+[2,]  0.4106134  0.1423002 -0.4238083
+[3,] -0.7853947 -0.4238083  1.3714435
+
+# To obtain resuls as big.matrices, set:
+> options(bigalgebra.mixed_airthmetic_returns_R_matrix=FALSE)
+> a %*% t(A)      # Now returns a new big.matrix (your pointer address will vary)
+An object of class "big.matrix"
+Slot "address":
+<pointer: 0x1d101b0>
+
+
+\end{lstlisting}
+
+\subsection{A practical example}
+We illustrate using the {\tt bigalgebra} package together with the
+{\tt irlba} package to compute a few singular values and associated
+singular vectors of a large, dense matrix.
+
+The {\tt irlba} package\footnote{
+\htmladdnormallink{http://cran.r-project.org/web/packages/irlba/index.html}}
+(implicitly restarted Lanczos bidiagonalization algoritm) is an R
+implementation of a state of the art method for efficiently computing a few
+singular values and singular vectors of a matrix.
+
+The {\tt irlba} function allows users to supply a function for
+computing the product of a matrix or its transpose with a vector.
+We take advantage of this function to avoid explicitly forming the
+transponse of the (potentially large) {\tt big.matrix}.
+
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+> library("bigalgebra")
+> library("irlba")
+
+> # Define an efficent matrix/transpose product:
+> matmul <- function(A, x, transpose=FALSE)
++ {
++   if(transpose)
++     return(t( t(x) %*% A))    # i.e., t(A) %*% x
++   return (A %*% x)
++ }
+
+
+# Compute a small example and compare with other methods:
+> set.seed(1)
+> A  <- matrix(rnorm(100),10)
+> a  <- as.big.matrix(A)
+
+# Compute with irlba using a big.matrix:
+> La <- irlba(a, nu=2, nv=2, matmul=matmul)
+
+# Compute with irlba using a standard matrix:
+> LA <-irlba(A, nu=2, nv=2, matmul=matmul)
+
+# Compute with svd using a standard matrix:
+> S  <- svd(A, nu=2, nv=2)
+
+> rbind(La$d,LA$d,S$d[1:2])
+         [,1]     [,2]
+[1,] 5.154081 4.816501
+[2,] 5.154081 4.816501
+[3,] 5.154081 4.816501
+\end{lstlisting}
+Note that the singular vectors are unique up to sign (that is, they
+may have different signs between the answers). Also note that we
+could use the same matmul function with both {\tt big.matrix} and
+standard matrix arguments.
+
+This simple example can be used to efficiently compute a few singular
+values and vectors of very large {\tt big.matrix} objects.
+
+
+\subsection{Large-index support}
+
+The following simple example applies if the package was installed with optional
+large index support as outlined in Section 2.  The example sums two vectors
+with $2^{31}$ entries, larger than can be indexed by standard R operations.
+Note that the output vector $y$ will consume approximately 16\,GB of disk
+space.
+
+\lstset{columns=flexible, basicstyle={\ttfamily\slshape}}
+\begin{lstlisting}
+> library("bigalgebra")
+> x <- big.matrix(nrow=2^31, ncol=1, type="double", backingfile="x")
+> y <- big.matrix(nrow=2^31, ncol=1, type="double", backingfile="y")
 > x[5,1] <- 5
 > y[5,1] <- 5
 > daxpy(Y=y, X=x)

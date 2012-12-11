@@ -1,11 +1,7 @@
 importFrom("bigmemory", "typeof")
-exportMethods("+")
-export("dgemm", 
-  "dcopy", 
-  "dscal", 
-  "daxpy", 
-  "dgesdd", 
-  "dgeqrf", 
-  "dpotrf", 
-  "dgeev")
+#S4 methods
+exportMethods("%*%")
+#Functions
+export("dgemm")
 useDynLib(bigalgebra)
+
