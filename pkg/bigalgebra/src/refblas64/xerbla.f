@@ -30,7 +30,7 @@
 *          of the calling routine.
 *
 *
-*      WRITE (*,FMT=9999) SRNAME,INFO
+      WRITE (*,FMT=9999) SRNAME,INFO
 *
       STOP
 *

@@ -1,4 +1,4 @@
-      LOGICAL          FUNCTION LSAME( CA, CB )
+      LOGICAL          FUNCTION INT8_LSAME( CA, CB )
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
@@ -34,8 +34,8 @@
 *
 *     Test if the characters are equal
 *
-      LSAME = CA.EQ.CB
-      IF( LSAME )
+      INT8_LSAME = CA.EQ.CB
+      IF( INT8_LSAME )
      $   RETURN
 *
 *     Now test for equivalence if both characters are alphabetic.
@@ -78,7 +78,7 @@
          IF( INTA.GE.225 .AND. INTA.LE.250 ) INTA = INTA - 32
          IF( INTB.GE.225 .AND. INTB.LE.250 ) INTB = INTB - 32
       END IF
-      LSAME = INTA.EQ.INTB
+      INT8_LSAME = INTA.EQ.INTB
 *
 *     RETURN
 *

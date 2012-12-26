@@ -1,4 +1,4 @@
-      subroutine daxpy(n,da,dx,incx,dy,incy)
+      subroutine int8_daxpy(n,da,dx,incx,dy,incy)
 c
 c     constant times a vector plus a vector.
 c     uses unrolled loops for increments equal to one.

@@ -1,5 +1,5 @@
-      SUBROUTINE DGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
-     $                   BETA, C, LDC )
+      SUBROUTINE INT8_DGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B,
+     $                   LDB, BETA, C, LDC )
 *     .. Scalar Arguments ..
       CHARACTER*1        TRANSA, TRANSB
       INTEGER            M, N, K, LDA, LDB, LDC
@@ -129,8 +129,8 @@
 *
 *
 *     .. External Functions ..
-      LOGICAL            LSAME
-      EXTERNAL           LSAME
+      LOGICAL            INT8_LSAME
+      EXTERNAL           INT8_LSAME
 *     .. External Subroutines ..
       EXTERNAL           XERBLA
 *     .. Intrinsic Functions ..
@@ -149,8 +149,8 @@
 *     transposed and set  NROWA, NCOLA and  NROWB  as the number of rows
 *     and  columns of  A  and the  number of  rows  of  B  respectively.
 *
-      NOTA  = LSAME( TRANSA, 'N' )
-      NOTB  = LSAME( TRANSB, 'N' )
+      NOTA  = INT8_LSAME( TRANSA, 'N' )
+      NOTB  = INT8_LSAME( TRANSB, 'N' )
       IF( NOTA )THEN
          NROWA = M
          NCOLA = K
@@ -168,12 +168,12 @@
 *
       INFO = 0
       IF(      ( .NOT.NOTA                 ).AND.
-     $         ( .NOT.LSAME( TRANSA, 'C' ) ).AND.
-     $         ( .NOT.LSAME( TRANSA, 'T' ) )      )THEN
+     $         ( .NOT.INT8_LSAME( TRANSA, 'C' ) ).AND.
+     $         ( .NOT.INT8_LSAME( TRANSA, 'T' ) )      )THEN
          INFO = 1
       ELSE IF( ( .NOT.NOTB                 ).AND.
-     $         ( .NOT.LSAME( TRANSB, 'C' ) ).AND.
-     $         ( .NOT.LSAME( TRANSB, 'T' ) )      )THEN
+     $         ( .NOT.INT8_LSAME( TRANSB, 'C' ) ).AND.
+     $         ( .NOT.INT8_LSAME( TRANSB, 'T' ) )      )THEN
          INFO = 2
       ELSE IF( M  .LT.0               )THEN
          INFO = 3

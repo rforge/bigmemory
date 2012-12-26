@@ -15,13 +15,17 @@
 # Matrix Multiply
 # C := ALPHA * op(A) * op(B) + BETA * C
 # This is function provides dgemm functionality.
-dgemm = function(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
+dgemm = function(TRANSA='N', TRANSB='N', M=NULL, N=NULL, K=NULL,
   ALPHA=1, A, LDA=NULL, B, LDB=NULL, BETA=0, C, LDC=NULL, COFF=0) 
 {
-  A.is.bm = check_matrix(A)
-  B.is.bm = check_matrix(B)
-  # The matrices look OK.  Now, if they haven't been specified, let's
-  # specify some reasonable dimension information.
+  A.is.bm = check_matrix(A,classes=c('big.matrix','matrix','vector','numeric'))
+  B.is.bm = check_matrix(B,classes=c('big.matrix','matrix','vector','numeric'))
+# The matrices look OK.  Now, if they haven't been specified, let's
+# specify some reasonable dimension information. First, handle vectors:
+  dA = dim(A)
+  dB = dim(B)
+  if(!A.is.bm && is.null(dA) && !is.null(dB)) dim(A) = c(1,dB[1])
+  if(!B.is.bm && is.null(dB) && !is.null(dA)) dim(B) = c(dA[2],1)
   if ( is.null(M) )
   {
     M = ifelse ( is_transposed(TRANSA), ncol(A), nrow(A) )
@@ -38,12 +42,52 @@ dgemm = function(TRANSA='n', TRANSB='n', M=NULL, N=NULL, K=NULL,
   if ( is.null(LDB) ) LDB = ifelse (is_transposed(TRANSB), N, K) 
   if ( is.null(LDC) ) LDC = M
 
-  if(missing(C)) C = anon_matrix(M, N)
+  if(missing(C))
+  {
+    C = anon_matrix(M, N)
+  }
   C.is.bm = "big.matrix" %in% class(C)
 
   .Call('dgemm_wrapper', as.character(TRANSA), as.character(TRANSB),
     as.double(M), as.double(N), as.double(K), as.double(ALPHA), A, 
     as.double(LDA), B, as.double(LDB),
     as.double(BETA), C, as.double(LDC), as.logical(A.is.bm), 
-    as.logical(B.is.bm), as.logical(C.is.bm), COFF)
+    as.logical(B.is.bm), as.logical(C.is.bm), COFF, PACKAGE="bigalgebra")
+}
+
+# Vector addition and scaling
+# Y := A * X  + Y
+# A is a scalar double
+# X is either a big.matrix or regular R matrix.
+# Y is an optional matrix or vector of the same length as X.
+# Returns a new matrix or big matrx with the same dimensions as X. If
+# X is a dimension-less R vector, returns a column. Returned value type
+# depends on the arguments and the value of the option
+# options("bigalgebra.mixed_airthmetic_returns_R_matrix")[[1]].
+daxpy = function(A=1, X, Y)
+{
+  mixed = FALSE
+  X.is.bm = check_matrix(X,classes=c('big.matrix','matrix','vector','numeric'))
+# default to a column big matrix output
+  M = length(X)
+  L = M
+  N = 1L
+  D = dim(X)
+  if(!is.null(D) && length(D)==2)
+  {
+    M = D[1]
+    N = D[2]
+  }
+  Z = anon_matrix(M,N,val=0.0)
+  if(!missing(Y))
+  {
+# Check conformity of Y and duplicate
+    if(length(Y)!=length(X)) stop("Lengths of X and Y must match")
+    mixed = (X.is.bm != check_matrix(Y,classes=c('big.matrix','matrix','vector','numeric')))
+    Z[] = Y[]
+  }
+  ans = .Call("daxpy_wrapper", as.double(L), as.double(A), X, Z, X.is.bm,
+              PACKAGE="bigalgebra")
+  if(mixed) return(ans[])
+  ans
 }

@@ -5,7 +5,6 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 
-
 #ifdef REFBLAS
 #include "refblas64longlong.h"
 #define INT long long
@@ -25,6 +24,7 @@ extern "C"
                       SEXP ALPHA, SEXP A, SEXP LDA, SEXP B, SEXP LDB,
                       SEXP BETA, SEXP C, SEXP LDC, SEXP A_isBM, SEXP B_isBM,
                       SEXP C_isBM, SEXP C_offset);
+  SEXP daxpy_wrapper (SEXP N, SEXP A, SEXP X, SEXP Y, SEXP X_isBM);
 
 #ifdef __cplusplus
 }
@@ -108,7 +108,7 @@ dgemm_wrapper (SEXP TRANSA, SEXP TRANSB, SEXP M, SEXP N, SEXP K,
          LDBB, *(NUMERIC_DATA (BETA)), pC, LDCC);
 #elif REFBLAS
 /* Standard Fortran interface without underscoring */
-  dgemm ((char *) CHARACTER_VALUE (TRANSA),
+  int8_dgemm ((char *) CHARACTER_VALUE (TRANSA),
          (char *) CHARACTER_VALUE (TRANSB),
          &MM, &NN, &KK, NUMERIC_DATA (ALPHA), pA, &LDAA, pB,
          &LDBB, NUMERIC_DATA (BETA), pC, &LDCC);
@@ -120,5 +120,40 @@ dgemm_wrapper (SEXP TRANSA, SEXP TRANSB, SEXP M, SEXP N, SEXP K,
          &LDBB, NUMERIC_DATA (BETA), pC, &LDCC);
 #endif
   unprotect(1);
+  return ans;
+}
+
+
+
+/* Compute A*X + Y for scalar a, vectors X and Y of length N.
+ * Y must be a big.matrix, X can be an R vector or big.matrix.
+ * The contents of Y are *replaced* by this routine and a reference
+ * to Y is returned.
+ */
+SEXP
+daxpy_wrapper (SEXP N, SEXP A, SEXP X, SEXP Y, SEXP X_isBM)
+{
+  SEXP ans, Tr;
+  double *pY;
+  double *pA = DOUBLE_DATA(A);
+  double *pX = make_double_ptr (X, X_isBM);
+  INT incx = 1;
+  INT incy = 1;
+  INT NN = (INT) * (DOUBLE_DATA (N));
+  PROTECT(ans = Y);
+  PROTECT(Tr = allocVector(LGLSXP, 1));
+  LOGICAL(Tr)[0] = 1;
+  pY = make_double_ptr (Y, Tr);
+/* An example of an alternate C-blas interface (e.g., ACML) */
+#ifdef CBLAS
+  daxpy_ (NN, pA, pX, incx, pY, incy);
+#elif REFBLAS
+/* Standard Fortran interface without underscoring */
+  int8_daxpy (&NN, pA, pX, &incx, pY, &incy);
+#else
+/* Standard Fortran interface from R's blas */
+  daxpy_ (&NN, pA, pX, &incx, pY, &incy);
+#endif
+  unprotect(2);
   return ans;
 }
