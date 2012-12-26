@@ -18,14 +18,10 @@
 dgemm = function(TRANSA='N', TRANSB='N', M=NULL, N=NULL, K=NULL,
   ALPHA=1, A, LDA=NULL, B, LDB=NULL, BETA=0, C, LDC=NULL, COFF=0) 
 {
-  A.is.bm = check_matrix(A,classes=c('big.matrix','matrix','vector','numeric'))
-  B.is.bm = check_matrix(B,classes=c('big.matrix','matrix','vector','numeric'))
+  A.is.bm = check_matrix(A)
+  B.is.bm = check_matrix(B)
 # The matrices look OK.  Now, if they haven't been specified, let's
-# specify some reasonable dimension information. First, handle vectors:
-  dA = dim(A)
-  dB = dim(B)
-  if(!A.is.bm && is.null(dA) && !is.null(dB)) dim(A) = c(1,dB[1])
-  if(!B.is.bm && is.null(dB) && !is.null(dA)) dim(B) = c(dA[2],1)
+# specify some reasonable dimension information.
   if ( is.null(M) )
   {
     M = ifelse ( is_transposed(TRANSA), ncol(A), nrow(A) )
@@ -42,10 +38,8 @@ dgemm = function(TRANSA='N', TRANSB='N', M=NULL, N=NULL, K=NULL,
   if ( is.null(LDB) ) LDB = ifelse (is_transposed(TRANSB), N, K) 
   if ( is.null(LDC) ) LDC = M
 
-  if(missing(C))
-  {
-    C = anon_matrix(M, N)
-  }
+# Default to big matrix output
+  if(missing(C)) C = anon_matrix(M, N)
   C.is.bm = "big.matrix" %in% class(C)
 
   .Call('dgemm_wrapper', as.character(TRANSA), as.character(TRANSB),
