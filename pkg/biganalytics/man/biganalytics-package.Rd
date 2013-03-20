@@ -20,9 +20,9 @@ providing gains in speed and memory-efficiency.
 Package: \tab biganalytics\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2012-09-13\cr
+Date: \tab 2012-09-20\cr
 License: \tab LGPL-3\cr
-Copyright: \tab (C) 2012 John W. Emerson and Michael J. Kane\cr
+Copyright: \tab (C) 2013 John W. Emerson and Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }

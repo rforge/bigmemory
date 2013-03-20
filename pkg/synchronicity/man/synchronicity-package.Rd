@@ -15,10 +15,10 @@ support interprocess communication (ipc) and message passing.
 Package: \tab synchronicity\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2012-03-13\cr
+Date: \tab 2012-03-20\cr
 License: \tab LGPL-3\cr
 OS_type: \tab unix\cr
-Copyright: \tab (C) 2012 Michael J. Kane\cr
+Copyright: \tab (C) 2013 Michael J. Kane\cr
 URL: \tab http://www.bigmemory.org\cr
 LazyLoad: \tab yes\cr
 }

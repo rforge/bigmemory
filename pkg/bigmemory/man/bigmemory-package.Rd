@@ -22,7 +22,7 @@ work both with \code{big.matrix} and native \R \code{matrix} objects.
 Package: \tab bigmemory\cr
 Type: \tab Package\cr
 Version: \tab 4.4.2\cr
-Date: \tab 2013-03-14\cr
+Date: \tab 2013-03-20\cr
 License: \tab LGPL-3\cr
 Copyright: \tab (C) 2013 Michael J. Kane and John W. Emerson\cr
 URL: \tab http://www.bigmemory.org\cr

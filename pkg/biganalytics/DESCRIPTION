@@ -1,6 +1,6 @@
 Package: biganalytics
 Version: 1.1.1
-Date: 2012-09-13
+Date: 2012-09-20
 Title: A library of utilities for big.matrix objects of package bigmemory.
 Author: John W. Emerson <jayemerson@gmail.com> and Michael J. Kane <kaneplusplus@gmail.com>
 Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
@@ -15,6 +15,6 @@ Description: This package extends the bigmemory package with various analytics.
   for advanced shared-memory usage, see synchronicity.
 License: LGPL-3
 OS_type: unix
-Copyright: (C) 2012 John W. Emerson and Michael J. Kane
+Copyright: (C) 2013 John W. Emerson and Michael J. Kane
 URL: http://www.bigmemory.org
 LazyLoad: yes

@@ -1,6 +1,6 @@
 Package: bigtabulate
 Version: 1.1.1
-Date: 2012-09-13
+Date: 2012-09-20
 Title: table-, tapply-, and split-like functionality for matrix and big.matrix objects.
 Author: Michael J. Kane <kaneplusplus@gmail.com> and John W. Emerson <jayemerson@gmail.com>
 Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
@@ -13,6 +13,6 @@ Description: This package extends the bigmemory package with table- and
   used with regular R matrices for improving speed and memory-efficiency.
 License: LGPL-3
 OS_type: unix
-Copyright: (C) 2012 Michael J. Kane and John W. Emerson
+Copyright: (C) 2013 Michael J. Kane and John W. Emerson
 URL: http://www.bigmemory.org
 LazyLoad: yes
