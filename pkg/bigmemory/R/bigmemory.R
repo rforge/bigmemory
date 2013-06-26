@@ -259,20 +259,8 @@ GetElements.bm <- function(x, i, j, drop=TRUE)
   if (tempj[[1]]) j <- tempj[[2]]
 
   retList <- .Call("GetMatrixElements", x@address, as.double(j), as.double(i))
-
-  dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
-  if (drop) {
-    if (any(dim(retList[[1]])==1)) {
-      if (dim(retList[[1]])[1]!=1 || dim(retList[[1]])[2]!=1) {
-        if (dim(retList[[1]])[1]==1) {
-          thesenames <- retList[[3]]
-        } else thesenames <- retList[[2]]
-      } else thesenames <- NULL
-      retList[[1]] = as.vector(retList[[1]])
-      names(retList[[1]]) <- thesenames
-    }
-  }
-  return(retList[[1]])
+  mat = .addDimnames(retList, length(i), length(j), drop)
+  return(mat)
 }
 
 # Function contributed by Peter Haverty at Genentech.
@@ -315,26 +303,14 @@ GetCols.bm <- function(x, j, drop=TRUE)
                  "columns of the matrix."))
     j <- which(j)
   }
-
+  
   tempj <- .Call("CCleanIndices", as.double(j), as.double(ncol(x)))
   if (is.null(tempj[[1]])) stop("Illegal column index usage in extraction.\n")
   if (tempj[[1]]) j <- tempj[[2]]
-
+  
   retList <- .Call("GetMatrixCols", x@address, as.double(j))
-
-  dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
-  if (drop) {
-    if (any(dim(retList[[1]])==1)) {
-      if (dim(retList[[1]])[1]!=1 || dim(retList[[1]])[2]!=1) {
-        if (dim(retList[[1]])[1]==1) {
-          thesenames <- retList[[3]]
-        } else thesenames <- retList[[2]]
-      } else thesenames <- NULL
-      retList[[1]] = as.vector(retList[[1]])
-      names(retList[[1]]) <- thesenames
-    }
-  }
-  return(retList[[1]])
+  mat = .addDimnames(retList, nrow(x), length(j), drop)
+  return(mat)
 }
 
 GetRows.bm <- function(x, i, drop=TRUE)
@@ -354,39 +330,15 @@ GetRows.bm <- function(x, i, drop=TRUE)
   if (tempi[[1]]) i <- tempi[[2]]
 
   retList <- .Call("GetMatrixRows", x@address, as.double(i))
-
-  dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
-  if (drop) {
-    if (any(dim(retList[[1]])==1)) {
-      if (dim(retList[[1]])[1]!=1 || dim(retList[[1]])[2]!=1) {
-        if (dim(retList[[1]])[1]==1) {
-          thesenames <- retList[[3]]
-        } else thesenames <- retList[[2]]
-      } else thesenames <- NULL
-      retList[[1]] = as.vector(retList[[1]])
-      names(retList[[1]]) <- thesenames
-    }
-  }
-  return(retList[[1]])
+  mat = .addDimnames(retList, length(i), ncol(x), drop)
+  return(mat)
 }
 
 GetAll.bm <- function(x, drop=TRUE)
 {
   retList <- .Call("GetMatrixAll", x@address)
-
-  dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
-  if (drop) {
-    if (any(dim(retList[[1]])==1)) {
-      if (dim(retList[[1]])[1]!=1 || dim(retList[[1]])[2]!=1) {
-        if (dim(retList[[1]])[1]==1) {
-          thesenames <- retList[[3]]
-        } else thesenames <- retList[[2]]
-      } else thesenames <- NULL
-      retList[[1]] = as.vector(retList[[1]])
-      names(retList[[1]]) <- thesenames
-    }
-  }
-  return(retList[[1]])
+  mat = .addDimnames(retList, nrow(x), ncol(x), drop)
+  return(mat)
 }
 
 setMethod("[",
@@ -1617,4 +1569,26 @@ getCType <- function(x) {
     stop("getCType takes a big.matrix as an argument.")
 
   return(.Call("CGetType", x@address, PACKAGE="bigmemory"))
+}
+
+.addDimnames <- function(retList, nrow, ncol, drop) {
+  if (drop && !is.matrix(retList[[1]]) ) {
+    if (length(retList[[1]]) > 1) {
+      if (ncol == 1) {
+        thesenames <- retList[[2]]
+      } else if (nrow == 1)
+        thesenames <- retList[[3]]
+    } else {
+      thesenames <- NULL
+    }
+    if (!is.null(thesenames)) {
+      names(retList[[1]]) <- thesenames
+    }
+  } else {
+    if (!is.matrix(retList[[1]])) { retList[[1]] = matrix(retList[[1]], nrow=nrow, ncol=ncol) }
+    if (!is.null(retList[[2]]) || !is.null(retList[[3]])) {
+      dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
+    }
+  }
+  return(retList[[1]])
 }
