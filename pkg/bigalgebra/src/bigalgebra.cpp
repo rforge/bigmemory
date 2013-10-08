@@ -9,7 +9,7 @@
 #include "refblas64longlong.h"
 #define INT long long
 #else
-#include <BLAS.h>
+#include <R_ext/BLAS.h>
 #define INT int
 #endif
 
