@@ -1,4 +1,4 @@
-import(methods, bigmemory.sri)
+import(methods, bigmemory.sri, BH)
 importFrom(utils, head, tail)
 
 exportClasses(big.matrix, big.matrix.descriptor)
