@@ -14,8 +14,8 @@ support interprocess communication (ipc) and message passing.
 \tabular{ll}{
 Package: \tab synchronicity\cr
 Type: \tab Package\cr
-Version: \tab 1.1.1\cr
-Date: \tab 2012-03-20\cr
+Version: \tab 1.1.2\cr
+Date: \tab 2012-11-04\cr
 License: \tab LGPL-3\cr
 OS_type: \tab unix\cr
 Copyright: \tab (C) 2013 Michael J. Kane\cr
