@@ -1,9 +1,9 @@
 Package: bigalgebra
-Version: 0.8.2
-Date: 2013-10-08
+Version: 0.8.3
+Date: 2013-11-04
 Title: BLAS routines for native R matrices and big.matrix objects.
 Author: Michael J. Kane, Bryan Lewis, and John W. Emerson
-Maintainer: Mike <bigmemoryauthors@gmail.com>
+Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 Imports: methods
 Depends: bigmemory (>= 4.0.0)
 LinkingTo: bigmemory
