@@ -779,6 +779,7 @@ bool FileBackedBigMatrix::create(const std::string &fileName,
   try
   {
     _fileName = fileName;
+    _filePath = filePath;
     _nrow = numRow;
     _totalRows = _nrow;
     _ncol = numCol;
@@ -848,6 +849,7 @@ bool FileBackedBigMatrix::connect( const std::string &fileName,
   try
   {
     _fileName = fileName;
+    _filePath = filePath;
     _nrow = numRow;
     _totalRows = _nrow;
     _ncol = numCol;
