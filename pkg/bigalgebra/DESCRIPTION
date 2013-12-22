@@ -8,7 +8,7 @@ Imports: methods
 Depends: bigmemory (>= 4.0.0)
 LinkingTo: bigmemory
 Description: This package provides arithmetic functions for R matrix and big.matrix objects.
-License: LGPL-3
+License: LGPL-3 | APv2
 Copyright: (C) 2010 Michael J. Kane, Bryan Lewis, and John W. Emerson
 URL: http://www.bigmemory.org
 LazyLoad: yes
