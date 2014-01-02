@@ -47,6 +47,7 @@ test_readonly <- function() {
 #  checkTrue(is.readonly(fbm), "fbm should be readonly if changed by FS")
   checkTrue(is.readonly(attach.big.matrix(fbm.desc.path,readonly=FALSE)), "FBM should be readonly if readonly on FS, even if requested read/write")
   Sys.chmod(fbm.data.path,"0644")
+  checkTrue(is.readonly(attach.big.matrix(fbm.desc.path,readonly=TRUE)), "FBM should not be readonly if you ask for that.")
 
   # Filebacked bm, reading and writing
   checkEquals(fbm2[2,2],mat[2,2],"Read big.matrix attached as read-only is OK")
@@ -56,6 +57,6 @@ test_readonly <- function() {
   checkException({fbm2[,] = 100},"Writing to full matrix a big.matrix made read-only by FS before attached gives error")
   checkException({fbm2[ matrix(c(1,2,2,2),ncol=2),] = 100},"Writing subset by matrix to a big.matrix made read-only by FS before attached gives error")
   checkEquals( fbm2[,], mat[,],"Writing to a big.matrix made read-only by FS before attached does nothing")
-
+  checkException( {fbm3 = attach.big.matrix(fbm.desc.path, readonly=TRUE); fbm3[1, 1] = 100}, "Should give error if you ask for a readonly matrix and try to write to it.")
   return(TRUE)
 }

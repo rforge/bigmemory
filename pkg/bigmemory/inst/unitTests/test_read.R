@@ -49,4 +49,5 @@ test_read <- function() {
     checkIdentical(mat[, ], bm[, ], "full matrix with names")
     checkIdentical(matnull[, ], bmnull[, ], "full matrix without names")
   }
+  return(TRUE)
 }

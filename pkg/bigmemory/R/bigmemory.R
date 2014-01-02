@@ -1347,7 +1347,7 @@ setMethod('attach.resource', signature(obj='character'),
     if (fi$isdir)
       stop( fileWithPath, "is a directory" )
     info <- tryCatch(readRDS(file=fileWithPath), error=function(er){return(dget(fileWithPath))})
-    return(attach.resource(info, path=path))
+    return(attach.resource(info, path=path, ...))
   })
 
 setMethod('attach.resource', signature(obj='big.matrix.descriptor'),
@@ -1599,7 +1599,7 @@ getCType <- function(x) {
       names(retList[[1]]) <- thesenames
     }
   } else {
-    if (!is.matrix(retList[[1]])) { retList[[1]] = matrix(retList[[1]], nrow=nrow, ncol=ncol) }
+    if (!is.matrix(retList[[1]])) { dim(retList[[1]]) = c(nrow, ncol) }
     if (!is.null(retList[[2]]) || !is.null(retList[[3]])) {
       dimnames(retList[[1]]) <- list( retList[[2]], retList[[3]] )
     }
