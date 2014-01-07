@@ -5,7 +5,7 @@ Title: Manage massive matrices with shared memory and memory-mapped files
 Author: Michael J. Kane <kaneplusplus@gmail.com>, John W. Emerson <jayemerson@gmail.com>, and Peter Haverty <haverty.peter@gene.com>
 Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 Contact: Mike and Jay <bigmemoryauthors@gmail.com>
-Depends: methods, utils, bigmemory.sri, BH
+Depends: methods, utils, bigmemory.sri
 Enhances: biganalytics, bigtabulate, synchronicity
 LinkingTo: BH
 Suggests: RUnit
