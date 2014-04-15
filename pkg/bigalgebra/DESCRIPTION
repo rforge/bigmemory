@@ -6,7 +6,7 @@ Author: Michael J. Kane, Bryan Lewis, and John W. Emerson
 Maintainer: Michael J. Kane <bigmemoryauthors@gmail.com>
 Imports: methods
 Depends: bigmemory (>= 4.0.0)
-LinkingTo: bigmemory
+LinkingTo: bigmemory, BH
 Description: This package provides arithmetic functions for R matrix and big.matrix objects.
 License: LGPL-3 | Apache License 2.0
 Copyright: (C) 2014 Michael J. Kane, Bryan Lewis, and John W. Emerson
