@@ -49,7 +49,7 @@ BLAS implementation may be performed from the command-line install:
 \code{REFBLAS=1 R CMD INSTALL bigalgebra}
 
 where "\code{bigalgebra}" is the source package (for example,
-\code{bigalgebra_0.8.1.tar.gz}).
+\code{bigalgebra_0.8.4.tar.gz}).
 
 The package may also be build with user-supplied external BLAS and LAPACK
 libraries, in either 32- or 64-bit varieties. This is an advanced topic
