@@ -1014,14 +1014,14 @@ void DestroyFileBackedSepMatrix( const std::string &sharedName,
   index_type i;
   for (i=0; i < ncol; ++i)
   {
-    try
-    {
-      shared_memory_object::remove((sharedName + "_column_" + ttos(i)).c_str());
-    }
-    catch(std::exception &e)
-    {
-      COND_EXCEPTION_PRINT(DEBUG);
-    }
+//    try
+//    {
+//      shared_memory_object::remove((sharedName + "_column_" + ttos(i)).c_str());
+//    }
+//    catch(std::exception &e)
+//    {
+//      COND_EXCEPTION_PRINT(DEBUG);
+//    }
   }
 }
 
@@ -1053,14 +1053,14 @@ bool FileBackedBigMatrix::destroy()
     } 
     else // not _sepCols
     { 
-      try
-      {            
-        shared_memory_object::remove(_fileName.c_str());
-      }
-      catch(std::exception &e)
-      {
-        COND_EXCEPTION_PRINT(DEBUG);
-      }
+//      try
+//      {            
+//        shared_memory_object::remove(_fileName.c_str());
+//      }
+//      catch(std::exception &e)
+//      {
+//        COND_EXCEPTION_PRINT(DEBUG);
+//      }
     }
         // In all cases, do the following:
     _colNames.clear();
