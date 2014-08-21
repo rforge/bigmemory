@@ -1204,8 +1204,6 @@ filebacked.big.matrix <- function(nrow, ncol,
 {
   if (nrow < 1 | ncol < 1)
     stop('A big.matrix must have at least one row and one column')
-  if (nrow < 1 | ncol < 1)
-    stop('A big.matrix must have at least one row and one column')
 
   typeVal=NULL
   if (type == 'integer') typeVal <- 4

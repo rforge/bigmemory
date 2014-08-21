@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include <fcntl.h> // to remove files
+//#include <fcntl.h> // to remove files
 #include <unistd.h> // to truncate files
 #include <errno.h>
 #include <stdint.h>

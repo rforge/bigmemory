@@ -671,7 +671,22 @@ SEXP ReadMatrix(SEXP fileName, BigMatrix *pMat,
           d = strtod(element.c_str(), &pEnd);
           if (pEnd != element.c_str())
           {
-            mat[j-offset][i] = static_cast<T>(d);
+            if (isna(d))
+            {
+              mat[j-offset][i] = static_cast<T>(C_NA);
+            }
+            else if (std::isinf(d) && d > 0)
+            {
+              mat[j-offset][i] = static_cast<T>(posInf);
+            }
+            else if (std::isinf(d) && d < 0) 
+            {
+              mat[j-offset][i] = static_cast<T>(negInf);
+            }
+            else
+            {
+              mat[j-offset][i] = static_cast<T>(d);
+            }
           }
           else
           {
