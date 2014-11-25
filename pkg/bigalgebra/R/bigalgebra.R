@@ -22,8 +22,6 @@ check_matrix = function(A, classes=c('big.matrix', 'matrix'),
   return( ifelse( class(A) == 'big.matrix', TRUE, FALSE ) )
 }
 
-# Do I need a function to add a scalar to each element of a matrix?
-
 # Copy a matrix
 # Y := X
 dcopy = function(N=NULL, X, INCX=1, Y, INCY=1)
@@ -39,17 +37,22 @@ dcopy = function(N=NULL, X, INCX=1, Y, INCY=1)
   return(0)
 }
 
-# Multiply by a scalar
-# Y := ALPHA * Y
-dscal = function(N=NULL, ALPHA, Y, INCY=1)
+# Add a scalar to each element of a matrix
+# Y := Y+SIGN*ALPHA 
+dadd = function(Y, ALPHA, SIGN=1, ALPHA_LHS=1)
 {
+  if (!is.numeric(ALPHA) || length(ALPHA) != 1)
+    stop("ALPHA is not a scalar numeric value")
   Y.is.bm = check_matrix(Y)
-  if (is.null(N))
-  {
-    N = as.double(nrow(Y))*as.double(ncol(Y))
-  } 
-  .Call('dscal_wrapper', N, as.double(ALPHA), Y, as.double(INCY), Y.is.bm)
-  return(0)
+  if (Y.is.bm) {
+    ret = deepcopy(Y, backingfile="")
+  } else {
+    ret = Y
+  }
+  N = as.double(nrow(Y)) * as.double(ncol(Y))
+  .Call('dadd', N, as.double(ALPHA), ret, Y.is.bm, as.double(SIGN), 
+        as.integer(ALPHA_LHS))
+  return(ret)
 }
 
 # Add two matrices.

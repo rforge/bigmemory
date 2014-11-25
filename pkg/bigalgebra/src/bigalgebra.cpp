@@ -25,6 +25,7 @@ extern "C"
                       SEXP BETA, SEXP C, SEXP LDC, SEXP A_isBM, SEXP B_isBM,
                       SEXP C_isBM, SEXP C_offset);
   SEXP daxpy_wrapper (SEXP N, SEXP A, SEXP X, SEXP Y, SEXP X_isBM);
+  SEXP dadd(SEXP N, SEXP ALPHA, SEXP Y, SEXP Y_isBM, SEXP SIGN, SEXP ALPHA_LHS);
 
 #ifdef __cplusplus
 }
@@ -155,5 +156,35 @@ daxpy_wrapper (SEXP N, SEXP A, SEXP X, SEXP Y, SEXP X_isBM)
   daxpy_ (&NN, pA, pX, &incx, pY, &incy);
 #endif
   unprotect(2);
+  return ans;
+}
+
+// Note that the following two functions should be updated to use
+// the proper BLAS functions.
+SEXP
+dadd(SEXP N, SEXP ALPHA, SEXP Y, SEXP Y_isBM, SEXP SIGN, SEXP ALPHA_LHS) {
+  SEXP ans;
+  double *pY;
+  INT NN = (INT) * (DOUBLE_DATA(N));
+  double alpha = *(DOUBLE_DATA(ALPHA));
+  int alpha_lhs = *(INTEGER_DATA(ALPHA_LHS));
+  double sign = *(DOUBLE_DATA(SIGN));
+  pY = make_double_ptr(Y, Y_isBM);
+  PROTECT(ans = Y);
+  if (alpha_lhs) 
+  {
+    for (INT i=0; i < NN; ++i)
+    {
+      pY[i] = alpha + sign * pY[i];
+    }
+  }
+  else
+  {
+    for (INT i=0; i < NN; ++i)
+    {
+      pY[i] += sign*alpha;
+    }
+  }
+  unprotect(1);
   return ans;
 }

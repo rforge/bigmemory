@@ -65,23 +65,31 @@ setMethod("Arith",c(e1="numeric", e2="big.matrix"),
   function(e1,e2) 
   {
     op = .Generic[[1]]
-    if(length(e1)==1 && op=="*") return(daxpy(e1,e2))
-    switch(op,
-      `+` = daxpy(1.0,e1,e2),
-      `-` = daxpy(-1.0,e2,e1),
-      stop("Undefined operation")
-    )
+    if(length(e1)==1) {
+      if (op=="*") 
+        return(daxpy(e1,e2))
+      return(switch(op,
+        `+` = dadd(e2, e1, 1.0, 1),
+        `-` = dadd(e2, e1,-1.0, 1),
+        stop("Undefined operation")
+      ))
+    }
+    stop("e1 is not a scalar")
   }
 )
 setMethod("Arith",c(e1="big.matrix", e2="numeric"),
   function(e1,e2) 
   {
     op = .Generic[[1]]
-    if(length(e2)==1 && op=="*") return(daxpy(e2,e1))
-    switch(op,
-      `+` = daxpy(1.0,e1,e2),
-      `-` = daxpy(-1.0,e2,e1),
-      stop("Undefined operation")
-    )
+    if(length(e2)==1) {
+      if( op=="*") 
+        return(daxpy(e2,e1))
+      return(switch(op,
+        `+` = dadd(e1,e2, 1.0, 0),
+        `-` = dadd(e1,e2, -1.0, 0),
+        stop("Undefined operation")
+      ))
+    }
+    stop("e2 is not a scalar")
   }
 )
